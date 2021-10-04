@@ -13,9 +13,19 @@ return [
             'navMenu' => View\Helper\NavMenu::class,
         ],
     ],
+    'form_elements' => [
+        'invokables' => [
+            Form\MenuForm::class => Form\MenuForm::class,
+        ],
+    ],
     'controllers' => [
         'invokables' => [
             Controller\SiteAdmin\MenuController::class => Controller\SiteAdmin\MenuController::class,
+        ],
+    ],
+    'controller_plugins' => [
+        'factories' => [
+            'navigationTranslator' => Service\ControllerPlugin\NavigationTranslatorFactory::class,
         ],
     ],
     'router' => [

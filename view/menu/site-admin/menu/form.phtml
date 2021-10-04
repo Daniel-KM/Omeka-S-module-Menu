@@ -1,0 +1,107 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Menu\Form\MenuForm $form
+ * @var string $name
+ * @var array $menu Menu for jstree
+ * @var array $linkedPages
+ * @var array $notLinkedPages
+ * @var string $submitLabel
+ * @var string $deleteButton
+ * @var string $sectionNavEvent
+ * @var string $action
+ *
+ * Adapted from application/src/view/omeka/site-admin/index/navigation.phtml.
+ */
+
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$escape = $plugins->get('escapeHtml');
+$escapeAttr = $plugins->get('escapeHtmlAttr');
+$url = $plugins->get('url');
+$assetUrl = $plugins->get('assetUrl');
+
+$rightsEdit = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::class, 'edit');
+$rightsDelete = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::class, 'delete');
+
+$form = $rightsEdit && $form ? $form->prepare() : null;
+
+$this->headLink()
+    ->prependStylesheet($assetUrl('css/advanced-search.css', 'Omeka'))
+    ->appendStylesheet($assetUrl('css/jstree.css', 'Omeka'))
+    ->appendStylesheet($assetUrl('css/query-form.css', 'Omeka'))
+    ->appendStylesheet($assetUrl('css/menu-admin.css', 'Menu'));
+$this->headScript()
+    ->appendFile($assetUrl('vendor/jstree/jstree.min.js', 'Omeka'))
+    // ->appendFile($assetUrl(''js/site-navigation.js', 'Omeka'))
+    ->appendFile($assetUrl('js/jstree-plugins.js', 'Omeka'))
+    ->appendFile($assetUrl('js/advanced-search.js', 'Omeka'))
+    ->appendFile($assetUrl('js/query-form.js', 'Omeka'))
+    ->appendFile($assetUrl('js/menu-admin.js', 'Menu'));
+?>
+
+<?php if ($form): ?>
+<?= $this->form()->openTag($form) ?>
+<?= $this->formRow($form->get('csrf')) ?>
+
+<div id="page-actions">
+    <?= $rightsDelete && isset($deleteButton) ? $deleteButton : '' ?>
+    <?= $this->cancelButton() ?>
+    <button type="submit"><?= $escape($submitLabel) ?></button>
+</div>
+<?php endif; ?>
+
+<div id="nav-tree"
+    data-link-form-url="<?= $form ? $escapeAttr($url('admin/site/slug/action', ['action' => 'navigation-link-form'], true)) : '' ?>"
+    data-jstree-data="<?= $escapeAttr(json_encode($menu, 320)) ?>">
+</div>
+<button id="nav-selector-button" class="mobile-only"><?= $translate('Add a link to a site page') ?></button>
+<div id="nav-selector" class="always-open sidebar">
+    <a href="#" class="mobile-only sidebar-close o-icon-close"><span class="screen-reader-text"><?= $translate('Close') ?></span></a>
+    <?= $this->formRow($form->get('name')) ?>
+    <?php /*
+    <div class="field">
+        <label for="o:homepage[o:id]"><?php echo $translate('Select a homepage'); ?></label>
+        <?php echo $this->formElement($form->get('o:homepage[o:id]')); ?>
+    </div>
+    */ ?>
+    <div class="field">
+        <label for="nav-custom-links"><?= $translate('Add a custom link') ?></label>
+        <div id="nav-custom-links">
+            <?php foreach ($this->navigationLink()->getCustomTypes() as $type): ?>
+            <?php $name = $this->navigationLink()->getName($type); ?>
+            <button
+                type="button"
+                data-type="<?= $escape($type) ?>"
+                data-value="<?= $escape($type) ?>" class="option"><?= $escape($translate($name)) ?></button>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <div class="field">
+        <label><?= $translate('Add a link to a site page') ?></label>
+        <?php // Display only pages that are not yet included in this menu. ?>
+        <?php $pages = $notLinkedPages; ?>
+        <?php if (count($pages)): ?>
+        <input type="text" class="page-selector-filter" placeholder="<?= $translate('Filter pages') ?>" aria-label="<?= $translate('Filter pages') ?>">
+        <div id="nav-page-links">
+        <?php foreach ($pages as $page): ?>
+            <button class="nav-page-link option"
+                type="button"
+                data-type="page"
+                data-label="<?= $escape($page->title()) ?>"
+                data-id="<?= $escape($page->id()) ?>"
+                data-slug="<?= $escape($page->slug()) ?>">
+                <?= sprintf('%s (%s)', $escape($page->title()), $escape($page->slug())) ?>
+            </button>
+        <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+        <p><?= $translate('There are no available pages.') ?></p>
+        <?php endif; ?>
+    </div>
+</div>
+
+<?php if ($form): ?>
+<?= $this->form()->closeTag() ?>
+<?php endif; ?>

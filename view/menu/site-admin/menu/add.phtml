@@ -1,0 +1,32 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Menu\Form\MenuForm $form
+ * @var string $name Empty string
+ * @var array $menu Menu for jstree
+ * @var array $linkedPages
+ * @var array $notLinkedPages
+ */
+
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+
+$this->htmlElement('body')->appendAttribute('class', 'add menus');
+?>
+
+<?= $this->pageTitle($translate('New menu'), 1, $translate('Menu')) ?>
+<?php $this->trigger('view.add.before'); ?>
+<?= $this->partial('menu/site-admin/menu/form.phtml', [
+    'site' => $site,
+    'form' => $form,
+    'name' => $name,
+    'menu' => $menu,
+    'linkedPages' => $linkedPages,
+    'notLinkedPages' => $notLinkedPages,
+    'submitLabel' => $translate('Add'),
+    'sectionNavEvent' => 'view.add.section_nav',
+    'action' => 'add',
+]) ?>
+
+<?php $this->trigger('view.add.after'); ?>

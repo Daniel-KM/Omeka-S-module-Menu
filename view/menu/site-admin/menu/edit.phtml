@@ -1,0 +1,49 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Menu\Form\MenuForm $form
+ * @var \Omeka\Form\ConfirmForm $confirmForm
+ * @var string $name
+ * @var array $menu Menu for jstree
+ * @var array $linkedPages
+ * @var array $notLinkedPages
+ */
+
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+
+$this->htmlElement('body')->appendAttribute('class', 'edit menus');
+
+$deleteButton = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::class, 'delete')
+    ? '<a href="#" class="delete button">' . $translate('Delete') . '</a>'
+    : null;
+?>
+
+<?= $this->pageTitle($name, 1, $translate('Menu'), $translate('Edit')) ?>
+<?php $this->trigger('view.edit.before'); ?>
+<?= $this->partial('menu/site-admin/menu/form.phtml', [
+    'site' => $site,
+    'form' => $form,
+    'name' => $name,
+    'menu' => $menu,
+    'linkedPages' => $linkedPages,
+    'notLinkedPages' => $notLinkedPages,
+    'submitLabel' => $translate('Save'),
+    'deleteButton' => $deleteButton,
+    'sectionNavEvent' => 'view.edit.section_nav',
+    'action' => 'edit',
+]) ?>
+
+<?php if ($deleteButton): ?>
+<div id="delete" class="sidebar">
+    <?= $this->hyperlink('', '#', ['class' => 'sidebar-close o-icon-close', 'title' => $translate('Close')]) ?>
+    <div id="sidebar-confirm">
+        <h3><?= sprintf($translate('Delete menu "%s"'), $name) ?></h3>
+        <p><?= sprintf($translate('Are you sure you would like to delete this %s?'), 'menu') ?></p>
+        <?= $this->form($confirmForm) ?>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php $this->trigger('view.edit.after'); ?>
