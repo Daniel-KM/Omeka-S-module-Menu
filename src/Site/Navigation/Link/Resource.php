@@ -54,22 +54,39 @@ class Resource implements LinkInterface
 
     public function toLaminas(array $data, SiteRepresentation $site)
     {
-        $id = $data['id'];
+        $id = (int) $data['id'];
         $api = $site->getServiceLocator()->get('Omeka\ApiManager');
         try {
+            // TODO Return scalar id and resource type for performance or store the type and the title.
+            // TODO Manage language.
             /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
             $resource = $api->read('resources', ['id' => $id])->getContent();
         } catch (\Omeka\Api\Exception\NotFoundException $e) {
-            $fallback = new Fallback('resource');
-            return $fallback->toZend($data, $site);
+            return [
+                'visible' => false,
+                'route' => 'site/resource-id',
+                'params' => [
+                    'site-slug' => $site->slug(),
+                    'controller' => 'item',
+                    'action' => 'show',
+                    'id' => $id,
+                ],
+                // Nobody has this right, except reviewer and above.
+                // This is a resource for acl permissions.
+                'resource' => \Omeka\Entity\Resource::class,
+                'privilege' => 'read',
+            ];
         }
+        $controllerName = $resource->getControllerName();
         return [
             'route' => 'site/resource-id',
+            'controller' => $controllerName,
+            'action' => 'show',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => $resource->getControllerName(),
-                'id' => $id,
+                'controller' => $controllerName,
                 'action' => 'show',
+                'id' => $id,
             ],
         ];
     }
