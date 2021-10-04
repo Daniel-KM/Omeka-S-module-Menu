@@ -67,7 +67,7 @@ return [
                                             'defaults' => [
                                                 '__NAMESPACE__' => 'Menu\Controller\SiteAdmin',
                                                 'controller' => Controller\SiteAdmin\MenuController::class,
-                                                'action' => 'edit',
+                                                'action' => 'show',
                                             ],
                                         ],
                                     ],

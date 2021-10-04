@@ -61,7 +61,7 @@ $defaultRights = [
         <?php foreach (array_keys($menus) as $name): ?>
         <tr>
             <td>
-                <?= $hyperlink($name, $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'edit'], true)) ?>
+                <?= $hyperlink($name, $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'show'], true)) ?>
                 <ul class="actions">
                     <?php if ($defaultRights['edit']): ?>
                     <li><?= $hyperlink('', $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'edit'], true), [

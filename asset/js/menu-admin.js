@@ -1,5 +1,7 @@
 $(document).ready( function() {
 
+const isEdit = $('#nav-tree').data('link-form-url').length > 0;
+
 // Initialize the menu structure.
 var tree = $('#nav-tree');
 var initialTreeData;
@@ -12,7 +14,9 @@ tree
             'data': tree.data('jstree-data'),
         },
         // Plugins jstree and omeka (jstree-plugins).
-        'plugins': ['dnd', 'removenode', 'editlink', 'display']
+        'plugins': isEdit
+            ? ['dnd', 'removenode', 'editlink', 'display']
+            : ['display']
     })
     .on('loaded.jstree', function() {
         // Open all nodes by default.

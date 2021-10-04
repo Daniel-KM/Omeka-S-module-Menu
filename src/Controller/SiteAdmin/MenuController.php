@@ -28,6 +28,30 @@ class MenuController extends AbstractActionController
         ]);
     }
 
+    public function showAction()
+    {
+        /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
+        $siteSettings = $this->siteSettings();
+
+        $site = $this->currentSite();
+        $name = $this->params()->fromRoute('menu-slug');
+        $menus = $siteSettings->get('menu_menus', []);
+        if (!isset($menus[$name])) {
+            throw new NotFoundException();
+        }
+
+        $menu = $menus[$name] ?: [];
+        $menu = $this->navigationTranslator()->toJstree($site, $menu);
+        $confirmForm = $this->getConfirmForm($name);
+        return new ViewModel([
+            'site' => $site,
+            'confirmForm' => $confirmForm,
+            'name' => $name,
+            // JsTree menu.
+            'menu' => $menu,
+        ]);
+    }
+
     public function addAction()
     {
         $site = $this->currentSite();
@@ -157,6 +181,7 @@ class MenuController extends AbstractActionController
             $form->setData($this->getRequest()->getPost());
             if ($form->isValid()) {
                 unset($menus[$name]);
+                ksort($menus);
                 $siteSettings->set('menu_menus', $menus);
                 $this->messenger()->addSuccess(new Message(
                     'Menu "%s" successfully deleted', // @translate
@@ -231,6 +256,7 @@ class MenuController extends AbstractActionController
         }
         unset($menus[$oldName]);
         $menus[$newName] = $this->navigationTranslator()->fromJstree($jstree);
+        ksort($menus);
         $siteSettings->set('menu_menus', $menus);
         $this->messenger()->addSuccess(new Message(
             'Menu "%s" was saved successfully.', // @translate

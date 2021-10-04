@@ -50,12 +50,25 @@ $this->headScript()
     <?= $this->cancelButton() ?>
     <button type="submit"><?= $escape($submitLabel) ?></button>
 </div>
+
+<?php else: ?>
+
+<div id="page-actions">
+    <?= $rightsDelete && isset($deleteButton) ? $deleteButton : '' ?>
+    <?php if ($rightsEdit): ?>
+    <?= $this->hyperlink($translate('Edit'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'edit'], true), ['class' => 'button']) ?>
+    <?php endif; ?>
+</div>
+
 <?php endif; ?>
 
 <div id="nav-tree"
     data-link-form-url="<?= $form ? $escapeAttr($url('admin/site/slug/action', ['action' => 'navigation-link-form'], true)) : '' ?>"
     data-jstree-data="<?= $escapeAttr(json_encode($menu, 320)) ?>">
 </div>
+
+<?php if ($form): ?>
+
 <button id="nav-selector-button" class="mobile-only"><?= $translate('Add a link to a site page') ?></button>
 <div id="nav-selector" class="always-open sidebar">
     <a href="#" class="mobile-only sidebar-close o-icon-close"><span class="screen-reader-text"><?= $translate('Close') ?></span></a>
@@ -102,6 +115,6 @@ $this->headScript()
     </div>
 </div>
 
-<?php if ($form): ?>
 <?= $this->form()->closeTag() ?>
+
 <?php endif; ?>
