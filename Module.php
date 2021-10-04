@@ -34,6 +34,8 @@
  */
 namespace Menu;
 
+use Laminas\Mvc\MvcEvent;
+use Laminas\ServiceManager\ServiceLocatorInterface;
 use Omeka\Module\AbstractModule;
 
 class Module extends AbstractModule
@@ -41,5 +43,57 @@ class Module extends AbstractModule
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
+    }
+
+    public function onBootstrap(MvcEvent $event)
+    {
+        parent::onBootstrap($event);
+
+        /**
+         * @var \Omeka\Permissions\Acl $acl
+         * @see \Omeka\Service\AclFactory
+         */
+        $services = $this->getServiceLocator();
+        $acl = $services->get('Omeka\Acl');
+
+        $roles = $acl->getRoles();
+        // This is a static list in Omeka, but not gettable.
+        $admins = [
+            \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
+            \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
+        ];
+        $notAdmins = array_diff($roles, $admins);
+
+        // TODO Manage rights of the site owner (not clear in Omeka, since the site roles are not real roles).
+
+        // Only admin and site admins can edit menu, other can view it.
+        $acl
+            ->allow(
+                // TODO Except Guest.
+                $notAdmins,
+                [Controller\SiteAdmin\MenuController::class],
+                [
+                    'index', 'browse', 'show', 'show-details',
+                ]
+            )
+            // By default, admins can do anything anyway.
+            ->allow(
+                $admins,
+                [Controller\SiteAdmin\MenuController::class],
+                [
+                    'index', 'browse', 'show', 'show-details', 'add', 'edit', 'delete', 'delete-confirm',
+                ]
+            )
+        ;
+    }
+
+    public function uninstall(ServiceLocatorInterface $services)
+    {
+        /** @var \Doctrine\DBAL\Connection $connection */
+        $connection = $services->get('Omeka\Connection');
+        $sql = <<<SQL
+DELETE FROM `site_setting` WHERE `id` = "menu_menus";
+SQL;
+        $connection->executeStatement($sql);
     }
 }

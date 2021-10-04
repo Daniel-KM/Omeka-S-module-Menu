@@ -1,0 +1,9 @@
+/* Import: styles */
+
+@media screen {
+    header nav .menu::before,
+    .menus .subhead::before,
+    .menus .no-resources:before {
+        content:"";
+    }
+}

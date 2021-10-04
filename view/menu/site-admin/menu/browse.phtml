@@ -1,0 +1,126 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var array $menus
+ */
+
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
+$url = $plugins->get('url');
+
+$this->htmlElement('body')->appendAttribute('class', 'menus browse');
+$this->headLink()->appendStylesheet($this->assetUrl('css/menu-admin.css', 'Menu'));
+
+$sortHeadings = [
+    [
+        'label' => $translate('Name'),
+        'value' => 'name',
+    ],
+    [
+        'label' => $translate('Id'),
+        'value' => 'id',
+    ],
+];
+
+// Rights are very simple currently.
+$defaultRights = [
+    'create' => $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::class, 'add'),
+    'edit' => $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::class, 'edit'),
+    'delete' => $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::class, 'delete'),
+];
+?>
+
+<?= $this->pageTitle($translate('Menus')) ?>
+
+<?= $this->searchFilters() ?>
+
+<div class="browse-controls">
+    <?php //= $this->sortSelector($sortHeadings) ?>
+</div>
+
+<div id="page-actions">
+    <?php if ($defaultRights['create']): ?>
+    <?= $hyperlink($translate('Add new menu'), $url(null, ['action' => 'add'], true), ['class' => 'button']) ?>
+    <?php endif; ?>
+</div>
+
+<?php $this->trigger('view.browse.before'); ?>
+
+<?php if (!empty($menus)): ?>
+<form method="post" id="batch-form" class="disable-unsaved-warning">
+
+<table class="tablesaw" data-tablesaw-mode="stack">
+    <thead>
+        <tr>
+            <th><?= $translate('Name') ?></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach (array_keys($menus) as $name): ?>
+        <tr>
+            <td>
+                <?= $hyperlink($name, $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'edit'], true)) ?>
+                <ul class="actions">
+                    <?php if ($defaultRights['edit']): ?>
+                    <li><?= $hyperlink('', $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'edit'], true), [
+                        'class' => 'o-icon-edit',
+                        'title' => $translate('Edit'),
+                    ]) ?></li>
+                    <?php endif; ?>
+                    <?php if ($defaultRights['delete']): ?>
+                    <li><?= $hyperlink('', '#', [
+                        'data-sidebar-selector' => '#sidebar',
+                        'data-sidebar-content-url' => $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'delete-confirm'], true),
+                        'class' => 'o-icon-delete sidebar-content',
+                        'title' => $translate('Delete'),
+                    ]) ?></li>
+                    <?php endif; ?>
+                    <li><?= $hyperlink('', '#', [
+                        'data-sidebar-selector' => '#sidebar',
+                        'data-sidebar-content-url' => $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'show-details'], true),
+                        'class' => 'o-icon-more sidebar-content',
+                        'title' => $translate('Details'),
+                    ]) ?></li>
+                </ul>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+</form>
+
+<?php $this->trigger('view.browse.after'); ?>
+
+<div class="browse-controls">
+</div>
+
+<div id="sidebar" class="sidebar">
+    <?= $hyperlink('', '#', ['class' => 'sidebar-close o-icon-close', 'title' => $translate('Close')]) ?>
+    <div class="sidebar-content"></div>
+</div>
+<div id="sidebar-delete-selected" class="sidebar">
+    <?= $hyperlink('', '#', ['class' => 'sidebar-close o-icon-close', 'title' => $translate('Close')]) ?>
+    <div class="sidebar-content">
+        <div id="sidebar-confirm">
+            <h3><?= $translate('Delete menus') ?></h3>
+            <p><?= $translate('Are you sure you would like to delete the selected menus?') ?></p>
+            <p class="error"><?= sprintf(
+                $translate('%1$s: this action will permanently delete %2$s menus and cannot be undone.'),
+                sprintf('<strong>%s</strong>', $translate('Warning')),
+                '<strong><span id="delete-selected-count"></span></strong>'
+            ) ?></p>
+            <?php //= $this->form($this->formDeleteSelected) ?>
+        </div>
+    </div>
+</div>
+
+<?php else: ?>
+
+<div class="no-resources">
+    <p><?= $translate('Omeka could not find any menus.') ?></p>
+</div>
+
+<?php endif; ?>
