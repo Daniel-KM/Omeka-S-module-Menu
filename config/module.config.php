@@ -28,6 +28,11 @@ return [
             'navigationTranslator' => Service\ControllerPlugin\NavigationTranslatorFactory::class,
         ],
     ],
+    'navigation_links' => [
+        'invokables' => [
+            'resource' => Site\Navigation\Link\Resource::class,
+        ],
+    ],
     'router' => [
         'routes' => [
             'admin' => [
