@@ -1,0 +1,22 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var string $linkTitle
+ * @var string $name
+ * @var array $menu
+ */
+
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$escape = $plugins->get('escapeHtml');
+?>
+
+<div class="resource-details" data-resource-values="<?= $escape(json_encode($menu, 320)) ?>">
+    <h3 class="o-title"><?= $escape($name) ?></h3>
+    <div class="meta-group">
+        <h4><?= $translate('Menu') ?></h4>
+        <?php // TODO Render full menu. ?>
+    </div>
+    <?php // $this->trigger('view.details', ['entity' => $resource]); ?>
+</div>

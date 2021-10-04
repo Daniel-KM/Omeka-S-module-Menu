@@ -36,14 +36,14 @@ $deleteButton = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::
 ]) ?>
 
 <?php if ($deleteButton): ?>
-<div id="delete" class="sidebar">
-    <?= $this->hyperlink('', '#', ['class' => 'sidebar-close o-icon-close', 'title' => $translate('Close')]) ?>
-    <div id="sidebar-confirm">
-        <h3><?= sprintf($translate('Delete menu "%s"'), $name) ?></h3>
-        <p><?= sprintf($translate('Are you sure you would like to delete this %s?'), 'menu') ?></p>
-        <?= $this->form($confirmForm) ?>
-    </div>
-</div>
+<?= $this->partial('menu/site-admin/menu/delete-confirm', [
+    'site' => $site,
+    'form' => $confirmForm,
+    'resourceLabel' => sprintf('menu "%s"', $name),
+    'name' => $name,
+    'menu' => $menu,
+    'wrapSidebar' => true,
+]) ?>
 <?php endif; ?>
 
 <?php $this->trigger('view.edit.after'); ?>

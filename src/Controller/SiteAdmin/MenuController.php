@@ -113,6 +113,88 @@ class MenuController extends AbstractActionController
         ]);
     }
 
+    public function deleteConfirmAction()
+    {
+        /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
+        $siteSettings = $this->siteSettings();
+
+        $linkTitle = (bool) $this->params()->fromQuery('link-title', true);
+
+        $site = $this->currentSite();
+        $name = $this->params()->fromRoute('menu-slug');
+        $menus = $siteSettings->get('menu_menus', []);
+        if (!isset($menus[$name])) {
+            throw new NotFoundException();
+        }
+
+        $menu = $menus[$name] ?: [];
+
+        // Cannot use default confirm details: menu is not a resource.
+        $view = new ViewModel([
+            'site' => $site,
+            'form' => $this->getConfirmForm($name),
+            'name' => $name,
+            'menu' => $menu,
+            'resourceLabel' => 'menu', // @translate
+            'partialPath' => 'menu/site-admin/menu/show-details',
+            'linkTitle' => $linkTitle,
+        ]);
+        return $view
+            ->setTerminal(true);
+    }
+
+    public function deleteAction()
+    {
+        if ($this->getRequest()->isPost()) {
+            /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
+            $siteSettings = $this->siteSettings();
+            $name = $this->params()->fromRoute('menu-slug');
+            $menus = $siteSettings->get('menu_menus', []);
+            if (!isset($menus[$name])) {
+                throw new NotFoundException();
+            }
+            $form = $this->getConfirmForm($name);
+            $form->setData($this->getRequest()->getPost());
+            if ($form->isValid()) {
+                unset($menus[$name]);
+                $siteSettings->set('menu_menus', $menus);
+                $this->messenger()->addSuccess(new Message(
+                    'Menu "%s" successfully deleted', // @translate
+                    $name
+                ));
+            } else {
+                $this->messenger()->addFormErrors($form);
+            }
+        }
+        return $this->redirect()->toRoute(
+            'admin/site/slug/menu',
+            ['action' => 'browse'],
+            true
+        );
+    }
+
+    public function showDetailsAction()
+    {
+        /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
+        $siteSettings = $this->siteSettings();
+        $site = $this->currentSite();
+        $linkTitle = (bool) $this->params()->fromQuery('link-title', true);
+        $name = $this->params()->fromRoute('menu-slug');
+        $menus = $siteSettings->get('menu_menus', []);
+        if (!isset($menus[$name])) {
+            throw new NotFoundException();
+        }
+
+        $view = new ViewModel([
+            'site' => $site,
+            'linkTitle' => $linkTitle,
+            'name' => $name,
+            'menu' => $menus[$name],
+        ]);
+        return $view
+            ->setTerminal(true);
+    }
+
     protected function checkAndSaveMenuFromPost(MenuForm $form, $isNew = false): ?string
     {
         $formData = $this->params()->fromPost();

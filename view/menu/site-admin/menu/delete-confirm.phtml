@@ -1,0 +1,26 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var \Omeka\Form\ConfirmForm $form
+ * @var string $resourceLabel
+ * @var string $name
+ * @var string $menu
+ * @var bool $wrapSidebar
+ */
+
+$translate = $this->plugin('translate');
+?>
+
+<?php if (!empty($wrapSidebar)): ?>
+<div id="delete" class="sidebar">
+    <?= $this->hyperlink('', '#', ['class' => 'sidebar-close o-icon-close', 'title' => $translate('Close')]) ?>
+<?php endif; ?>
+    <div id="sidebar-confirm">
+        <h3><?= sprintf($translate('Delete menu "%s"'), $name) ?></h3>
+        <p><?= sprintf($translate('Are you sure you would like to delete this %s?'), $resourceLabel) ?></p>
+        <?= $this->form($form) ?>
+    </div>
+<?php if (!empty($wrapSidebar)): ?>
+</div>
+<?php endif; ?>
