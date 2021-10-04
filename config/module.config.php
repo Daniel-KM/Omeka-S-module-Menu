@@ -9,8 +9,8 @@ return [
         ],
     ],
     'view_helpers' => [
-        'invokables' => [
-            'navMenu' => View\Helper\NavMenu::class,
+        'factories' => [
+            'navMenu' => Service\ViewHelper\NavMenuFactory::class,
         ],
     ],
     'form_elements' => [

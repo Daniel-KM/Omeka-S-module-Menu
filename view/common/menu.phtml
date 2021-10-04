@@ -1,0 +1,28 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var string $name
+ * @var array $menu
+ * @var bool $noNav
+ * @var \Laminas\View\Helper\Navigation $nav
+ *
+ * Options for Laminas Navigation
+ * @var string|null $partial
+ * @var string|int $indent
+ * @var int|null $minDepth
+ * @var int|null $maxDepth
+ * @var string $ulClass
+ * @var string $liActiveClass
+ * @var bool $onlyActiveBranch
+ * @var bool $renderParents
+ * @var bool $escapeLabels
+ * @var bool $addClassToListItem
+ *
+ * @link https://docs.laminas.dev/laminas-navigation/helpers/menu
+ *
+ * And any other options passed through the helper.
+ */
+?>
+
+<?= $nav ? $nav->menu()->setPartial($partial)->renderMenu(null, $this->vars()->getArrayCopy()) : '';
