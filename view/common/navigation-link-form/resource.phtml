@@ -17,6 +17,7 @@ $resource = null;
 $resourceLabel = null;
 if ($id) {
     try {
+        /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
         $resource = $this->api()->read('resources', ['id' => $id])->getContent();
         $resourceLabel = $resource->displayTitle();
     } catch (Exception $e) {
@@ -41,3 +42,22 @@ if ($id) {
     <span style="float: right; color: red; font-weight: normal;"><?= $escape($translate('Resource unavailable')) ?></span>
     <?php endif; ?>
 </label>
+<?php if ($resource): ?>
+<div class="meta-group" style="font-weight: normal;">
+    <label>
+        <?= $translate('Visibility') ?>
+        <span style="float: right;"><?= $resource->isPublic() ? $translate('Public') : $translate('Private') ?></span>
+    </label>
+    <?php if ($template = $resource->resourceTemplate()): ?>
+    <label>
+        <?= $translate('Resource template') ?>
+        <span style="float: right;"><?= $translate($template->label()) ?></span>
+    </label>
+    <?php endif; ?>
+    <?php if ($class = $resource->resourceClass()): ?>
+    <label>
+        <?= $translate('Resource class') ?></h4>
+        <span style="float: right;"><?= $translate($class->localName()) ?></span>
+    </label>
+    <?php endif; ?>
+<?php endif; ?>
