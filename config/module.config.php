@@ -17,6 +17,9 @@ return [
         'invokables' => [
             Form\MenuForm::class => Form\MenuForm::class,
         ],
+        'factories' => [
+            Form\Element\MenuSelect::class => Service\Form\Element\MenuSelectFactory::class,
+        ],
     ],
     'controllers' => [
         'invokables' => [
