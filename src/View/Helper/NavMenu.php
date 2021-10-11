@@ -35,6 +35,7 @@ class NavMenu extends AbstractHelper
      * @var array $options
      * - site (SiteRepresentation, default: null): use a menu from another site
      * - template (string, default: common/menu): template to use
+     * - menu (array): use any arbitrary menu or sub-menu instead of the name.
      * - noNav (bool): don't prepare nav (for performance and manual build)
      *
      * Options for Laminas Navigation
@@ -70,6 +71,10 @@ class NavMenu extends AbstractHelper
                 return '';
             }
             $options['menu'] = $menus[$name];
+            $options['nav'] = empty($options['noNav'])
+                ? $this->publicNav($options['site'], $options['menu'])
+                : null;
+        } elseif (isset($options['menu'])) {
             $options['nav'] = empty($options['noNav'])
                 ? $this->publicNav($options['site'], $options['menu'])
                 : null;
