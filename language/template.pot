@@ -1,0 +1,117 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-10-11 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/Site/Navigation/Link/Resource.php:40
+msgid "[Unknown resource]"
+msgstr ""
+
+#: src/Site/Navigation/Link/Resource.php:49
+#, php-format
+msgid "[Unknown resource #%d]"
+msgstr ""
+
+#: view/common/navigation-link-form/resource.phtml:39
+msgid "Resource id"
+msgstr ""
+
+#: view/common/navigation-link-form/resource.phtml:42
+msgid "Resource unavailable"
+msgstr ""
+
+#: view/common/navigation-link-form/resource.phtml:59
+msgid "Resource class"
+msgstr ""
+
+#: view/menu/site-admin/menu/add.phtml:18
+msgid "New menu"
+msgstr ""
+
+#: view/menu/site-admin/menu/add.phtml:18
+#: view/menu/site-admin/menu/edit.phtml:23
+#: view/menu/site-admin/menu/show-details.phtml:18
+#: view/menu/site-admin/menu/show.phtml:20
+msgid "Menu"
+msgstr ""
+
+#: view/menu/site-admin/menu/browse.phtml:22
+msgid "Id"
+msgstr ""
+
+#: view/menu/site-admin/menu/browse.phtml:35
+msgid "Menus"
+msgstr ""
+
+#: view/menu/site-admin/menu/browse.phtml:45
+msgid "Add new menu"
+msgstr ""
+
+#: view/menu/site-admin/menu/browse.phtml:108
+msgid "Delete menus"
+msgstr ""
+
+#: view/menu/site-admin/menu/browse.phtml:109
+msgid "Are you sure you would like to delete the selected menus?"
+msgstr ""
+
+#: view/menu/site-admin/menu/browse.phtml:111
+#, php-format
+msgid ""
+"%1$s: this action will permanently delete %2$s menus and cannot be undone."
+msgstr ""
+
+#: view/menu/site-admin/menu/browse.phtml:123
+msgid "Omeka could not find any menus."
+msgstr ""
+
+#: view/menu/site-admin/menu/delete-confirm.phtml:20
+#, php-format
+msgid "Delete menu \"%s\""
+msgstr ""
+
+#: src/Form/MenuForm.php:19
+msgid "Menu name"
+msgstr ""
+
+#: src/Controller/SiteAdmin/MenuController.php:162
+msgid "menu"
+msgstr ""
+
+#: src/Controller/SiteAdmin/MenuController.php:187
+#, php-format
+msgid "Menu \"%s\" successfully deleted"
+msgstr ""
+
+#: src/Controller/SiteAdmin/MenuController.php:249
+#, php-format
+msgid "Menu \"%s\" uses an existing name and was renamed \"%s\"."
+msgstr ""
+
+#: src/Controller/SiteAdmin/MenuController.php:262
+#, php-format
+msgid "Menu \"%s\" was saved successfully."
+msgstr ""
+
+#: src/Controller/SiteAdmin/MenuController.php:336
+#, php-format
+msgid "Menu \"%s\" uses a reserved name and was renamed \"%s\"."
+msgstr ""
+
+#: src/Site/Navigation/Link/Resource.php:24
+msgid "Invalid navigation: resource link missing resource ID"
+msgstr ""
