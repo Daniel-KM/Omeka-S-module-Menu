@@ -48,6 +48,8 @@ class NavMenu extends AbstractHelper
      * - noNav (bool): don't prepare nav (for performance and manual build).
      *
      * Options for Laminas Navigation
+     *
+     * Specific options to render as "menu" (default):
      * - partial (string|null): template for the menu
      * - indent (string|int): indentation
      * - minDepth (int|null): min depth of the navigation
@@ -60,7 +62,15 @@ class NavMenu extends AbstractHelper
      * - escapeLabels (bool): escape labels
      * - addClassToListItem (bool): add class to list item
      *
-     * Other options are passed to the template
+     * Specific options to render as "breadcrumbs":
+     * - partial (string|null): template for the menu
+     * - indent (string|int): indentation
+     * - minDepth (int|null): min depth of the navigation
+     * - separator (string): String to use between breadcrumbs (default: "&gt;").
+     * - linkLast (bool): Set true to render last breadcrumb as a link instead
+     *   of a label (default: false).
+     *
+     * Other options are passed to the template.
      *
      * @link https://docs.laminas.dev/laminas-navigation/helpers/menu
      * @link https://docs.laminas.dev/laminas-navigation/helpers/breadcrumbs
@@ -102,21 +112,28 @@ class NavMenu extends AbstractHelper
                 : null;
         }
 
-        $options += [
-            'partial' => null,
-            'indent' => '',
-            'minDepth' => null,
-            'maxDepth' => null,
-            'ulClass' => 'navigation',
-            'liActiveClass' => 'active',
-            'onlyActiveBranch' => false,
-            'renderParents' => true,
-            'escapeLabels' => true,
-            'addClassToListItems' => false,
-        ];
-
-        if (empty($options['render'])) {
-            $options['render'] = null;
+        if (empty($options['render']) || $options['render'] !== 'breadcrumbs') {
+            $options += [
+                'render' => null,
+                'partial' => null,
+                'indent' => '',
+                'minDepth' => null,
+                'maxDepth' => null,
+                'ulClass' => 'navigation',
+                'liActiveClass' => 'active',
+                'onlyActiveBranch' => false,
+                'renderParents' => true,
+                'escapeLabels' => true,
+                'addClassToListItem' => false,
+            ];
+        } else {
+            $options += [
+                'partial' => null,
+                'indent' => '',
+                'minDepth' => null,
+                'separator' => '&gt;',
+                'linkLast' => false,
+            ];
         }
 
         return $partial !== $this->template && $this->view->resolver($partial)
