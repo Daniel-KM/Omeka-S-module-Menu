@@ -5,7 +5,6 @@ namespace Menu\Site\Navigation\Link;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Site\Navigation\Link\LinkInterface;
 use Omeka\Stdlib\ErrorStore;
-use Omeka\Site\Navigation\Link\Fallback;
 
 class Resource implements LinkInterface
 {
@@ -30,19 +29,26 @@ class Resource implements LinkInterface
 
     public function getLabel(array $data, SiteRepresentation $site)
     {
-        if (isset($data['label']) && '' !== trim($data['label'])) {
+        if (isset($data['label']) && trim($data['label']) !== '') {
             return $data['label'];
         }
 
         $services = $site->getServiceLocator();
-        $api = $services->get('Omeka\ApiManager');
-        try {
-            /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
-            $resource = $api->read('resources', ['id' => $data['id']])->getContent();
-        } catch (\Omeka\Api\Exception\NotFoundException $e) {
+        $id = (int) $data['id'];
+        if (!$id) {
             $translator = $services->get('MvcTranslator');
             return $translator->translate('[Unknown resource]'); // @translate
         }
+
+        $api = $services->get('Omeka\ApiManager');
+        try {
+            /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
+            $resource = $api->read('resources', ['id' => $id])->getContent();
+        } catch (\Omeka\Api\Exception\NotFoundException $e) {
+            $translator = $services->get('MvcTranslator');
+            return sprintf($translator->translate('[Unknown resource #%d]'), $id); // @translate
+        }
+
         // TODO Use language of the site to select title?
         return $resource->displayTitle();
     }
