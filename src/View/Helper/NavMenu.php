@@ -33,10 +33,19 @@ class NavMenu extends AbstractHelper
      *
      * @var string $name Name of the menu.
      * @var array $options
-     * - site (SiteRepresentation, default: null): use a menu from another site
-     * - template (string, default: common/menu): template to use
+     * - template (string, default: "common/menu"): template to use.
+     * - site (SiteRepresentation, default: null): use a menu from another site.
      * - menu (array): use any arbitrary menu or sub-menu instead of the name.
-     * - noNav (bool): don't prepare nav (for performance and manual build)
+     * - renderAs (string): render as "menu" (default) or "breadcrumbs".
+     * - activeUrl (null|array|string|bool) Set the active url.
+     *   - null (default): use the Laminas mechanism (compare with route);
+     *   - true: use current url;
+     *   - false: no active page;
+     *   - string: If a url is set (generally a relative one), it will be
+     *     checked against the real url;
+     *   - array: when an array with keys "type" and "data" is set, a quick
+     *     check is done against the menu element.
+     * - noNav (bool): don't prepare nav (for performance and manual build).
      *
      * Options for Laminas Navigation
      * - partial (string|null): template for the menu
@@ -64,6 +73,10 @@ class NavMenu extends AbstractHelper
             $options['site'] = $this->currentSite();
         }
 
+        if (!array_key_exists('activeUrl', $options)) {
+            $options['activeUrl'] = null;
+        }
+
         $options['name'] = $name;
         if ($name) {
             $menus = $this->view->siteSetting('menu_menus', []);
@@ -72,16 +85,19 @@ class NavMenu extends AbstractHelper
             }
             $options['menu'] = $menus[$name];
             $options['nav'] = empty($options['noNav'])
-                ? $this->publicNav($options['site'], $options['menu'])
+                ? $this->publicNav($options['site'], $options['menu'], $options['activeUrl'])
                 : null;
         } elseif (isset($options['menu'])) {
             $options['nav'] = empty($options['noNav'])
-                ? $this->publicNav($options['site'], $options['menu'])
+                ? $this->publicNav($options['site'], $options['menu'], $options['activeUrl'])
                 : null;
         } else {
             $options['menu'] = $options['site']->navigation();
             $options['nav'] = empty($options['noNav'])
-                ? $options['site']->publicNav()
+                ? ($options['activeUrl']
+                    ? $this->publicNav($options['site'], $options['menu'], $options['activeUrl'])
+                    : $options['site']->publicNav()
+                )
                 : null;
         }
 
@@ -111,7 +127,7 @@ class NavMenu extends AbstractHelper
      *
      * @todo Check if the translator should be skipped here, in particular to display title of resources.
      */
-    protected function publicNav(SiteRepresentation $site, array $menu): \Laminas\View\Helper\Navigation
+    protected function publicNav(SiteRepresentation $site, array $menu, $activeUrl): \Laminas\View\Helper\Navigation
     {
         // Build a new Navigation helper so these changes don't leak around to other places,
         // then set it to always disable translation for any of its "child" helpers (menu,
@@ -120,7 +136,7 @@ class NavMenu extends AbstractHelper
         $helper->getPluginManager()->addInitializer(function ($container, $plugin) {
             $plugin->setTranslatorEnabled(false);
         });
-        return $helper($this->getPublicNavContainer($site, $menu));
+        return $helper($this->getPublicNavContainer($site, $menu, $activeUrl));
     }
 
     /**
@@ -129,9 +145,9 @@ class NavMenu extends AbstractHelper
      * Adapted from SiteRepresentation::getPublicNavContainer().
      * @see \Omeka\Api\Representation\SiteRepresentation::getPublicNavContainer()
      */
-    protected function getPublicNavContainer(SiteRepresentation $site, array $menu): \Laminas\Navigation\Navigation
+    protected function getPublicNavContainer(SiteRepresentation $site, array $menu, $activeUrl): \Laminas\Navigation\Navigation
     {
-        $factory = new ConstructedNavigationFactory($this->navigationTranslator->toLaminas($site, $menu));
+        $factory = new ConstructedNavigationFactory($this->navigationTranslator->toLaminas($site, $menu, $activeUrl));
         return $factory($this->services, '');
     }
 
