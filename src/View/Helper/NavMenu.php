@@ -36,7 +36,7 @@ class NavMenu extends AbstractHelper
      * - template (string, default: "common/menu"): template to use.
      * - site (SiteRepresentation, default: null): use a menu from another site.
      * - menu (array): use any arbitrary menu or sub-menu instead of the name.
-     * - renderAs (string): render as "menu" (default) or "breadcrumbs".
+     * - render (string): render as "menu" (default) or "breadcrumbs".
      * - activeUrl (null|array|string|bool) Set the active url.
      *   - null (default): use the Laminas mechanism (compare with route);
      *   - true: use current url;
@@ -63,6 +63,7 @@ class NavMenu extends AbstractHelper
      * Other options are passed to the template
      *
      * @link https://docs.laminas.dev/laminas-navigation/helpers/menu
+     * @link https://docs.laminas.dev/laminas-navigation/helpers/breadcrumbs
      */
     public function __invoke(?string $name = null, array $options = []): string
     {
@@ -113,6 +114,10 @@ class NavMenu extends AbstractHelper
             'escapeLabels' => true,
             'addClassToListItems' => false,
         ];
+
+        if (empty($options['render'])) {
+            $options['render'] = null;
+        }
 
         return $partial !== $this->template && $this->view->resolver($partial)
             ? $this->view->partial($partial, $options)

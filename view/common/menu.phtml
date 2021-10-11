@@ -6,6 +6,7 @@
  * @var array $menu
  * @var null|array|string|bool $activeUrl
  * @var bool $noNav
+ * @var string $render May be "breadcrumbs" or "menu".
  * @var \Laminas\View\Helper\Navigation $nav
  *
  * Options for Laminas Navigation
@@ -24,6 +25,18 @@
  *
  * And any other options passed through the helper.
  */
+
+if (!$nav) return;
 ?>
 
-<?= $nav ? $nav->menu()->setPartial($partial)->renderMenu(null, $this->vars()->getArrayCopy()) : '';
+<?php if ($render === 'breadcrumbs'):
+
+    echo $partial
+        ? $nav->breadcrumbs()->setPartial($partial)->render(null, $this->vars()->getArrayCopy())
+        : $nav->breadcrumbs()->renderStraight(null, $this->vars()->getArrayCopy());
+
+else:
+
+    echo $nav->menu()->setPartial($partial)->renderMenu(null, $this->vars()->getArrayCopy());
+
+endif;
