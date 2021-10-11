@@ -9,6 +9,9 @@ Menu (module for Omeka S)
 site, for example a top menu, a sidebar menu and a footer menu, or any structure
 anywhere.
 
+It allows to add any resource as a menu element and take care of its rights (it
+is not displayed if the user has no right to see it).
+
 
 Installation
 ------------
@@ -23,20 +26,41 @@ Quick start
 -----------
 
 To display a second menu, it should be included in the right place in templates
-of the theme with `<?= $this->navMenu($menuName, $site) ?>`.
+of the theme with `<?= $this->navMenu($menuName, $options) ?>`.
 
 If no menu name is specified, it displays the default menu of the site.
-If no site is specified, it displays the specified menu of the current site.
+
+Supported options:
+- `template` (string): template to use (default: "common/menu").
+- `site` (SiteRepresentation): use a menu from another site.
+- `menu` (array): use any arbitrary menu or sub-menu instead of the name one.
+- `render` (string): render as "menu" (default) or "breadcrumbs".
+- `activeUrl` (null|array|string|bool) Set the active url.
+  - null (default): use the Laminas mechanism (compare with route);
+  - true: use current url;
+  - false: no active page;
+  - string: If a url is set (generally a relative one), it will be checked
+    against the real url;
+  - array: when an array with keys "type" and "data" is set, a quick check is
+    done against the menu element.
+- `noNav` (bool): don't prepare nav (for performance and manual build).
+
+Other options are passed to the template, in particular the ones managed by the
+Laminas view helper [Navigation]. The Laminas helper `menu()` can be used too.
+
+Note that the active url should generally be set when using multiple linked
+resources, because it is not managed directly by default.
 
 
 TODO
 ----
 
-- [ ] Convert to a standard Laminas navigation, in particular to manage rights better.
+- [x] Convert to a standard Laminas navigation, in particular to manage rights better.
 - [ ] Include breadcrumbs from module [Next].
 - [ ] Replace the standard menu.
 - [ ] Add the right sidebar to select resources more easily.
 - [ ] Add a block layout.
+- [ ] Create a dynamic menu from resources (like Thesaurus, but without separate selection).
 
 
 Warning
@@ -89,15 +113,21 @@ Copyright
 
 * Copyright Daniel Berthereau, 2021 (see [Daniel-KM])
 
+These features are built for the future digital library [Le Ménestrel],
+currently managed with [Spip].
+
 
 [Menu]: https://github.com/Daniel-KM/Omeka-S-module-Menu
 [Omeka S]: https://omeka.org/s
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
+[Navigation]: https://docs.laminas.dev/laminas-navigation/helpers/menu
 [Next]: https://github.com/Daniel-KM/Omeka-S-module-Next
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-Menu/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
+[Le Ménestrel]: http://www.menestrel.fr
+[Spip]: https://spip.net
 [GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"
