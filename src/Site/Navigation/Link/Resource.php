@@ -53,6 +53,9 @@ class Resource implements LinkInterface
         return $resource->displayTitle();
     }
 
+    /**
+     * @deprecated Since Omeka v3.0 Use toLaminas() instead.
+     */
     public function toZend(array $data, SiteRepresentation $site)
     {
         return $this->toLaminas($data, $site);

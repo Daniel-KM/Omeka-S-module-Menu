@@ -90,7 +90,7 @@ class NavigationTranslator extends AbstractPlugin
             foreach ($linksIn as $key => $data) {
                 $linkType = $this->linkManager->get($data['type']);
                 $linkData = $data['data'];
-                $linksOut[$key] = $linkType->toZend($linkData, $site);
+                $linksOut[$key] = method_exists($linkType, 'toLaminas') ? $linkType->toLaminas($linkData, $site) : $linkType->toZend($linkData, $site);
                 $linksOut[$key]['label'] = $this->getLinkLabel($linkType, $linkData, $site);
                 if ($activeUrl !== null) {
                     if (is_array($activeUrl)) {
@@ -201,17 +201,27 @@ class NavigationTranslator extends AbstractPlugin
      */
     public function getLinkUrl(LinkInterface $linkType, array $data, SiteRepresentation $site): string
     {
-        $linkLaminas = $linkType->toZend($data['data'], $site);
+        static $urls = [];
+
         if (array_key_exists('uri', $data)) {
             return (string) $data['uri'];
         }
-        if (empty($linkLaminas['route'])) {
-            return '';
+
+        $serial = serialize($data);
+        if (isset($urls[$serial])) {
+            return $urls[$serial];
         }
-        $urlRoute = $linkLaminas['route'];
-        $urlParams = empty($linkLaminas['params']) ? [] : $linkLaminas['params'];
-        $urlParams['site-slug'] = $site->slug();
-        $urlOptions = empty($linkLaminas['query']) ? [] : ['query' => $linkLaminas['query']];
-        return $this->urlHelper->__invoke($urlRoute, $urlParams, $urlOptions);
+
+        $linkLaminas = method_exists($linkType, 'toLaminas') ? $linkType->toLaminas($data['data'], $site) : $linkType->toZend($data['data'], $site);
+        if (empty($linkLaminas['route'])) {
+            $urls[$serial] = '';
+        } else {
+            $urlRoute = $linkLaminas['route'];
+            $urlParams = empty($linkLaminas['params']) ? [] : $linkLaminas['params'];
+            $urlParams['site-slug'] = $site->slug();
+            $urlOptions = empty($linkLaminas['query']) ? [] : ['query' => $linkLaminas['query']];
+            $urls[$serial] = $this->urlHelper->__invoke($urlRoute, $urlParams, $urlOptions);
+        }
+        return $urls[$serial];
     }
 }
