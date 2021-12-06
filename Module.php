@@ -34,16 +34,19 @@
  */
 namespace Menu;
 
+if (!class_exists(\Generic\AbstractModule::class)) {
+    require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
+        ? dirname(__DIR__) . '/Generic/AbstractModule.php'
+        : __DIR__ . '/src/Generic/AbstractModule.php';
+}
+
+use Generic\AbstractModule;
 use Laminas\Mvc\MvcEvent;
 use Laminas\ServiceManager\ServiceLocatorInterface;
-use Omeka\Module\AbstractModule;
 
 class Module extends AbstractModule
 {
-    public function getConfig()
-    {
-        return include __DIR__ . '/config/module.config.php';
-    }
+    const NAMESPACE = __NAMESPACE__;
 
     public function onBootstrap(MvcEvent $event)
     {
@@ -85,15 +88,5 @@ class Module extends AbstractModule
                 ]
             )
         ;
-    }
-
-    public function uninstall(ServiceLocatorInterface $services)
-    {
-        /** @var \Doctrine\DBAL\Connection $connection */
-        $connection = $services->get('Omeka\Connection');
-        $sql = <<<SQL
-DELETE FROM `site_setting` WHERE `id` = "menu_menus";
-SQL;
-        $connection->executeStatement($sql);
     }
 }
