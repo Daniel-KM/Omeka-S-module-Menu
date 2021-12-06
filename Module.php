@@ -41,8 +41,8 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
+use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\MvcEvent;
-use Laminas\ServiceManager\ServiceLocatorInterface;
 
 class Module extends AbstractModule
 {
@@ -88,5 +88,78 @@ class Module extends AbstractModule
                 ]
             )
         ;
+    }
+
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
+    {
+        // Site settings.
+        $sharedEventManager->attach(
+            \Omeka\Form\SiteSettingsForm::class,
+            'form.add_elements',
+            [$this, 'handleSiteSettings']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Form\SiteSettingsForm::class,
+            'form.add_input_filters',
+            [$this, 'handleSiteSettingsFilters']
+        );
+    }
+
+    public function handleSiteSettings(Event $event): void
+    {
+        parent::handleSiteSettings($event);
+
+        $services = $this->getServiceLocator();
+
+        $settings = $services->get('Omeka\Settings\Site');
+        $prepends = $settings->get('menu_breadcrumbs_prepend') ?: [];
+        $prependsString = '';
+        foreach ($prepends as $prepend) {
+            $prependsString .= $prepend['uri'] . ' ' . $prepend['label'] . "\n";
+        }
+
+        /**
+         * @see \Omeka\Form\Element\RestoreTextarea $siteGroupsElement
+         * @see \Internationalisation\Form\SettingsFieldset $fieldset
+         */
+        $fieldset = $event->getTarget()
+            ->get('menu');
+        $fieldset
+            ->get('menu_breadcrumbs_prepend')
+            ->setValue($prependsString);
+    }
+
+    public function handleSiteSettingsFilters(Event $event): void
+    {
+        $event->getParam('inputFilter')
+            ->get('menu')
+            ->add([
+                'name' => 'menu_breadcrumbs_crumbs',
+                'required' => false,
+            ])
+            ->add([
+                'name' => 'menu_breadcrumbs_prepend',
+                'required' => false,
+                'filters' => [
+                    [
+                        'name' => \Laminas\Filter\Callback::class,
+                        'options' => [
+                            'callback' => [$this, 'filterBreadcrumbsPrepend'],
+                        ],
+                    ],
+                ],
+            ])
+        ;
+    }
+
+    public function filterBreadcrumbsPrepend($string)
+    {
+        return array_filter(array_map(function ($v) {
+            [$uri, $label] = array_map('trim', explode(' ', $v . ' ', 2));
+            if (!strlen((string) $label)) {
+                $label = $uri;
+            }
+            return ['label' => $label, 'uri' => $uri];
+        }, $this->stringToList($string)));
     }
 }

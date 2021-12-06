@@ -9,6 +9,9 @@ return [
         ],
     ],
     'view_helpers' => [
+        'invokables' => [
+            'breadcrumbs' => View\Helper\Breadcrumbs::class,
+        ],
         'factories' => [
             'navMenu' => Service\ViewHelper\NavMenuFactory::class,
         ],
@@ -16,6 +19,7 @@ return [
     'form_elements' => [
         'invokables' => [
             Form\MenuForm::class => Form\MenuForm::class,
+            Form\SiteSettingsFieldset::class => Form\SiteSettingsFieldset::class,
         ],
         'factories' => [
             Form\Element\MenuSelect::class => Service\Form\Element\MenuSelectFactory::class,
@@ -105,6 +109,16 @@ return [
     ],
     'menu' => [
         'site_settings' => [
+            'menu_breadcrumbs_crumbs' => [
+                'home',
+                'collections',
+                'itemset',
+                'current',
+            ],
+            'menu_breadcrumbs_prepend' => [],
+            'menu_breadcrumbs_collections_url' => '',
+            'menu_breadcrumbs_separator' => '&gt;',
+            'menu_breadcrumbs_homepage' => false,
             // This site setting is not managed in site settings, but in site menu "Menu".
             'menu_menus' => [],
         ],
