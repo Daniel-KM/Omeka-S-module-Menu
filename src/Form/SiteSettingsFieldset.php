@@ -4,6 +4,7 @@ namespace Menu\Form;
 
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
+use Menu\Form\Element\DataTextarea;
 
 class SiteSettingsFieldset extends Fieldset
 {
@@ -28,17 +29,21 @@ class SiteSettingsFieldset extends Fieldset
                     'id' => 'menu_breadcrumbs_crumbs',
                 ],
             ])
-            // TODO Convert textarea into array before saving and vice-versa (see ConfigForm).
             ->add([
                 'name' => 'menu_breadcrumbs_prepend',
-                'type' => Element\Textarea::class,
+                'type' => DataTextarea::class,
                 'options' => [
                     'label' => 'Prepended links', // @translate
-                    'info' => 'List of urls followed by a label, one by line, that will be prepended to the breadcrumb.', // @translate
+                    'info' => 'List of urls followed by a label, separated by a "=", one by line, that will be prepended to the breadcrumb.', // @translate
+                    'as_key_value' => false,
+                    'data_keys' => [
+                        'uri',
+                        'label',
+                    ],
                 ],
                 'attributes' => [
                     'id' => 'menu_breadcrumbs_prepend',
-                    'placeholder' => '/s/my-site/page/intermediate Example page',
+                    'placeholder' => '/s/my-site/page/intermediate = Example page',
                 ],
             ])
             ->add([

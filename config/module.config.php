@@ -18,6 +18,7 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
+            Form\Element\DataTextarea::class => Form\Element\DataTextarea::class,
             Form\MenuForm::class => Form\MenuForm::class,
             Form\SiteSettingsFieldset::class => Form\SiteSettingsFieldset::class,
         ],
