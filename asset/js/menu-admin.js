@@ -54,6 +54,8 @@ $(document).ready( function() {
             class: 'o-icon-private',
             attr:{'aria-label': Omeka.jsTranslate('Private')},
         });
+        // TODO Manage CleanUrl.
+        // TODO Manage site page admin link.
         const regexPublicToAdmin = /(.*)\/s\/[a-zA-Z0-9_-]+\/((?:item|item-set|media|resource|value-annotation|annotation)\/[a-zA-Z0-9_-]+)/gm;
         this.bind = function() {
             parent.bind.call(this);
@@ -90,12 +92,12 @@ $(document).ready( function() {
                     if (nodeObj.data.url) {
                         nodeUrl = nodeObj.data.url;
                         anchorClone = displayIconPublic.clone();
-                        anchorClone.attr('title', '[public] item #' + nodeObj.id);
+                        anchorClone.attr('title', '[public] ' + nodeObj.data.type + ' #' + nodeObj.data.data.id);
                         anchor.append(anchorClone);
                         let nodeUrlAdmin = nodeUrl.replace(regexPublicToAdmin, `$1/admin/$2`);
                         if (nodeUrlAdmin !== nodeUrl) {
                             anchorClone = displayIconAdmin.clone();
-                            anchorClone.attr('title', '[admin] item #' + nodeObj.id);
+                            anchorClone.attr('title', '[admin] ' + nodeObj.data.type + ' #' + nodeObj.data.data.id);
                             anchor.append(anchorClone);
                         }
                     }

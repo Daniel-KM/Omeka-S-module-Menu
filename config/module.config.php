@@ -38,6 +38,7 @@ return [
     ],
     'navigation_links' => [
         'invokables' => [
+            'page' => Site\Navigation\Link\Page::class,
             'resource' => Site\Navigation\Link\Resource::class,
         ],
     ],
