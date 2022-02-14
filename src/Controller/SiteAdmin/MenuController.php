@@ -39,8 +39,8 @@ class MenuController extends AbstractActionController
             throw new NotFoundException();
         }
 
-        $menu = $this->navigationTranslator()->toJstree($site, $menu);
         $confirmForm = $this->getConfirmForm($name);
+        $menu = $this->navigationTranslator()->toJstree($site, $menu);
         return new ViewModel([
             'site' => $site,
             'confirmForm' => $confirmForm,
@@ -83,7 +83,6 @@ class MenuController extends AbstractActionController
 
     public function editAction()
     {
-        $site = $this->currentSite();
         $name = $this->params()->fromRoute('menu-slug');
         $menu = $this->siteSettings()->get('menu_menu:' . $name);
         if (!is_array($menu)) {
@@ -113,8 +112,8 @@ class MenuController extends AbstractActionController
             ]);
         }
 
+        $site = $this->currentSite();
         $confirmForm = $this->getConfirmForm($name);
-
         $menuSite = $this->navigationTranslator()->fromJstree($menu);
         return new ViewModel([
             'site' => $site,
@@ -132,7 +131,6 @@ class MenuController extends AbstractActionController
     {
         $linkTitle = (bool) $this->params()->fromQuery('link-title', true);
 
-        $site = $this->currentSite();
         $name = $this->params()->fromRoute('menu-slug');
         $menu = $this->siteSettings()->get('menu_menu:' . $name);
         if (!is_array($menu)) {
@@ -140,6 +138,7 @@ class MenuController extends AbstractActionController
         }
 
         // Cannot use default confirm details: menu is not a resource.
+        $site = $this->currentSite();
         $view = new ViewModel([
             'site' => $site,
             'form' => $this->getConfirmForm($name),
@@ -208,7 +207,6 @@ class MenuController extends AbstractActionController
 
     public function showDetailsAction()
     {
-        $site = $this->currentSite();
         $linkTitle = (bool) $this->params()->fromQuery('link-title', true);
         $name = $this->params()->fromRoute('menu-slug');
         $menu = $this->siteSettings()->get('menu_menu:' . $name);
@@ -216,6 +214,7 @@ class MenuController extends AbstractActionController
             throw new NotFoundException();
         }
 
+        $site = $this->currentSite();
         $view = new ViewModel([
             'site' => $site,
             'linkTitle' => $linkTitle,
@@ -224,6 +223,65 @@ class MenuController extends AbstractActionController
         ]);
         return $view
             ->setTerminal(true);
+    }
+
+    public function topsToMenusAction()
+    {
+        /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
+        $siteSettings = $this->siteSettings();
+
+        $name = $this->params()->fromRoute('menu-slug');
+        $menu = $siteSettings->get('menu_menu:' . $name);
+        if (!is_array($menu)) {
+            throw new NotFoundException();
+        }
+
+        if (!count($menu)) {
+            $this->messenger()->addWarning(new Message(
+                'This menu is empty and cannot be divided.' // @translate
+            ));
+            $params = $this->params()->fromRoute();
+            $params['action'] = 'browse';
+            return $this->redirect()->toRoute('admin/site/slug/menu-id', $params, true);
+        }
+
+        /**
+         * @var \Omeka\Api\Representation\SiteRepresentation $site
+         * @var \Omeka\Site\NavigationLinkManager$linkManager
+         * @var \Menu\Mvc\Controller\Plugin\NavigationTranslator $navTranslator
+         */
+        $site = $this->currentSite();
+        $linkManager = $site->getServiceLocator()->get('Omeka\Site\NavigationLinkManager');
+        $navTranslator = $this->navigationTranslator();
+
+        $newMenuNames = [];
+        foreach ($menu as $name => $subMenuData) {
+            if ($linkManager->has($subMenuData['type'] ?? '')) {
+                $linkType = $linkManager->get($subMenuData['type']);
+                $menuName = $navTranslator->getLinkLabel($linkType, $subMenuData['data'], $site);
+            } elseif (!empty($subMenuData['data']['label'])) {
+                $menuName = $subMenuData['data']['label'];
+            } else {
+                $menuName = $this->translate('[no label]'); // @translate
+            }
+            $newMenuNames[] = $this->checkAndSaveMenu($menuName, $subMenuData['links'] ?? []);
+        }
+
+        if (count($menu) <= 1) {
+            $this->messenger()->addSuccess(new Message(
+                'Menu "%s" successfully created', // @translate
+                reset($newMenuNames)
+            ));
+        } else {
+            $this->messenger()->addSuccess(new Message(
+                'Menus "%s" successfully created', // @translate
+                implode('", "', $newMenuNames)
+            ));
+        }
+
+        $params = $this->params()->fromRoute();
+        $params['action'] = 'browse';
+        return $this->redirect()->toRoute('admin/site/slug/menu-id', $params, true);
     }
 
     protected function checkAndSaveMenuFromPost(MenuForm $form, $isNew = false): ?string
@@ -273,6 +331,22 @@ class MenuController extends AbstractActionController
             'Menu "%s" was saved successfully.', // @translate
             $newName
         ));
+        return $newName;
+    }
+
+    /**
+     * @return string The cleaned name.
+     */
+    protected function checkAndSaveMenu(string $name, array $menu): string
+    {
+        /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
+        $siteSettings = $this->siteSettings();
+        $newName = $this->slugifyName($name);
+        $existingMenu = $siteSettings->get('menu_menu:' . $newName);
+        if (is_array($existingMenu)) {
+            $newName .= '-' . substr(bin2hex(\Laminas\Math\Rand::getBytes(20)), 0, 8);
+        }
+        $siteSettings->set('menu_menu:' . $newName, $menu);
         return $newName;
     }
 
@@ -404,7 +478,7 @@ class MenuController extends AbstractActionController
         $reserved = [
             'index', 'browse', 'show', 'show-details', 'add', 'edit',
             'delete', 'delete-confirm', 'batch-edit', 'batch-delete',
-            'menu'
+            'menu', 'tops-to-menus',
         ];
         if (in_array($string, $reserved)) {
             $string .= '-' . substr(bin2hex(\Laminas\Math\Rand::getBytes(20)), 0, 8);

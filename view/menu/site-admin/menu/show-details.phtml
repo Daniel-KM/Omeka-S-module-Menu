@@ -8,14 +8,24 @@
  */
 
 $plugins = $this->getHelperPluginManager();
-$translate = $plugins->get('translate');
+$url = $plugins->get('url');
 $escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
+
+$rightsEdit = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::class, 'edit');
 ?>
 
 <div class="resource-details" data-resource-values="<?= $escape(json_encode($menu, 320)) ?>">
     <h3 class="o-title"><?= $escape($name) ?></h3>
     <div class="meta-group">
         <h4><?= $translate('Menu') ?></h4>
+        <br/>
+        <div class="sidebar-actions">
+            <?php if ($rightsEdit): ?>
+            <?= /* Don't use count($menu) */ $menu ? $hyperlink($translate('Tops to menus'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'tops-to-menus'], true), ['class' => 'button', 'title' => $translate('Create a new menu for each top menu')]) : '' ?>
+            <?php endif; ?>
+        </div>
         <?php // TODO Render full menu. ?>
     </div>
     <?php // $this->trigger('view.details', ['entity' => $resource]); ?>
