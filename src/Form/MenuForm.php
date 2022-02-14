@@ -29,5 +29,29 @@ class MenuForm extends Form
                 'type' => Element\Hidden::class,
             ])
         ;
+
+        $inputFilter = $this->getInputFilter();
+        $inputFilter
+            ->add([
+                'name' => 'name',
+                'required' => true,
+                'filters'  => [
+                    [
+                        'name' => \Laminas\Filter\StringTrim::class,
+                        'name' => \Laminas\Filter\StripTags::class,
+                        'name' => \Laminas\Filter\StripNewlines::class,
+                    ],
+                ],
+                'validators' => [
+                    [
+                        'name' => \Laminas\Validator\StringLength::class,
+                        'options' => [
+                            'min' => 1,
+                            // Max id: 190 - "menu_menu:" (but may be unicode).
+                            'max' => 180,
+                        ],
+                    ],
+                ],
+            ]);
     }
 }
