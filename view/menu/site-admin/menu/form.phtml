@@ -41,17 +41,18 @@ $this->headScript()
     ->appendFile($assetUrl('js/menu-admin.js', 'Menu'));
 ?>
 
-<?php if ($form): ?>
+<?php if ($form): // Page menu/add or menu/edit. ?>
 <?= $this->form()->openTag($form) ?>
 <?= $this->formRow($form->get('csrf')) ?>
 
 <div id="page-actions">
     <?= $rightsDelete && isset($deleteButton) ? $deleteButton : '' ?>
-    <?= $this->cancelButton() ?>
+    <?php // The omeka cancel button cannot be used, because name may have been changed.?>
+    <?= $this->hyperlink($translate('Cancel'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'show'], true), ['class' => 'show-cancel button']) ?>
     <button type="submit"><?= $escape($submitLabel) ?></button>
 </div>
 
-<?php else: ?>
+<?php else: // Page menu/show. ?>
 
 <div id="page-actions">
     <?= $rightsDelete && isset($deleteButton) ? $deleteButton : '' ?>
