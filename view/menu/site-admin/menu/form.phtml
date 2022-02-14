@@ -66,16 +66,21 @@ $this->headScript()
 
 <?php endif; ?>
 
+<div class="toolbar-actions">
+    <button id="menu-open-all" type="button" class="button"><?= $translate('Open all') ?></button>
+    <button id="menu-close-all" type="button" class="button"><?= $translate('Close all') ?></button>
+</div>
+
 <div id="nav-tree"
     data-link-form-url="<?= $form ? $escapeAttr($url('admin/site/slug/action', ['action' => 'navigation-link-form'], true)) : '' ?>"
     data-jstree-data="<?= $escapeAttr(json_encode($menu, 320)) ?>">
 </div>
 
 <?php if ($form): ?>
-
 <button id="nav-selector-button" class="mobile-only"><?= $translate('Add a link to a site page') ?></button>
 <div id="nav-selector" class="always-open sidebar">
     <a href="#" class="mobile-only sidebar-close o-icon-close"><span class="screen-reader-text"><?= $translate('Close') ?></span></a>
+
     <?= $this->formRow($form->get('name')) ?>
     <?php /*
     <div class="field">
@@ -117,8 +122,6 @@ $this->headScript()
         <p><?= $translate('There are no available pages.') ?></p>
         <?php endif; ?>
     </div>
+    <?= $this->form()->closeTag() ?>
 </div>
-
-<?= $this->form()->closeTag() ?>
-
 <?php endif; ?>

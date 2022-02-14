@@ -6,4 +6,22 @@
     .menus .no-resources:before {
         content:"";
     }
+
+    /* Show */
+    body.menus.show .jstree-open > .jstree-anchor .jstree-displaylink,
+    body.menus.show .jstree-closed > .jstree-anchor .jstree-displaylink {
+        right: 60px;
+    }
+
+    /* Edition */
+
+    body.menus .sidebar-actions,
+    body.menus .toolbar-actions {
+        text-align: right;
+    }
+    body.menus .sidebar-actions .button,
+    body.menus .toolbar-actions .button {
+        background-color: rgba(0,0,0,.08);
+        color: #676767;
+    }
 }

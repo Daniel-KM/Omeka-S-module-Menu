@@ -83,4 +83,12 @@ $(document).ready( function() {
         }
     })());
 
+    $('#menu-open-all').on('click', function () {
+        tree.jstree(true).open_all();
+    });
+
+    $('#menu-close-all').on('click', function () {
+        tree.jstree(true).close_all();
+    });
+
 });
