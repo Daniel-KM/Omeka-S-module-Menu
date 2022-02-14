@@ -90,6 +90,20 @@ class Module extends AbstractModule
         ;
     }
 
+    protected function postUninstall(): void
+    {
+        $services = $this->getServiceLocator();
+
+        /** @var \Doctrine\DBAL\Connection $connection */
+        $connection = $services->get('Omeka\Connection');
+
+        $sql = <<<'SQL'
+DELETE FROM `site_setting`
+WHERE `id` LIKE "menu\_menu:%";
+SQL;
+        $connection->executeStatement($sql);
+    }
+
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {
         // Site settings.

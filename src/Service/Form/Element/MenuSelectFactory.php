@@ -12,8 +12,23 @@ class MenuSelectFactory implements FactoryInterface
     {
         $currentSite = $services->get('ControllerPluginManager')->get('currentSite');
         $currentSite = $currentSite();
-        $element = new MenuSelect(null, $options);
-        return $element
-            ->setSettings($services->get($currentSite ? 'Omeka\Settings\Site' : 'Omeka\Settings'));
+        if ($currentSite) {
+            /** @var \Doctrine\DBAL\Connection $connection */
+            $connection = $services->get('Omeka\Connection');
+            $sql = <<<'SQL'
+SELECT 'SUBSTRING(id, 11), 'SUBSTRING(id, 11)
+FROM `site_setting`
+WHERE `site_id` = :site_id;
+    AND `id` LIKE :menu
+SQL;
+            $menuNames = $connection->executeQuery($sql, [
+                'site_id' => $currentSite->id(),
+                'menu' => 'menu\_menu:%',
+            ])->fetchAllKeyValue();
+        } else {
+            $menuNames = [];
+        }
+        $options['value_options'] = $menuNames;
+        return new MenuSelect(null, $options);
     }
 }

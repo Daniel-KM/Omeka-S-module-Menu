@@ -121,7 +121,8 @@ return [
             'menu_breadcrumbs_separator' => '&gt;',
             'menu_breadcrumbs_homepage' => false,
             // This site setting is not managed in site settings, but in site menu "Menu".
-            'menu_menus' => [],
+            // There may be many "menu_menu:xxx".
+            'menu_menu:' => [],
         ],
     ],
 ];

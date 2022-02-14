@@ -21,7 +21,7 @@ class MenuController extends AbstractActionController
     public function browseAction()
     {
         $site = $this->currentSite();
-        $menus = $this->siteSettings()->get('menu_menus', []);
+        $menus = $this->listMenus($site);
         return new ViewModel([
             'site' => $site,
             'menus' => $menus,
@@ -30,17 +30,13 @@ class MenuController extends AbstractActionController
 
     public function showAction()
     {
-        /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
-        $siteSettings = $this->siteSettings();
-
         $site = $this->currentSite();
         $name = $this->params()->fromRoute('menu-slug');
-        $menus = $siteSettings->get('menu_menus', []);
-        if (!isset($menus[$name])) {
+        $menu = $this->siteSettings()->get('menu_menu:' . $name);
+        if (!is_array($menu)) {
             throw new NotFoundException();
         }
 
-        $menu = $menus[$name] ?: [];
         $menu = $this->navigationTranslator()->toJstree($site, $menu);
         $confirmForm = $this->getConfirmForm($name);
         return new ViewModel([
@@ -85,13 +81,10 @@ class MenuController extends AbstractActionController
 
     public function editAction()
     {
-        /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
-        $siteSettings = $this->siteSettings();
-
         $site = $this->currentSite();
         $name = $this->params()->fromRoute('menu-slug');
-        $menus = $siteSettings->get('menu_menus', []);
-        if (!isset($menus[$name])) {
+        $menu = $this->siteSettings()->get('menu_menu:' . $name);
+        if (!is_array($menu)) {
             throw new NotFoundException();
         }
 
@@ -111,10 +104,6 @@ class MenuController extends AbstractActionController
             $name = $formData['name'];
             $menu = empty($formData['jstree']) ? [] : json_decode($formData['jstree'], true);
         } else {
-            if (!isset($menus[$name])) {
-                throw new NotFoundException();
-            }
-            $menu = $menus[$name] ?: [];
             $menu = $this->navigationTranslator()->toJstree($site, $menu);
             $form->setData([
                 'name' => $name,
@@ -139,19 +128,14 @@ class MenuController extends AbstractActionController
 
     public function deleteConfirmAction()
     {
-        /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
-        $siteSettings = $this->siteSettings();
-
         $linkTitle = (bool) $this->params()->fromQuery('link-title', true);
 
         $site = $this->currentSite();
         $name = $this->params()->fromRoute('menu-slug');
-        $menus = $siteSettings->get('menu_menus', []);
-        if (!isset($menus[$name])) {
+        $menu = $this->siteSettings()->get('menu_menu:' . $name);
+        if (!is_array($menu)) {
             throw new NotFoundException();
         }
-
-        $menu = $menus[$name] ?: [];
 
         // Cannot use default confirm details: menu is not a resource.
         $view = new ViewModel([
@@ -170,19 +154,11 @@ class MenuController extends AbstractActionController
     public function deleteAction()
     {
         if ($this->getRequest()->isPost()) {
-            /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
-            $siteSettings = $this->siteSettings();
             $name = $this->params()->fromRoute('menu-slug');
-            $menus = $siteSettings->get('menu_menus', []);
-            if (!isset($menus[$name])) {
-                throw new NotFoundException();
-            }
             $form = $this->getConfirmForm($name);
             $form->setData($this->getRequest()->getPost());
             if ($form->isValid()) {
-                unset($menus[$name]);
-                ksort($menus);
-                $siteSettings->set('menu_menus', $menus);
+                $this->siteSettings()->delete('menu_menu:' . $name);
                 $this->messenger()->addSuccess(new Message(
                     'Menu "%s" successfully deleted', // @translate
                     $name
@@ -200,13 +176,11 @@ class MenuController extends AbstractActionController
 
     public function showDetailsAction()
     {
-        /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
-        $siteSettings = $this->siteSettings();
         $site = $this->currentSite();
         $linkTitle = (bool) $this->params()->fromQuery('link-title', true);
         $name = $this->params()->fromRoute('menu-slug');
-        $menus = $siteSettings->get('menu_menus', []);
-        if (!isset($menus[$name])) {
+        $menu = $this->siteSettings()->get('menu_menu:' . $name);
+        if (!is_array($menu)) {
             throw new NotFoundException();
         }
 
@@ -214,7 +188,7 @@ class MenuController extends AbstractActionController
             'site' => $site,
             'linkTitle' => $linkTitle,
             'name' => $name,
-            'menu' => $menus[$name],
+            'menu' => $menu,
         ]);
         return $view
             ->setTerminal(true);
@@ -232,32 +206,37 @@ class MenuController extends AbstractActionController
         /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
         $siteSettings = $this->siteSettings();
         $name = $this->params()->fromRoute('menu-slug');
-        $menus = $siteSettings->get('menu_menus', []);
         $data = $form->getData();
         $newName = $this->slugifyName($data['name']);
         if ($isNew) {
             $name = $newName;
         } else {
-            if (!isset($menus[$name])) {
+            $menu = $siteSettings->get('menu_menu:' . $name);
+            if (!is_array($menu)) {
                 throw new NotFoundException();
             }
         }
+
         $oldName = $name;
-        if ($oldName !== $newName && array_key_exists($newName, $menus)) {
-            $newName .= '-' . substr(bin2hex(\Laminas\Math\Rand::getBytes(20)), 0, 8);
-            $this->messenger()->addWarning(new Message(
-                'Menu "%s" uses an existing name and was renamed "%s".', // @translate
-                $name, $newName
-            ));
+        if ($oldName !== $newName) {
+            $existingMenu = $siteSettings->get('menu_menu:' . $newName);
+            if (is_array($existingMenu)) {
+                $newName .= '-' . substr(bin2hex(\Laminas\Math\Rand::getBytes(20)), 0, 8);
+                $this->messenger()->addWarning(new Message(
+                    'Menu "%s" uses an existing name and was renamed "%s".', // @translate
+                    $name, $newName
+                ));
+            }
         }
+
         $jstree = empty($data['jstree']) ? [] : json_decode($data['jstree'], true);
         if (!is_array($jstree)) {
             $jstree = [];
         }
-        unset($menus[$oldName]);
-        $menus[$newName] = $this->navigationTranslator()->fromJstree($jstree);
-        ksort($menus);
-        $siteSettings->set('menu_menus', $menus);
+
+        $siteSettings->delete('menu_menu:' . $oldName);
+        $menu = $this->navigationTranslator()->fromJstree($jstree);
+        $siteSettings->set('menu_menu:' . $newName, $menu);
         $this->messenger()->addSuccess(new Message(
             'Menu "%s" was saved successfully.', // @translate
             $newName
@@ -321,6 +300,55 @@ class MenuController extends AbstractActionController
     protected function notLinkedPagesInMenu(SiteRepresentation $site, array $menu): array
     {
         return array_diff_key($site->pages(), $this->linkedPagesInMenu($site, $menu));
+    }
+
+    /**
+     * Get all menus of a site.
+     */
+    protected function listMenus(SiteRepresentation $site): array
+    {
+        /** @var \Doctrine\DBAL\Connection $connection */
+        $connection = $site->getServiceLocator()->get('Omeka\Connection');
+        $qb = $connection->createQueryBuilder();
+        $expr = $qb->expr();
+        $qb
+            ->select('id', 'SUBSTRING(id, 11)')
+            ->from('site_setting', 'site_setting')
+            ->where($expr->eq('site_id', ':site_id'))
+            ->andWhere($expr->like('id', ':menu'))
+            ->orderBy('id', 'asc');
+        $menuNames = $connection->executeQuery($qb, [
+            'site_id' => $site->id(),
+            'menu' => 'menu\_menu:%',
+        ])->fetchAllKeyValue();
+        $menus = [];
+        $siteSettings = $this->siteSettings();
+        foreach ($menuNames as $key => $menuName) {
+            $menus[$menuName] = $siteSettings->get($key);
+        }
+        return $menus;
+    }
+
+    /**
+     * Get all menus of a site.
+     *
+     * Note: to use a direct sql requires more memory than site settings.
+     */
+    protected function listMenusViaSql(SiteRepresentation $site): array
+    {
+        /** @var \Doctrine\DBAL\Connection $connection */
+        $connection = $site->getServiceLocator()->get('Omeka\Connection');
+        $qb = $connection->createQueryBuilder();
+        $expr = $qb->expr();
+        $qb
+            ->select('SUBSTRING(id, 10)', 'value')
+            ->from('site_setting', 'site_setting')
+            ->where($expr->eq('site_id', ':site_id'))
+            ->orderBy('id', 'asc');
+        $menus = $connection->executeQuery($qb, ['site_id' => $site->id()])->fetchAllKeyValue();
+        return array_map(function ($v) {
+            return json_decode($v, true);
+        }, $menus);
     }
 
     protected function slugifyName(string $name): string

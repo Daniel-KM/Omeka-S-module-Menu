@@ -90,11 +90,11 @@ class NavMenu extends AbstractHelper
 
         $options['name'] = $name;
         if ($name) {
-            $menus = $this->view->siteSetting('menu_menus', []);
-            if (!isset($menus[$name])) {
+            $menu = $this->view->siteSetting('menu_menu:' . $name);
+            if (!is_array($menu)) {
                 return '';
             }
-            $options['menu'] = $menus[$name];
+            $options['menu'] = $menu;
             $options['nav'] = empty($options['noNav'])
                 ? $this->publicNav($options['site'], $options['menu'], $options['activeUrl'])
                 : null;
