@@ -47,12 +47,12 @@ $(document).ready( function() {
                 : ['display']
         })
         .on('loaded.jstree', function() {
-            // Open all nodes by default.
-            tree.jstree(true).open_all();
+            // Close all nodes by default.
+            tree.jstree(true).close_all();
             initialTreeData = JSON.stringify(tree.jstree(true).get_json());
         })
         .on('move_node.jstree', function(e, data) {
-            // Open node after moving it.
+            // Open parent node after moving it.
             var parent = tree.jstree(true).get_node(data.parent);
             tree.jstree(true).open_all(parent);
         });
