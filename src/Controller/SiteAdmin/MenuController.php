@@ -3,6 +3,7 @@
 namespace Menu\Controller\SiteAdmin;
 
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use Menu\Form\MenuForm;
 use Omeka\Api\Representation\SiteRepresentation;
@@ -32,27 +33,24 @@ class MenuController extends AbstractActionController
 
     public function showAction()
     {
-        $site = $this->currentSite();
         $name = $this->params()->fromRoute('menu-slug');
         $menu = $this->siteSettings()->get('menu_menu:' . $name);
         if (!is_array($menu)) {
             throw new NotFoundException();
         }
 
+        $site = $this->currentSite();
         $confirmForm = $this->getConfirmForm($name);
-        $menu = $this->navigationTranslator()->toJstree($site, $menu);
         return new ViewModel([
             'site' => $site,
             'confirmForm' => $confirmForm,
             'name' => $name,
-            // JsTree menu.
-            'menu' => $menu,
+            'jstree' => $this->navigationTranslator()->toJstree($site, $menu),
         ]);
     }
 
     public function addAction()
     {
-        $site = $this->currentSite();
         $form = $this->getForm(MenuForm::class);
         if ($this->getRequest()->isPost()) {
             $name = $this->checkAndSaveMenuFromPost($form, true);
@@ -64,18 +62,19 @@ class MenuController extends AbstractActionController
             }
             $formData = $this->params()->fromPost();
             $name = $formData['name'];
-            $menu = empty($formData['jstree']) ? [] : json_decode($formData['jstree'], true);
+            $jstree = empty($formData['jstree']) ? [] : json_decode($formData['jstree'], true);
         } else {
             $name = '';
-            $menu = [];
+            $jstree = [];
         }
-        $menuSite = $this->navigationTranslator()->fromJstree($menu);
+
+        $site = $this->currentSite();
+        $menuSite = $this->navigationTranslator()->fromJstree($jstree);
         return new ViewModel([
             'site' => $site,
             'form' => $form,
             'name' => $name,
-            // JsTree menu.
-            'menu' => $menu,
+            'jstree' => $jstree,
             'linkedPages' => $this->linkedPagesInMenu($site, $menuSite),
             'notLinkedPages' => $this->notLinkedPagesInMenu($site, $menuSite),
         ]);
@@ -103,25 +102,24 @@ class MenuController extends AbstractActionController
             }
             $formData = $this->params()->fromPost();
             $name = $formData['name'];
-            $menu = empty($formData['jstree']) ? [] : json_decode($formData['jstree'], true);
+            $jstree = empty($formData['jstree']) ? [] : json_decode($formData['jstree'], true);
         } else {
-            $menu = $this->navigationTranslator()->toJstree($site, $menu);
+            $jstree = $this->navigationTranslator()->toJstree($site, $menu);
             $form->setData([
                 'name' => $name,
-                'jstree' => json_encode($menu),
+                'jstree' => json_encode($jstree),
             ]);
         }
 
         $site = $this->currentSite();
         $confirmForm = $this->getConfirmForm($name);
-        $menuSite = $this->navigationTranslator()->fromJstree($menu);
+        $menuSite = $this->navigationTranslator()->fromJstree($jstree);
         return new ViewModel([
             'site' => $site,
             'form' => $form,
             'confirmForm' => $confirmForm,
             'name' => $name,
-            // JsTree menu.
-            'menu' => $menu,
+            'jstree' => $jstree,
             'linkedPages' => $this->linkedPagesInMenu($site, $menuSite),
             'notLinkedPages' => $this->notLinkedPagesInMenu($site, $menuSite),
         ]);
@@ -282,6 +280,23 @@ class MenuController extends AbstractActionController
         $params = $this->params()->fromRoute();
         $params['action'] = 'browse';
         return $this->redirect()->toRoute('admin/site/slug/menu-id', $params, true);
+    }
+
+    public function jstreeAction()
+    {
+        if (!$this->getRequest()->isXmlHttpRequest()) {
+            throw new NotFoundException;
+        }
+
+        $name = $this->params()->fromRoute('menu-slug');
+        $menu = $this->siteSettings()->get('menu_menu:' . $name);
+        if (!is_array($menu)) {
+            throw new NotFoundException();
+        }
+
+        return new JsonModel(
+            $this->navigationTranslator()->toJstree($this->currentSite(), $menu)
+        );
     }
 
     protected function checkAndSaveMenuFromPost(MenuForm $form, $isNew = false): ?string
@@ -478,7 +493,7 @@ class MenuController extends AbstractActionController
         $reserved = [
             'index', 'browse', 'show', 'show-details', 'add', 'edit',
             'delete', 'delete-confirm', 'batch-edit', 'batch-delete',
-            'menu', 'tops-to-menus',
+            'jstree', 'menu', 'tops-to-menus',
         ];
         if (in_array($string, $reserved)) {
             $string .= '-' . substr(bin2hex(\Laminas\Math\Rand::getBytes(20)), 0, 8);

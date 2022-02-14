@@ -74,7 +74,7 @@ $(document).ready( function() {
             node = parent.redraw_node.apply(this, arguments);
             if (node) {
                 var nodeObj = this.get_node(node);
-                var nodeUrl = nodeObj.data.url;
+                var nodeUrl = nodeObj.data ? nodeObj.data.url : null;
                 if (nodeUrl) {
                     var nodeJq = $(node);
                     var anchor = nodeJq.children('.jstree-anchor');
@@ -96,13 +96,16 @@ $(document).ready( function() {
 
     tree
         .jstree({
-            'core': {
-                'check_callback': true,
-                'force_text': true,
-                'data': tree.data('jstree-data'),
+            core: {
+                check_callback: true,
+                force_text: true,
+                data: {
+                    // Only an url for the root node.
+                    url: $('#nav-tree').data('jstree-url'),
+                },
             },
             // Plugins jstree and omeka (jstree-plugins).
-            'plugins': isEdit
+            plugins: isEdit
                 ? ['dnd', 'removenode', 'editlink', 'displayElements']
                 : ['displayElements']
         })

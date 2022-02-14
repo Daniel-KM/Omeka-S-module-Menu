@@ -12,7 +12,7 @@
  * @var string $sectionNavEvent
  * @var string $action
  *
- * Adapted from application/src/view/omeka/site-admin/index/navigation.phtml.
+ * Improved from application/src/view/omeka/site-admin/index/navigation.phtml.
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -50,7 +50,7 @@ $this->headScript()
     <?= $rightsDelete && isset($deleteButton) ? $deleteButton : '' ?>
     <?php // The omeka cancel button cannot be used, because name may have been changed.?>
     <?= $hyperlink($translate('Cancel'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'show'], true), ['class' => 'show-cancel button']) ?>
-    <?= /* Don't use count($menu) */ $menu ? $hyperlink($translate('Tops to menus'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'tops-to-menus'], true), ['class' => 'button', 'title' => $translate('Create a new menu for each top menu')]) : '' ?>
+    <?= $action === 'add' ? '' : $hyperlink($translate('Tops to menus'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'tops-to-menus'], true), ['class' => 'button', 'title' => $translate('Create a new menu for each top menu')]) ?>
     <button type="submit"><?= $escape($submitLabel) ?></button>
 </div>
 
@@ -59,7 +59,7 @@ $this->headScript()
 <div id="page-actions">
     <?= $rightsDelete && isset($deleteButton) ? $deleteButton : '' ?>
     <?php if ($rightsEdit): ?>
-    <?= /* Don't use count($menu) */ $menu ? $hyperlink($translate('Tops to menus'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'tops-to-menus'], true), ['class' => 'button', 'title' => $translate('Create a new menu for each top menu')]) : '' ?>
+    <?= $action === 'add' ? '' : $hyperlink($translate('Tops to menus'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'tops-to-menus'], true), ['class' => 'button', 'title' => $translate('Create a new menu for each top menu')]) ?>
     <?= $hyperlink($translate('Edit'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'edit'], true), ['class' => 'button']) ?>
     <?php endif; ?>
 </div>
@@ -73,7 +73,9 @@ $this->headScript()
 
 <div id="nav-tree"
     data-link-form-url="<?= $form ? $escapeAttr($url('admin/site/slug/action', ['action' => 'navigation-link-form'], true)) : '' ?>"
-    data-jstree-data="<?= $escapeAttr(json_encode($menu, 320)) ?>">
+    data-menu-name="<?= $escapeAttr($name) ?>"
+    data-jstree-url="<?= $escapeAttr($url('admin/site/slug/menu-id', ['action' => 'jstree'], true)) ?>"
+    >
 </div>
 
 <?php if ($form): ?>

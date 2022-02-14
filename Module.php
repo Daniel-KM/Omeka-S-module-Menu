@@ -86,7 +86,7 @@ class Module extends AbstractModule
                 [
                     'index', 'browse', 'show', 'show-details', 'add', 'edit',
                     'delete', 'delete-confirm', 'batch-delete',
-                    'tops-to-menus',
+                    'jstree', 'tops-to-menus',
                 ]
             )
         ;
