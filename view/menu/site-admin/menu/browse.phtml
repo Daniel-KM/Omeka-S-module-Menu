@@ -6,23 +6,14 @@
  */
 
 $plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$assetUrl = $plugins->get('assetUrl');
 $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
-$url = $plugins->get('url');
 
 $this->htmlElement('body')->appendAttribute('class', 'menus browse');
-$this->headLink()->appendStylesheet($this->assetUrl('css/menu-admin.css', 'Menu'));
-
-$sortHeadings = [
-    [
-        'label' => $translate('Name'),
-        'value' => 'name',
-    ],
-    [
-        'label' => $translate('Id'),
-        'value' => 'id',
-    ],
-];
+$this->headLink()->appendStylesheet($assetUrl('css/menu-admin.css', 'Menu'));
+$this->headScript()->appendFile($assetUrl('js/menu-admin.js', 'Menu'));
 
 // Rights are very simple currently.
 $defaultRights = [
@@ -50,17 +41,37 @@ $defaultRights = [
 
 <?php if (!empty($menus)): ?>
 <form method="post" id="batch-form" class="disable-unsaved-warning">
+    <?php if ($defaultRights['delete']): ?>
+    <div class="batch-inputs">
+        <select class="batch-actions-select" aria-label="<?= $translate('Batch actions') ?>">
+            <option value="default"><?= $translate('Batch actions') ?></option>
+            <option value="delete-selected" disabled="true"><?= $translate('Delete selected') ?></option>
+        </select>
+        <div class="batch-actions">
+            <button type="button" class="default active" disabled="true"><?php echo $translate('Go'); ?></button>
+            <a class="delete button sidebar-content delete-selected" data-sidebar-selector="#sidebar-delete-selected"><?= $translate('Go') ?></a>
+        </div>
+    </div>
+    <?php endif; ?>
 
-<table class="tablesaw" data-tablesaw-mode="stack">
+<table class="tablesaw batch-edit" data-tablesaw-mode="stack">
     <thead>
         <tr>
-            <th><?= $translate('Name') ?></th>
+            <th>
+                <?php if ($defaultRights['delete']): ?>
+                <input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>">
+                <?php endif; ?>
+                <?= $translate('Name'); ?>
+            </th>
         </tr>
     </thead>
     <tbody>
         <?php foreach (array_keys($menus) as $name): ?>
         <tr>
             <td>
+                <?php if ($defaultRights['delete']): ?>
+                <input type="checkbox" name="menus[]" value="<?= $name ?>" aria-label="<?= $translate('Select menu') ?>">
+                <?php endif; ?>
                 <?= $hyperlink($name, $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'show'], true)) ?>
                 <ul class="actions">
                     <?php if ($defaultRights['edit']): ?>
@@ -101,6 +112,8 @@ $defaultRights = [
     <?= $hyperlink('', '#', ['class' => 'sidebar-close o-icon-close', 'title' => $translate('Close')]) ?>
     <div class="sidebar-content"></div>
 </div>
+
+<?php if ($defaultRights['delete']): ?>
 <div id="sidebar-delete-selected" class="sidebar">
     <?= $hyperlink('', '#', ['class' => 'sidebar-close o-icon-close', 'title' => $translate('Close')]) ?>
     <div class="sidebar-content">
@@ -112,10 +125,11 @@ $defaultRights = [
                 sprintf('<strong>%s</strong>', $translate('Warning')),
                 '<strong><span id="delete-selected-count"></span></strong>'
             ) ?></p>
-            <?php //= $this->form($this->formDeleteSelected) ?>
+            <?= $this->form($this->formDeleteSelected) ?>
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <?php else: ?>
 

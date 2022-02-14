@@ -54,7 +54,7 @@ return [
                                         'options' => [
                                             'route' => '/menu[/:action]',
                                             'constraints' => [
-                                                'action' => 'index|browse|add',
+                                                'action' => 'index|browse|add|batch-delete',
                                             ],
                                             'defaults' => [
                                                 '__NAMESPACE__' => 'Menu\Controller\SiteAdmin',
@@ -69,7 +69,7 @@ return [
                                             'route' => '/menu/:menu-slug[/:action]',
                                             'constraints' => [
                                                 // The slug cannot be one of the defaut actions.
-                                                'menu-slug' => '(?!index|browse|add)[\w-]+',
+                                                'menu-slug' => '(?!index|browse|add|batch-delete)[\w-]+',
                                                 'action' => '[a-zA-Z][\w-]*',
                                             ],
                                             'defaults' => [

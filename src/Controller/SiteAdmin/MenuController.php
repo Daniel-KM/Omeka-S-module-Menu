@@ -22,9 +22,11 @@ class MenuController extends AbstractActionController
     {
         $site = $this->currentSite();
         $menus = $this->listMenus($site);
+        $formDeleteSelected = $this->getConfirmFormMultiple();
         return new ViewModel([
             'site' => $site,
             'menus' => $menus,
+            'formDeleteSelected' => $formDeleteSelected,
         ]);
     }
 
@@ -174,6 +176,36 @@ class MenuController extends AbstractActionController
         );
     }
 
+    public function batchDeleteAction()
+    {
+        if (!$this->getRequest()->isPost()) {
+            return $this->redirect()->toRoute(null, ['action' => 'browse'], true);
+        }
+
+        $menus = $this->params()->fromPost('menus', []);
+        if (!$menus) {
+            $this->messenger()->addError('You must select at least one menu to batch delete.'); // @translate
+            return $this->redirect()->toRoute(null, ['action' => 'browse'], true);
+        }
+
+        $form = $this->getConfirmFormMultiple();
+        $form->setData($this->getRequest()->getPost());
+        if ($form->isValid()) {
+            /** @var \Omeka\Mvc\Controller\Plugin\Settings $siteSettings */
+            $siteSettings = $this->siteSettings();
+            foreach ($menus as $menu) {
+                $siteSettings->delete('menu_menu:' . $menu);
+            }
+            $this->messenger()->addSuccess(sprintf(
+                $this->translate('%d menus successfully deleted'), // @translate
+                count($menus)
+            ));
+        } else {
+            $this->messenger()->addFormErrors($form);
+        }
+        return $this->redirect()->toRoute(null, ['action' => 'browse'], true);
+    }
+
     public function showDetailsAction()
     {
         $site = $this->currentSite();
@@ -252,10 +284,25 @@ class MenuController extends AbstractActionController
         /** @var \Omeka\Form\ConfirmForm $confirmForm */
         $confirmForm = $this
             ->getForm(\Omeka\Form\ConfirmForm::class)
-            ->setAttribute('action', $this->viewHelpers()->get('url')->__invoke('admin/site/slug/menu-id', ['menu-slug' => $menuName, 'action' => 'delete'], true));
+            ->setAttribute('action', $this->url()->fromRoute('admin/site/slug/menu-id', ['menu-slug' => $menuName, 'action' => 'delete'], true));
         $confirmForm
             ->setButtonLabel('Confirm delete'); // @translate
         return $confirmForm;
+    }
+
+    /**
+     * deleteConfirm() cannot be use when not a resource, so prepare it here.
+     */
+    protected function getConfirmFormMultiple(): \Omeka\Form\ConfirmForm
+    {
+        /** @var \Omeka\Form\ConfirmForm $confirmForm */
+        $confirmForm = $this
+            ->getForm(\Omeka\Form\ConfirmForm::class)
+            ->setAttribute('action', $this->url()->fromRoute('admin/site/slug/menu', ['action' => 'batch-delete'], true));
+        $confirmForm
+            ->setButtonLabel('Confirm delete'); // @translate
+        return $confirmForm
+            ->setAttribute('id', 'confirm-delete-selected');
     }
 
     /**
@@ -355,8 +402,9 @@ class MenuController extends AbstractActionController
     {
         $string = $this->slugify($name);
         $reserved = [
-            'index', 'browse', 'show', 'show-details', 'add', 'edit', 'delete', 'delete-confirm', 'batch-edit', 'batch-delete',
-            'menu',
+            'index', 'browse', 'show', 'show-details', 'add', 'edit',
+            'delete', 'delete-confirm', 'batch-edit', 'batch-delete',
+            'menu'
         ];
         if (in_array($string, $reserved)) {
             $string .= '-' . substr(bin2hex(\Laminas\Math\Rand::getBytes(20)), 0, 8);

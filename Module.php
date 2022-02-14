@@ -84,7 +84,8 @@ class Module extends AbstractModule
                 $admins,
                 [Controller\SiteAdmin\MenuController::class],
                 [
-                    'index', 'browse', 'show', 'show-details', 'add', 'edit', 'delete', 'delete-confirm',
+                    'index', 'browse', 'show', 'show-details', 'add', 'edit',
+                    'delete', 'delete-confirm', 'batch-delete',
                 ]
             )
         ;
