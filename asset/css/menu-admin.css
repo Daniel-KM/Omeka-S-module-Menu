@@ -8,9 +8,29 @@
     }
 
     /* Show */
-    body.menus.show .jstree-open > .jstree-anchor .jstree-displaylink,
-    body.menus.show .jstree-closed > .jstree-anchor .jstree-displaylink {
-        right: 60px;
+
+    body.menus .jstree-node .jstree-anchor .jstree-displaylink.link-admin {
+        right: 124px;
+    }
+    body.menus .jstree-node .jstree-anchor .jstree-displaylink.link-public {
+        right: 96px;
+    }
+    body.menus .jstree-node .jstree-anchor .jstree-editlink-edit {
+        right: 72px;
+    }
+    body.menus .jstree-node .jstree-anchor .jstree-removenode-remove,
+    body.menus .jstree-node .jstree-anchor .jstree-removenode-undo {
+        right: 48px;
+    }
+    body.menus.show .jstree-node .jstree-anchor .jstree-displaylink.link-admin {
+        right: 72px;
+    }
+    body.menus.show .jstree-node .jstree-anchor .jstree-displaylink.link-public {
+        right: 48px;
+    }
+
+    body.menus .jstree-node .jstree-anchor .jstree-displaylink.link-admin {
+        transform: rotate(180deg);
     }
 
     /* Edition */

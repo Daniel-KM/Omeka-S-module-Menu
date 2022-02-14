@@ -34,6 +34,66 @@ $(document).ready( function() {
 
     var initialTreeData;
 
+    /**
+     * Display element plugin for jsTree.
+     * Adapted from jstree-plugins to add a link to admin page.
+     */
+    $.jstree.plugins.displayElements = function(options, parent) {
+       // Use a <i> instead of a <a> because inside a <a>.
+       // Link to admin resource.
+        var displayIconAdmin = $('<i>', {
+            class: 'jstree-icon jstree-displaylink link-admin',
+            attr:{role: 'presentation'}
+        });
+        // Link to public side.
+        var displayIcon = $('<i>', {
+            class: 'jstree-icon jstree-displaylink link-public',
+            attr:{role: 'presentation'}
+        });
+        this.bind = function() {
+            parent.bind.call(this);
+            this.element
+                .on(
+                    'click.jstree',
+                    '.jstree-displaylink',
+                    $.proxy(function(e) {
+                        var icon = $(e.currentTarget);
+                        var node = icon.closest('.jstree-node');
+                        var nodeObj = this.get_node(node);
+                        var nodeUrl = nodeObj.data.url;
+                        // The url is public by default, so replace the /s/site/" by "/admin/".
+                        if (e.currentTarget.classList.contains('link-admin')) {
+                            const regex = /(.*)\/s\/[a-zA-Z0-9_-]+\/((?:item|item-set|media|resource|value-annotation|annotation)\/\d+)/gm;
+                            nodeUrl = nodeObj.data.url.replace(regex, `$1/admin/$2`);
+                        }
+                        window.open(nodeUrl, '_blank');
+                    }, this)
+                );
+        };
+        this.redraw_node = function(node, deep, is_callback, force_render) {
+            node = parent.redraw_node.apply(this, arguments);
+            if (node) {
+                var nodeObj = this.get_node(node);
+                var nodeUrl = nodeObj.data.url;
+                if (nodeUrl) {
+                    var nodeJq = $(node);
+                    var anchor = nodeJq.children('.jstree-anchor');
+                    let anchorClone = displayIcon.clone();
+                    anchorClone.attr('title', '[public] item #' + nodeObj.id);
+                    anchor.append(anchorClone);
+                    const regex = /(.*)\/s\/[a-zA-Z0-9_-]+\/((?:item|item-set|media|resource|value-annotation|annotation)\/\d+)/gm;
+                    let nodeUrlAdmin = nodeUrl.replace(regex, `$1/admin/$2`);
+                    if (nodeUrlAdmin !== nodeUrl) {
+                        anchorClone = displayIconAdmin.clone();
+                        anchorClone.attr('title', '[admin] item #' + nodeObj.id);
+                        anchor.append(anchorClone);
+                    }
+                }
+            }
+            return node;
+        };
+    };
+
     tree
         .jstree({
             'core': {
@@ -43,8 +103,8 @@ $(document).ready( function() {
             },
             // Plugins jstree and omeka (jstree-plugins).
             'plugins': isEdit
-                ? ['dnd', 'removenode', 'editlink', 'display']
-                : ['display']
+                ? ['dnd', 'removenode', 'editlink', 'displayElements']
+                : ['displayElements']
         })
         .on('loaded.jstree', function() {
             // Close all nodes by default.
