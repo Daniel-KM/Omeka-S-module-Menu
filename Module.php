@@ -90,18 +90,19 @@ class Module extends AbstractModule
         ;
     }
 
+    protected function postInstall(): void
+    {
+        // TODO Manage settings sub keys in Generic AbstractModule.
+        // Remove the automatic install of "menu_menu:".
+        $this->getServiceLocator()->get('Omeka\Connection')
+            ->executeStatement('DELETE FROM `site_setting` WHERE `id` = "menu_menu:";');
+    }
+
     protected function postUninstall(): void
     {
-        $services = $this->getServiceLocator();
-
-        /** @var \Doctrine\DBAL\Connection $connection */
-        $connection = $services->get('Omeka\Connection');
-
-        $sql = <<<'SQL'
-DELETE FROM `site_setting`
-WHERE `id` LIKE "menu\_menu:%";
-SQL;
-        $connection->executeStatement($sql);
+        // TODO Manage settings sub keys in Generic AbstractModule.
+        $this->getServiceLocator()->get('Omeka\Connection')
+            ->executeStatement('DELETE FROM `site_setting` WHERE `id` LIKE "menu\_menu:%";');
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
