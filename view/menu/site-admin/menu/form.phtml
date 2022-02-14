@@ -45,26 +45,19 @@ $this->headScript()
 <?php if ($form): // Page menu/add or menu/edit. ?>
 <?= $this->form()->openTag($form) ?>
 <?= $this->formRow($form->get('csrf')) ?>
+<?php endif; ?>
 
 <div id="page-actions">
+    <?= !$rightsEdit || $action === 'add' ? '' : $hyperlink($translate('Tops to menus'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'tops-to-menus'], true), ['class' => 'button', 'title' => $translate('Create a new menu for each top menu')]) ?>
     <?= $rightsDelete && isset($deleteButton) ? $deleteButton : '' ?>
+    <?php if ($form): // Page menu/add or menu/edit. ?>
     <?php // The omeka cancel button cannot be used, because name may have been changed.?>
     <?= $hyperlink($translate('Cancel'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'show'], true), ['class' => 'show-cancel button']) ?>
-    <?= $action === 'add' ? '' : $hyperlink($translate('Tops to menus'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'tops-to-menus'], true), ['class' => 'button', 'title' => $translate('Create a new menu for each top menu')]) ?>
     <button type="submit"><?= $escape($submitLabel) ?></button>
-</div>
-
-<?php else: // Page menu/show. ?>
-
-<div id="page-actions">
-    <?= $rightsDelete && isset($deleteButton) ? $deleteButton : '' ?>
-    <?php if ($rightsEdit): ?>
-    <?= $action === 'add' ? '' : $hyperlink($translate('Tops to menus'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'tops-to-menus'], true), ['class' => 'button', 'title' => $translate('Create a new menu for each top menu')]) ?>
+    <?php else: // Page menu/show. ?>
     <?= $hyperlink($translate('Edit'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'edit'], true), ['class' => 'button']) ?>
     <?php endif; ?>
 </div>
-
-<?php endif; ?>
 
 <div class="toolbar-actions">
     <button id="menu-open-all" type="button" class="button"><?= $translate('Open all') ?></button>
