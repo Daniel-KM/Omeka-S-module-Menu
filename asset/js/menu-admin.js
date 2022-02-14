@@ -49,7 +49,8 @@ $(document).ready( function() {
         .on('loaded.jstree', function() {
             // Close all nodes by default.
             tree.jstree(true).close_all();
-            initialTreeData = JSON.stringify(tree.jstree(true).get_json());
+            // Don't store node state open/closed, since it's not stored.
+            initialTreeData = JSON.stringify(tree.jstree(true).get_json(null, {no_state: true, no_a_attr: true, no_li_attr: true}));
         })
         .on('move_node.jstree', function(e, data) {
             // Open parent node after moving it.
@@ -59,7 +60,7 @@ $(document).ready( function() {
 
     $('#site-form')
         .on('o:before-form-unload', function () {
-            if (initialTreeData !== JSON.stringify(tree.jstree(true).get_json())) {
+            if (initialTreeData !== JSON.stringify(tree.jstree(true).get_json(null, {no_state: true, no_a_attr: true, no_li_attr: true}))) {
                 Omeka.markDirty(this);
             }
         });
