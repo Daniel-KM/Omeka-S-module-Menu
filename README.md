@@ -12,6 +12,8 @@ anywhere.
 It allows to add any resource as a menu element and take care of its rights (it
 is not displayed if the user has no right to see it).
 
+The theme should be modified to display new menus.
+
 
 Installation
 ------------
@@ -62,6 +64,7 @@ TODO
 - [ ] Add the right sidebar to select resources more easily.
 - [ ] Add a block layout.
 - [ ] Create a dynamic menu from resources (like Thesaurus, but without separate selection).
+- [ ] Create a link "Resource as page", so a dynamic page for a resource, so the page item/show will be a site page browsable like any page.
 
 
 Warning
