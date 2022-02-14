@@ -102,9 +102,21 @@ class Resource implements LinkInterface
 
     public function toJstree(array $data, SiteRepresentation $site)
     {
+        static $privateResources = null;
+
+        // Get all resource visibilities one time to avoid a looped query.
+        if (is_null($privateResources)) {
+            // Get only private resources: they are generally a small number in
+            // a digital library. It avoids a too much big output.
+            $privateResources = $site->getServiceLocator()->get('Omeka\Connection')
+                ->executeQuery('SELECT `id`, 1 FROM `resource` WHERE `is_public` = 0;')
+                ->fetchAllKeyValue();
+        }
+
         return [
             'label' => $data['label'] ?? '',
             'id' => $data['id'],
+            'is_public' => empty($privateResources[$data['id']]),
         ];
     }
 }

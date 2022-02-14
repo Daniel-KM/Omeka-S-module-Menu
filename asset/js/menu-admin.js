@@ -40,16 +40,21 @@ $(document).ready( function() {
      */
     $.jstree.plugins.displayElements = function(options, parent) {
        // Use a <i> instead of a <a> because inside a <a>.
+        // Link to public side.
+        var displayIconPublic = $('<i>', {
+            class: 'jstree-icon jstree-displaylink link-public',
+            attr:{role: 'presentation'}
+        });
        // Link to admin resource.
         var displayIconAdmin = $('<i>', {
             class: 'jstree-icon jstree-displaylink link-admin',
             attr:{role: 'presentation'}
         });
-        // Link to public side.
-        var displayIcon = $('<i>', {
-            class: 'jstree-icon jstree-displaylink link-public',
-            attr:{role: 'presentation'}
+        var displayIconPrivate = $('<span>', {
+            class: 'o-icon-private',
+            attr:{'aria-label': Omeka.jsTranslate('Private')},
         });
+        const regexPublicToAdmin = /(.*)\/s\/[a-zA-Z0-9_-]+\/((?:item|item-set|media|resource|value-annotation|annotation)\/[a-zA-Z0-9_-]+)/gm;
         this.bind = function() {
             parent.bind.call(this);
             this.element
@@ -63,8 +68,7 @@ $(document).ready( function() {
                         var nodeUrl = nodeObj.data.url;
                         // The url is public by default, so replace the /s/site/" by "/admin/".
                         if (e.currentTarget.classList.contains('link-admin')) {
-                            const regex = /(.*)\/s\/[a-zA-Z0-9_-]+\/((?:item|item-set|media|resource|value-annotation|annotation)\/\d+)/gm;
-                            nodeUrl = nodeObj.data.url.replace(regex, `$1/admin/$2`);
+                            nodeUrl = nodeObj.data.url.replace(regexPublicToAdmin, `$1/admin/$2`);
                         }
                         window.open(nodeUrl, '_blank');
                     }, this)
@@ -74,19 +78,26 @@ $(document).ready( function() {
             node = parent.redraw_node.apply(this, arguments);
             if (node) {
                 var nodeObj = this.get_node(node);
-                var nodeUrl = nodeObj.data ? nodeObj.data.url : null;
-                if (nodeUrl) {
+                if (nodeObj.data) {
                     var nodeJq = $(node);
                     var anchor = nodeJq.children('.jstree-anchor');
-                    let anchorClone = displayIcon.clone();
-                    anchorClone.attr('title', '[public] item #' + nodeObj.id);
-                    anchor.append(anchorClone);
-                    const regex = /(.*)\/s\/[a-zA-Z0-9_-]+\/((?:item|item-set|media|resource|value-annotation|annotation)\/\d+)/gm;
-                    let nodeUrlAdmin = nodeUrl.replace(regex, `$1/admin/$2`);
-                    if (nodeUrlAdmin !== nodeUrl) {
-                        anchorClone = displayIconAdmin.clone();
-                        anchorClone.attr('title', '[admin] item #' + nodeObj.id);
+                    var anchorClone;
+                    var nodeUrl;
+                    if (nodeObj.data.data && nodeObj.data.data.is_public === false) {
+                        anchorClone = displayIconPrivate.clone();
                         anchor.append(anchorClone);
+                    }
+                    if (nodeObj.data.url) {
+                        nodeUrl = nodeObj.data.url;
+                        anchorClone = displayIconPublic.clone();
+                        anchorClone.attr('title', '[public] item #' + nodeObj.id);
+                        anchor.append(anchorClone);
+                        let nodeUrlAdmin = nodeUrl.replace(regexPublicToAdmin, `$1/admin/$2`);
+                        if (nodeUrlAdmin !== nodeUrl) {
+                            anchorClone = displayIconAdmin.clone();
+                            anchorClone.attr('title', '[admin] item #' + nodeObj.id);
+                            anchor.append(anchorClone);
+                        }
                     }
                 }
             }
