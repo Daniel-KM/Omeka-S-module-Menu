@@ -4,7 +4,7 @@
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Menu\Form\MenuForm $form
  * @var string $name Empty string
- * @var array $menu Menu for jstree
+ * @var array|null $jstree
  * @var array $linkedPages
  * @var array $notLinkedPages
  */
@@ -21,7 +21,7 @@ $this->htmlElement('body')->appendAttribute('class', 'add menus');
     'site' => $site,
     'form' => $form,
     'name' => $name,
-    'menu' => $menu,
+    'jstree' => $jstree,
     'linkedPages' => $linkedPages,
     'notLinkedPages' => $notLinkedPages,
     'submitLabel' => $translate('Add'),

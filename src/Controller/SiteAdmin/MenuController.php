@@ -45,7 +45,9 @@ class MenuController extends AbstractActionController
             'site' => $site,
             'confirmForm' => $confirmForm,
             'name' => $name,
-            'jstree' => $this->navigationTranslator()->toJstree($site, $menu),
+            // Get jstree dynamically.
+            // 'jstree' => $this->navigationTranslator()->toJstree($site, $menu),
+            'jstree' => null,
         ]);
     }
 
@@ -74,6 +76,7 @@ class MenuController extends AbstractActionController
             'site' => $site,
             'form' => $form,
             'name' => $name,
+            // The default jstree shouldn't be null because it can't be fetched.
             'jstree' => $jstree,
             'linkedPages' => $this->linkedPagesInMenu($site, $menuSite),
             'notLinkedPages' => $this->notLinkedPagesInMenu($site, $menuSite),
@@ -104,10 +107,10 @@ class MenuController extends AbstractActionController
             $name = $formData['name'];
             $jstree = empty($formData['jstree']) ? [] : json_decode($formData['jstree'], true);
         } else {
-            $jstree = $this->navigationTranslator()->toJstree($site, $menu);
+            $jstree = null;
             $form->setData([
                 'name' => $name,
-                'jstree' => json_encode($jstree),
+                'jstree' => '',
             ]);
         }
 

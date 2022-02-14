@@ -4,7 +4,7 @@
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Omeka\Form\ConfirmForm $confirmForm
  * @var string $name
- * @var array $menu Menu for jstree
+ * @var null $jstree The jstree is fetched dynamically
  */
 
 $plugins = $this->getHelperPluginManager();
@@ -23,7 +23,7 @@ $deleteButton = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::
     'site' => $site,
     'form' => null,
     'name' => $name,
-    'menu' => $menu,
+    'jstree' => $jstree,
     'linkedPages' => [],
     'notLinkedPages' => [],
     'submitLabel' => null,
@@ -38,7 +38,6 @@ $deleteButton = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::
     'form' => $confirmForm,
     'resourceLabel' => sprintf('menu "%s"', $name),
     'name' => $name,
-    'menu' => $menu,
     'wrapSidebar' => true,
 ]) ?>
 <?php endif; ?>

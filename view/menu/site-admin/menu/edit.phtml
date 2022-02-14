@@ -5,7 +5,7 @@
  * @var \Menu\Form\MenuForm $form
  * @var \Omeka\Form\ConfirmForm $confirmForm
  * @var string $name
- * @var array $menu Menu for jstree
+ * @var array|null $jstree
  * @var array $linkedPages
  * @var array $notLinkedPages
  */
@@ -26,7 +26,7 @@ $deleteButton = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::
     'site' => $site,
     'form' => $form,
     'name' => $name,
-    'menu' => $menu,
+    'jstree' => $jstree,
     'linkedPages' => $linkedPages,
     'notLinkedPages' => $notLinkedPages,
     'submitLabel' => $translate('Save'),
@@ -41,7 +41,6 @@ $deleteButton = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::
     'form' => $confirmForm,
     'resourceLabel' => sprintf('menu "%s"', $name),
     'name' => $name,
-    'menu' => $menu,
     'wrapSidebar' => true,
 ]) ?>
 <?php endif; ?>

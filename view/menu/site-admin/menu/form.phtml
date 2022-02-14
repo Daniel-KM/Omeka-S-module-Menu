@@ -4,7 +4,7 @@
  * @var \Omeka\Api\Representation\SiteRepresentation $site
  * @var \Menu\Form\MenuForm $form
  * @var string $name
- * @var array $menu Menu for jstree
+ * @var array|null $jstree
  * @var array $linkedPages
  * @var array $notLinkedPages
  * @var string $submitLabel
@@ -73,8 +73,9 @@ $this->headScript()
 
 <div id="nav-tree"
     data-link-form-url="<?= $form ? $escapeAttr($url('admin/site/slug/action', ['action' => 'navigation-link-form'], true)) : '' ?>"
+    data-jstree-data="<?= $escapeAttr(json_encode($jstree, 320)) ?>"
     data-menu-name="<?= $escapeAttr($name) ?>"
-    data-jstree-url="<?= $escapeAttr($url('admin/site/slug/menu-id', ['action' => 'jstree'], true)) ?>"
+    data-jstree-url="<?= $action === 'add' ? '' : $escapeAttr($url('admin/site/slug/menu-id', ['action' => 'jstree'], true)) ?>"
     >
 </div>
 

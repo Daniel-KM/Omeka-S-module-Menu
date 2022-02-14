@@ -160,8 +160,11 @@ class NavigationTranslator extends AbstractPlugin
     /**
      * Translate jsTree node format to Omeka site navigation format.
      */
-    public function fromJstree(array $jstree): array
+    public function fromJstree(?array $jstree): array
     {
+        if (is_null($jstree)) {
+            return [];
+        }
         $buildPages = null;
         $buildPages = function ($pagesIn) use (&$buildPages) {
             $pagesOut = [];

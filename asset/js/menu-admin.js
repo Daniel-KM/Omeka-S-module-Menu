@@ -99,10 +99,13 @@ $(document).ready( function() {
             core: {
                 check_callback: true,
                 force_text: true,
-                data: {
-                    // Only an url for the root node.
-                    url: $('#nav-tree').data('jstree-url'),
-                },
+                // Get jstree data from attributes when an error occurs (not yet saved).
+                data: tree.data('jstree-data')
+                    ? tree.data('jstree-data')
+                    : {
+                        // Only an url for the root node.
+                        url: $('#nav-tree').data('jstree-url'),
+                    },
             },
             // Plugins jstree and omeka (jstree-plugins).
             plugins: isEdit
