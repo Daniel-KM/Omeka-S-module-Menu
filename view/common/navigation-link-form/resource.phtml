@@ -20,7 +20,7 @@ if ($id) {
         /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
         $resource = $this->api()->read('resources', ['id' => $id])->getContent();
         $resourceLabel = $resource->displayTitle();
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
     }
 }
 ?>
