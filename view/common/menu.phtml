@@ -8,6 +8,7 @@
  * @var bool $noNav
  * @var string $render May be "breadcrumbs" or "menu".
  * @var \Laminas\View\Helper\Navigation $nav
+ * @var array $options Options provided to the helper, merged with default values.
  *
  * Options for Laminas Navigation
  *
@@ -31,6 +32,10 @@
  * @var string $separator Default "&gt;".
  * @var bool $linkLast
  *
+ * Specific options to render as "prevnext", "prev", "next":
+ * @var string|null $partial
+ * @var array $prevnext Contains the pages prev and next (\Laminas\Navigation\Page\AbstractPage).
+ *
  * @link https://docs.laminas.dev/laminas-navigation/helpers/menu
  *
  * And any other options passed through the helper.
@@ -49,6 +54,22 @@ if (!$nav) return;
             ->setSeparator($separator)
             ->setLinkLast($linkLast)
             ->renderStraight();
+
+elseif (in_array($render, ['prevnext', 'prev', 'next'])):
+
+    if ($partial):
+        echo $this->partial($partial);
+    else:
+        $escape = $this->plugin('escape');
+        if (!empty($prevnext['prev'])):
+            $link = $nav->links()->renderLink($prevnext['prev'], 'rel', 'prev');
+            echo '<a ' . mb_substr($link, 6, -1) . '>' . $escape($prevnext['prev']->getLabel()) . '</a>';
+        endif;
+        if (!empty($prevnext['next'])):
+            $link = $nav->links()->renderLink($prevnext['next'], 'rel', 'next');
+            echo '<a ' . mb_substr($link, 6, -1) . '>' . $escape($prevnext['next']->getLabel()) . '</a>';
+        endif;
+    endif;
 
 else:
 

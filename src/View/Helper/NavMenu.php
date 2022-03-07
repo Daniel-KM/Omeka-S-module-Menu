@@ -36,7 +36,8 @@ class NavMenu extends AbstractHelper
      * - template (string, default: "common/menu"): template to use.
      * - site (SiteRepresentation, default: null): use a menu from another site.
      * - menu (array): use any arbitrary menu or sub-menu instead of the name.
-     * - render (string): render as "menu" (default) or "breadcrumbs".
+     * - render (string): render as "menu" (default), "breadcrumbs", "prevnext",
+     *   "prev", "next".
      * - activeUrl (null|array|string|bool) Set the active url.
      *   - null (default): use the Laminas mechanism (compare with route);
      *   - true: use current url;
@@ -73,7 +74,15 @@ class NavMenu extends AbstractHelper
      * - linkLast (bool): Set true to render last breadcrumb as a link instead
      *   of a label (default: false).
      *
+     * Specific options to render as "prevnext", "prev", "next:
+     * - partial (string|null): template for the menu
+     *
      * Other options are passed to the template.
+     *
+     * Note that there are two optional keys to render the menu: "template" (for
+     * the menu helper) and "partial" (for the specific menu type).
+     * Furthermore, the "partial" is not overridden by the theme, so it should
+     * be set to override the default one (exemple: `['partial' => 'common/breadcrumbs']`).
      *
      * @link https://docs.laminas.dev/laminas-navigation/helpers/menu
      * @link https://docs.laminas.dev/laminas-navigation/helpers/breadcrumbs
@@ -83,42 +92,62 @@ class NavMenu extends AbstractHelper
         $partial = $options['template'] ?? $this->template;
         unset($options['template']);
 
-        $isMenu = empty($options['render']) || $options['render'] !== 'breadcrumbs';
-        if ($isMenu) {
-            $options += [
-                'site' => null,
-                'name' => $name,
-                'menu' => null,
-                'activeUrl' => null,
-                'noNav' => false,
-                'render' => null,
-                // Specific option of helper Menu.
-                'partial' => null,
-                'indent' => '',
-                'minDepth' => null,
-                'maxDepth' => null,
-                'maxDepthInactive' => null,
-                'ulClass' => 'navigation',
-                'liActiveClass' => 'active',
-                'onlyActiveBranch' => false,
-                'renderParents' => true,
-                'escapeLabels' => true,
-                'addClassToListItem' => false,
-            ];
-        } else {
-            $options += [
-                'site' => null,
-                'name' => $name,
-                'menu' => null,
-                'activeUrl' => null,
-                'noNav' => false,
-                // Specific option of helper Menu.
-                'partial' => null,
-                'indent' => '',
-                'minDepth' => null,
-                'separator' => '&gt;',
-                'linkLast' => false,
-            ];
+        $render = $options['render'] ?? null;
+        switch ($render) {
+            default:
+            case '':
+            case 'menu':
+                $isMenu = true;
+                $options += [
+                    'site' => null,
+                    'name' => $name,
+                    'menu' => null,
+                    'activeUrl' => null,
+                    'noNav' => false,
+                    'render' => null,
+                    // Specific option of helper Menu.
+                    'partial' => null,
+                    'indent' => '',
+                    'minDepth' => null,
+                    'maxDepth' => null,
+                    'maxDepthInactive' => null,
+                    'ulClass' => 'navigation',
+                    'liActiveClass' => 'active',
+                    'onlyActiveBranch' => false,
+                    'renderParents' => true,
+                    'escapeLabels' => true,
+                    'addClassToListItem' => false,
+                ];
+                break;
+            case 'breadcrumbs':
+                $options += [
+                    'site' => null,
+                    'name' => $name,
+                    'menu' => null,
+                    'activeUrl' => null,
+                    'noNav' => false,
+                    // Specific option of helper Menu.
+                    'partial' => null,
+                    'indent' => '',
+                    'minDepth' => null,
+                    'separator' => '&gt;',
+                    'linkLast' => false,
+                ];
+                break;
+            case 'prevnext':
+            case 'prev':
+            case 'next':
+                $isPrevNext = true;
+                $options += [
+                    'site' => null,
+                    'name' => $name,
+                    'menu' => null,
+                    'activeUrl' => null,
+                    'noNav' => false,
+                    // Specific option of helper Menu.
+                    'partial' => null,
+                ];
+                break;
         }
 
         if (empty($options['site'])) {
@@ -126,8 +155,9 @@ class NavMenu extends AbstractHelper
         }
 
         $options['name'] = $name;
+        $options['options'] = $options;
 
-        if ($isMenu) {
+        if (!empty($isMenu)) {
             // Max inactive depth cannot be greater than max depth, but don't fix
             // options in order to pass them to special templates.
             $maxDepth = $options['maxDepth'];
@@ -175,6 +205,10 @@ class NavMenu extends AbstractHelper
                 : null;
         }
 
+        if (!empty($isPrevNext)) {
+            $options['prevnext'] = $this->prevNext($options);
+        }
+
         return $partial !== $this->template && $this->view->resolver($partial)
             ? $this->view->partial($partial, $options)
             : $this->view->partial($this->template, $options);
@@ -210,6 +244,30 @@ class NavMenu extends AbstractHelper
     {
         $factory = new ConstructedNavigationFactory($this->navigationTranslator->toLaminas($site, $menu, $options));
         return $factory($this->services, '');
+    }
+
+    protected function prevNext(array $options): array
+    {
+        $prev = null;
+        $next = null;
+        $render = $options['render'];
+        $getPrev = $render === 'prev' || $render === 'prevnext';
+        $getNext = $render === 'next' || $render === 'prevnext';
+        if ($options['nav']) {
+            /** @var \Laminas\View\Helper\Navigation $nav */
+            $nav = $options['nav'];
+            $activePage = $nav->findActive($nav->getContainer());
+            if ($activePage) {
+                $prev = $getPrev ? $nav->links()->searchRelPrev($activePage['page']) : null;
+                $next = $getNext ? $nav->links()->searchRelnext($activePage['page']) : null;
+            }
+        } elseif ($options['menu']) {
+            // TODO Get prev/next from menu array.
+        }
+        return [
+            'prev' => $prev,
+            'next' => $next,
+        ];
     }
 
     protected function currentSite(): ?\Omeka\Api\Representation\SiteRepresentation

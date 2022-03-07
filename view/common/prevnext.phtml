@@ -1,0 +1,35 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SiteRepresentation $site
+ * @var Laminas\View\Helper\Navigation $nav
+ * @var string|null $partial
+ * @var array $prevnext Contains the pages prev and next (\Laminas\Navigation\Page\AbstractPage).
+ * @var array $options Options provided to the helper, merged with default values.
+ */
+
+$escape = $this->plugin('escapeHtml');
+
+$prev = null;
+if (!empty($prevnext['prev'])) {
+    $link = $nav->links()->renderLink($prevnext['prev'], 'rel', 'prev');
+    $prev = '<a ' . mb_substr($link, 6, -1) . '>' . $escape($prevnext['prev']->getLabel()) . '</a>';
+}
+
+$next = null;
+if (!empty($prevnext['next'])) {
+    $link = $nav->links()->renderLink($prevnext['next'], 'rel', 'next');
+    $next = '<a ' . mb_substr($link, 6, -1) . '>' . $escape($prevnext['next']->getLabel()) . '</a>';
+}
+?>
+
+<nav class="item-navigation">
+    <ul>
+        <?php if ($prev): ?>
+        <li class="previous"><?= $prev ?></li>
+        <?php endif; ?>
+        <?php if ($next): ?>
+        <li class="next"><?= $next ?></li>
+        <?php endif; ?>
+    </ul>
+</nav>
