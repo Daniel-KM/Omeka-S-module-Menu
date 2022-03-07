@@ -77,9 +77,14 @@ class NavigationTranslator extends AbstractPlugin
             if (is_array($a) && is_array($b)) {
                 $aa = array_intersect_key($a, $b);
                 $bb = array_intersect_key($b, $a);
+                // Don't check order or types: ids may be saved as string.
+                // @todo Make integer the ids of menus to speed up and improve comparison.
+                /*
                 ksort($aa);
                 ksort($bb);
                 return $aa === $bb;
+                */
+                return $aa == $bb;
             }
             return $a === $b;
         };
