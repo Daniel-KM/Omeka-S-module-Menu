@@ -54,6 +54,9 @@ class NavMenu extends AbstractHelper
      * - indent (string|int): indentation
      * - minDepth (int|null): min depth of the navigation
      * - maxDepth (int|null): max depth of the navigation
+     * - maxDepthInactive (int|null): max depth of the inactive branches
+     *   (partially implemented) It requires an active url, else use maxDepth.
+     *   It should be lesser than maxDepth.
      * - ulClass (string, default: "navigation"): css class for ul element
      * - liActiveClass (string, default: "active"): css class for active li element
      * - onlyActiveBranch (bool): whether only active branch should be rendered
@@ -80,45 +83,21 @@ class NavMenu extends AbstractHelper
         $partial = $options['template'] ?? $this->template;
         unset($options['template']);
 
-        if (empty($options['site'])) {
-            $options['site'] = $this->currentSite();
-        }
-
-        if (!array_key_exists('activeUrl', $options)) {
-            $options['activeUrl'] = null;
-        }
-
-        $options['name'] = $name;
-        if ($name) {
-            $menu = $this->view->siteSetting('menu_menu:' . $name);
-            if (!is_array($menu)) {
-                return '';
-            }
-            $options['menu'] = $menu;
-            $options['nav'] = empty($options['noNav'])
-                ? $this->publicNav($options['site'], $options['menu'], $options['activeUrl'])
-                : null;
-        } elseif (isset($options['menu'])) {
-            $options['nav'] = empty($options['noNav'])
-                ? $this->publicNav($options['site'], $options['menu'], $options['activeUrl'])
-                : null;
-        } else {
-            $options['menu'] = $options['site']->navigation();
-            $options['nav'] = empty($options['noNav'])
-                ? ($options['activeUrl']
-                    ? $this->publicNav($options['site'], $options['menu'], $options['activeUrl'])
-                    : $options['site']->publicNav()
-                )
-                : null;
-        }
-
-        if (empty($options['render']) || $options['render'] !== 'breadcrumbs') {
+        $isMenu = empty($options['render']) || $options['render'] !== 'breadcrumbs';
+        if ($isMenu) {
             $options += [
+                'site' => null,
+                'name' => $name,
+                'menu' => null,
+                'activeUrl' => null,
+                'noNav' => false,
                 'render' => null,
+                // Specific option of helper Menu.
                 'partial' => null,
                 'indent' => '',
                 'minDepth' => null,
                 'maxDepth' => null,
+                'maxDepthInactive' => null,
                 'ulClass' => 'navigation',
                 'liActiveClass' => 'active',
                 'onlyActiveBranch' => false,
@@ -128,12 +107,72 @@ class NavMenu extends AbstractHelper
             ];
         } else {
             $options += [
+                'site' => null,
+                'name' => $name,
+                'menu' => null,
+                'activeUrl' => null,
+                'noNav' => false,
+                // Specific option of helper Menu.
                 'partial' => null,
                 'indent' => '',
                 'minDepth' => null,
                 'separator' => '&gt;',
                 'linkLast' => false,
             ];
+        }
+
+        if (empty($options['site'])) {
+            $options['site'] = $this->currentSite();
+        }
+
+        $options['name'] = $name;
+
+        if ($isMenu) {
+            // Max inactive depth cannot be greater than max depth, but don't fix
+            // options in order to pass them to special templates.
+            $maxDepth = $options['maxDepth'];
+            $maxDepthInactive = $options['maxDepthInactive'];
+            if (!is_null($maxDepthInactive)
+                && !is_null($maxDepth)
+                && $maxDepthInactive >= $maxDepth
+            ) {
+                $maxDepthInactive = null;
+            } elseif (!is_null($maxDepthInactive)) {
+                $maxDepthInactive = (int) $maxDepthInactive;
+            }
+            $optionsPublicNav = [
+                'activeUrl' => $options['activeUrl'],
+                'maxDepthInactive' => $maxDepthInactive,
+            ];
+        } else {
+            unset($options['maxDepthInactive']);
+            $optionsPublicNav = [
+                'activeUrl' => $options['activeUrl'],
+                'maxDepthInactive' => null,
+            ];
+        }
+
+        if ($name) {
+            $menu = $this->view->siteSetting('menu_menu:' . $name);
+            if (!is_array($menu)) {
+                return '';
+            }
+            $options['menu'] = $menu;
+            $options['nav'] = empty($options['noNav'])
+                ? $this->publicNav($options['site'], $options['menu'], $optionsPublicNav)
+                : null;
+        } elseif (isset($options['menu'])) {
+            $options['nav'] = empty($options['noNav'])
+                ? $this->publicNav($options['site'], $options['menu'], $optionsPublicNav)
+                : null;
+        } else {
+            $options['menu'] = $options['site']->navigation();
+            $options['nav'] = empty($options['noNav'])
+                ? ($options['activeUrl']
+                    ? $this->publicNav($options['site'], $options['menu'], $optionsPublicNav)
+                    : $options['site']->publicNav()
+                )
+                : null;
         }
 
         return $partial !== $this->template && $this->view->resolver($partial)
@@ -149,7 +188,7 @@ class NavMenu extends AbstractHelper
      *
      * @todo Check if the translator should be skipped here, in particular to display title of resources.
      */
-    protected function publicNav(SiteRepresentation $site, array $menu, $activeUrl): \Laminas\View\Helper\Navigation
+    protected function publicNav(SiteRepresentation $site, ?array $menu = null, array $options = []): \Laminas\View\Helper\Navigation
     {
         // Build a new Navigation helper so these changes don't leak around to other places,
         // then set it to always disable translation for any of its "child" helpers (menu,
@@ -158,7 +197,7 @@ class NavMenu extends AbstractHelper
         $helper->getPluginManager()->addInitializer(function ($container, $plugin) {
             $plugin->setTranslatorEnabled(false);
         });
-        return $helper($this->getPublicNavContainer($site, $menu, $activeUrl));
+        return $helper($this->getPublicNavContainer($site, $menu, $options));
     }
 
     /**
@@ -167,9 +206,9 @@ class NavMenu extends AbstractHelper
      * Adapted from SiteRepresentation::getPublicNavContainer().
      * @see \Omeka\Api\Representation\SiteRepresentation::getPublicNavContainer()
      */
-    protected function getPublicNavContainer(SiteRepresentation $site, array $menu, $activeUrl): \Laminas\Navigation\Navigation
+    protected function getPublicNavContainer(SiteRepresentation $site, ?array $menu = null, array $options = []): \Laminas\Navigation\Navigation
     {
-        $factory = new ConstructedNavigationFactory($this->navigationTranslator->toLaminas($site, $menu, $activeUrl));
+        $factory = new ConstructedNavigationFactory($this->navigationTranslator->toLaminas($site, $menu, $options));
         return $factory($this->services, '');
     }
 

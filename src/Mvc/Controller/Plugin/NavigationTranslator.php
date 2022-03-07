@@ -53,7 +53,8 @@ class NavigationTranslator extends AbstractPlugin
     /**
      * Translate Omeka site navigation or any other menu to Laminas Navigation format.
      *
-     * @param null|array|string|bool $activeUrl Set the active url.
+     * @param $options
+     * - activeUrl (null|array|string|bool) Set the active url.
      *   - null (default): use the Laminas mechanism (compare with route);
      *   - true: use current url;
      *   - false: no active page;
@@ -61,9 +62,13 @@ class NavigationTranslator extends AbstractPlugin
      *     checked against the real url;
      *   - array: when an array with keys "type" and "data" is set, a quick
      *     check is done against the menu element.
+     * - maxDepthInactive (null|int) Should be lesser than maxDepth.
+     *
+     * @todo Use only the laminas mechanism to manage active url.
      */
-    public function toLaminas(SiteRepresentation $site, ?array $menu = null, $activeUrl = null): array
+    public function toLaminas(SiteRepresentation $site, ?array $menu = null, array $options = []): array
     {
+        $activeUrl = $options['activeUrl'] ?? null;
         if ($activeUrl === true) {
             // The request uri is a relative url.
             // Same as `substr($serverUrl(true), strlen($serverUrl(false)))`.
@@ -89,10 +94,16 @@ class NavigationTranslator extends AbstractPlugin
             return $a === $b;
         };
 
+        // Get the first active root branch.
+        $activeRoot = null;
+
         $buildLinks = null;
-        $buildLinks = function ($linksIn) use (&$buildLinks, $site, $activeUrl, $compareData) {
+        $buildLinks = function ($linksIn, $currentRootKey = null, $level = 0) use (&$buildLinks, $site, $activeUrl, &$activeRoot, $compareData) {
             $linksOut = [];
             foreach ($linksIn as $key => $data) {
+                if (!$level) {
+                    $currentRootKey = $key;
+                }
                 $linkType = $this->linkManager->get($data['type']);
                 $linkData = $data['data'];
                 $linksOut[$key] = method_exists($linkType, 'toLaminas') ? $linkType->toLaminas($linkData, $site) : $linkType->toZend($linkData, $site);
@@ -104,23 +115,55 @@ class NavigationTranslator extends AbstractPlugin
                             && $compareData($linkData, $activeUrl['data'])
                         ) {
                             $linksOut[$key]['active'] = true;
+                            if (is_null($activeRoot)) {
+                                $activeRoot = $currentRootKey;
+                            }
                         }
                     } elseif (is_string($activeUrl)) {
                         if ($this->getLinkUrl($linkType, $data, $site) === $activeUrl) {
                             $linksOut[$key]['active'] = true;
+                            if (is_null($activeRoot)) {
+                                $activeRoot = $currentRootKey;
+                            }
                         }
                     } elseif ($activeUrl === false) {
                         $linksOut[$key]['active'] = false;
                     }
                 }
                 if (isset($data['links'])) {
-                    $linksOut[$key]['pages'] = $buildLinks($data['links']);
+                    $linksOut[$key]['pages'] = $buildLinks($data['links'], $currentRootKey, $level + 1);
                 }
             }
             return $linksOut;
         };
         $nav = is_null($menu) ? $site->navigation() : $menu;
         $links = $buildLinks($nav);
+
+        $maxDepthInactive = $options['maxDepthInactive'] ?? null;
+
+        $removeSubLinks = null;
+        $removeSubLinks = function (array $link, int $level = 0) use (&$removeSubLinks, $maxDepthInactive): array {
+            if ($level < $maxDepthInactive) {
+                foreach ($link['pages'] ?? [] as $key => $subLink) {
+                    $link['pages'][$key] = $removeSubLinks($subLink, $level + 1);
+                }
+            } else {
+                $link['pages'] = [];
+            }
+            return $link;
+        };
+
+        // If there is no active url, maxDepth should be used.
+        if ($links && $activeUrl && !is_null($maxDepthInactive)) {
+            // Remove inactive sub-branches.
+            foreach ($links as $key => &$link) {
+                if ($key === $activeRoot) {
+                    continue;
+                }
+                $link = $removeSubLinks($link);
+            }
+            unset($link);
+        }
 
         if (!$links && is_null($menu)) {
             // The site must have at least one page for navigation to work.
