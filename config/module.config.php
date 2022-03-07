@@ -92,7 +92,7 @@ return [
         'site' => [
             [
                 'label' => 'Menus', // @translate
-                'class' => 'navigation',
+                'class' => 'o-icon- fa-bars',
                 'route' => 'admin/site/slug/menu',
                 'action' => 'browse',
                 'useRouteMatch' => true,
