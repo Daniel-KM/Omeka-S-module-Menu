@@ -241,10 +241,9 @@ class NavigationTranslator extends AbstractPlugin
     public function getLinkLabel(LinkInterface $linkType, array $data, SiteRepresentation $site): string
     {
         $label = $linkType->getLabel($data, $site);
-        if ($label) {
-            return $label;
-        }
-        return $this->i18n->translate($linkType->getName());
+        return is_null($label) || $label === ''
+            ? $this->i18n->translate($linkType->getName())
+            : $label;
     }
 
     /**
