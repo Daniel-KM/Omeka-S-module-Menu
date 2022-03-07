@@ -89,6 +89,14 @@ class NavMenu extends AbstractHelper
      */
     public function __invoke(?string $name = null, array $options = []): string
     {
+        // Quick check menu name.
+        if ($name) {
+            $options['menu'] = $this->view->siteSetting('menu_menu:' . $name);
+            if (!is_array($options['menu'])) {
+                return '';
+            }
+        }
+
         $partial = $options['template'] ?? $this->template;
         unset($options['template']);
 
@@ -182,16 +190,7 @@ class NavMenu extends AbstractHelper
             ];
         }
 
-        if ($name) {
-            $menu = $this->view->siteSetting('menu_menu:' . $name);
-            if (!is_array($menu)) {
-                return '';
-            }
-            $options['menu'] = $menu;
-            $options['nav'] = empty($options['noNav'])
-                ? $this->publicNav($options['site'], $options['menu'], $optionsPublicNav)
-                : null;
-        } elseif (isset($options['menu'])) {
+        if (isset($options['menu'])) {
             $options['nav'] = empty($options['noNav'])
                 ? $this->publicNav($options['site'], $options['menu'], $optionsPublicNav)
                 : null;
