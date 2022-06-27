@@ -52,4 +52,8 @@
         background-color: rgba(0,0,0,.08);
         color: #676767;
     }
+
+    body.menus .sidebar button.option:hover {
+        cursor: move;
+    }
 }

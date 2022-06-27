@@ -144,6 +144,68 @@ $(document).ready( function() {
             }
         });
 
+    // Manage drag and drop from nav selector for custom links or page links.
+    // @see https://www.jstree.com/api/#/?q=dnd ; https://jsfiddle.net/fvnn4c2a/665 ; https://developer.mozilla.org/en-US/docs/Web/API/DragEvent ; https://www.editcode.net/thread-277923-1-1.html
+    // Store the dragged element.
+    document.getElementById('nav-selector').addEventListener('dragstart', function(e) {
+        const type = e.target.getAttribute('data-type');
+        var data = type === 'page'
+            ? {
+                label: e.target.getAttribute('data-label'),
+                id: e.target.getAttribute('data-id'),
+                slug: e.target.getAttribute('data-slug'),
+                is_public: e.target.getAttribute('data-is_public'),
+            }
+            : {};
+        var navLink = {
+            text: e.target.textContent,
+            data: {
+                type: type,
+                value: e.target.getAttribute('data-value'),
+                data: data,
+            }
+        };
+        e.dataTransfer.setData('navLink', JSON.stringify(navLink));
+    }, false);
+
+    // Required to enable dropping and to prevend issue.
+    document.getElementById('nav-tree').addEventListener('dragover', function(e) {
+        e.preventDefault();
+    }, false);
+
+    // Append the nav link to the target tree.
+    document.getElementById('nav-tree').addEventListener('drop', function(e) {
+        if (typeof e.dataTransfer === 'object') {
+            var navLink = JSON.parse(e.dataTransfer.getData('navLink'));
+            if (navLink) {
+                e.preventDefault();
+                e.stopPropagation();
+                const jstree = tree.jstree(true);
+                const nodeTargetId = $(e.target).closest('.jstree-node').attr('id');
+                const nodeTarget = jstree.get_node(nodeTargetId);
+                var targetParent = $('#' + nodeTargetId).parent();
+                var position = targetParent.children().index($('#' + nodeTargetId)) + 1;
+                if (nodeTarget.parent === '#') {
+                    targetParent = '#';
+                }
+                const nodeId = jstree.create_node(targetParent, navLink, position);
+                // There cannot be duplicate page links in navigation. Remove
+                // page links from the available list after they are added.
+                // TODO Factorize with jstree-plugins (editlink).
+                if (navLink.data.type === 'page') {
+                    $('.nav-page-link[data-id="' + navLink.data.id + '"]').hide();
+                    var pageLinks = $('#nav-page-links');
+                    if (!pageLinks.children('.nav-page-link').filter(':visible').length) {
+                        pageLinks.siblings('.page-selector-filter').hide();
+                        pageLinks.after('<p>' + Omeka.jsTranslate('There are no available pages.') + '</p>');
+                    }
+                }
+                jstree.toggleLinkEdit($('#' + nodeId));
+                return false;
+            }
+        }
+    }, false);
+
     var filterPages = function() {
         var thisInput = $(this);
         var search = thisInput.val().toLowerCase();

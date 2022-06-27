@@ -93,6 +93,7 @@ $this->headScript()
             <?php $name = $navigationLink->getName($type); ?>
             <button
                 type="button"
+                draggable="true"
                 data-type="<?= $escape($type) ?>"
                 data-value="<?= $escape($type) ?>"
                 class="option"
