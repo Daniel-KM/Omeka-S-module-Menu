@@ -285,6 +285,9 @@ class MenuController extends AbstractActionController
         return $this->redirect()->toRoute('admin/site/slug/menu-id', $params, true);
     }
 
+    /**
+     * @see \Thesaurus\Controller\Admin\ThesaurusController::jstreeAction()
+     */
     public function jstreeAction()
     {
         if (!$this->getRequest()->isXmlHttpRequest()) {

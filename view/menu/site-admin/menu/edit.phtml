@@ -22,7 +22,7 @@ $deleteButton = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::
 
 <?= $this->pageTitle($name, 1, $translate('Menu'), $translate('Edit')) ?>
 <?php $this->trigger('view.edit.before'); ?>
-<?= $this->partial('menu/site-admin/menu/form.phtml', [
+<?= $this->partial('menu/site-admin/menu/form', [
     'site' => $site,
     'form' => $form,
     'name' => $name,

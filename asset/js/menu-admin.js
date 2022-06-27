@@ -27,7 +27,7 @@ $(document).ready( function() {
     });
 
     // Initialize the menu structure.
-    var tree = $('#nav-tree');
+    const tree = $('#nav-tree');
     if (!tree.jstree) return;
 
     const isEdit = $('#nav-tree').data('link-form-url') && $('#nav-tree').data('link-form-url').length > 0;

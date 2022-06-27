@@ -22,6 +22,7 @@ $assetUrl = $plugins->get('assetUrl');
 $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
+$navigationLink = $plugins->get('navigationLink');
 
 $rightsEdit = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::class, 'edit');
 $rightsDelete = $this->userIsAllowed(\Menu\Controller\SiteAdmin\MenuController::class, 'delete');
@@ -73,6 +74,7 @@ $this->headScript()
 </div>
 
 <?php if ($form): ?>
+
 <button id="nav-selector-button" class="mobile-only"><?= $translate('Add a link to a site page') ?></button>
 <div id="nav-selector" class="always-open sidebar">
     <a href="#" class="mobile-only sidebar-close o-icon-close"><span class="screen-reader-text"><?= $translate('Close') ?></span></a>
@@ -87,12 +89,14 @@ $this->headScript()
     <div class="field">
         <label for="nav-custom-links"><?= $translate('Add a custom link') ?></label>
         <div id="nav-custom-links">
-            <?php foreach ($this->navigationLink()->getCustomTypes() as $type): ?>
-            <?php $name = $this->navigationLink()->getName($type); ?>
+            <?php foreach ($navigationLink->getCustomTypes() as $type): ?>
+            <?php $name = $navigationLink->getName($type); ?>
             <button
                 type="button"
                 data-type="<?= $escape($type) ?>"
-                data-value="<?= $escape($type) ?>" class="option"><?= $escape($translate($name)) ?></button>
+                data-value="<?= $escape($type) ?>"
+                class="option"
+                ><?= $escape($translate($name)) ?></button>
             <?php endforeach; ?>
         </div>
     </div>
@@ -109,8 +113,8 @@ $this->headScript()
                 data-type="page"
                 data-label="<?= $escape($page->title()) ?>"
                 data-id="<?= $escape($page->id()) ?>"
-                data-slug="<?= $escape($page->slug()) ?>">
-                <?= sprintf('%s (%s)', $escape($page->title()), $escape($page->slug())) ?>
+                data-slug="<?= $escape($page->slug()) ?>"
+                ><?= sprintf('%s (%s)', $escape($page->title()), $escape($page->slug())) ?>
             </button>
         <?php endforeach; ?>
         </div>

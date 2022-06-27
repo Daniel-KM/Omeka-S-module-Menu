@@ -12,8 +12,10 @@ $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
 
 $this->htmlElement('body')->appendAttribute('class', 'menus browse');
-$this->headLink()->appendStylesheet($assetUrl('css/menu-admin.css', 'Menu'));
-$this->headScript()->appendFile($assetUrl('js/menu-admin.js', 'Menu'));
+$this->headLink()
+    ->appendStylesheet($assetUrl('css/menu-admin.css', 'Menu'));
+$this->headScript()
+    ->appendFile($assetUrl('js/menu-admin.js', 'Menu'));
 
 // Rights are very simple currently.
 $defaultRights = [
