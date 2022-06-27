@@ -40,6 +40,7 @@ return [
         'invokables' => [
             'page' => Site\Navigation\Link\Page::class,
             'resource' => Site\Navigation\Link\Resource::class,
+            'structure' => Site\Navigation\Link\Structure::class,
         ],
     ],
     'router' => [
