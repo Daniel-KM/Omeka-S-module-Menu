@@ -120,10 +120,10 @@ $(document).ready( function() {
                         url: $('#nav-tree').data('jstree-url'),
                     },
             },
-            // Plugins jstree and omeka (jstree-plugins).
+            // Plugins jstree, omeka (jstree-plugins) or above.
             plugins: isEdit
-                ? ['dnd', 'removenode', 'editlink', 'displayElements']
-                : ['displayElements']
+                ? ['privateStatus', 'dnd', 'removenode', 'editlink', 'displayElements']
+                : ['privateStatus', 'displayElements']
         })
         .on('loaded.jstree', function() {
             // Close all nodes by default.
