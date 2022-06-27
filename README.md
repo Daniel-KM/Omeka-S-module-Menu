@@ -9,8 +9,12 @@ Menu (module for Omeka S)
 site, for example a top menu, a sidebar menu and a footer menu, or any structure
 anywhere.
 
-It allows to add any resource as a menu element and take care of its rights (it
-is not displayed if the user has no right to see it).
+Furthermore, it adds to menu element type, that can be used in the main
+navigation too:
+- Resource, that allows to add any resource as a menu element and take care of
+  its rights (it is not displayed if the user has no right to see it).
+- Structure, that inserts an element without link, that is useful to create a
+  separator or a sub-menu.
 
 The theme should be modified to display new menus.
 
@@ -60,7 +64,7 @@ TODO
 - [x] Convert to a standard Laminas navigation, in particular to manage rights better.
 - [x] Include breadcrumbs from module [Next].
 - [ ] Normalize breadcrumbs.
-- [ ] Replace the standard menu.
+- [ ] Replace the standard menu?
 - [ ] Add the right sidebar to select resources more easily.
 - [ ] Add a block layout.
 - [ ] Create a dynamic menu from resources (like Thesaurus, but without separate selection).
@@ -115,7 +119,7 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2021 (see [Daniel-KM])
+* Copyright Daniel Berthereau, 2021-2022 (see [Daniel-KM])
 
 These features are built for the future digital library [Le Ménestrel],
 currently managed with [Spip].
