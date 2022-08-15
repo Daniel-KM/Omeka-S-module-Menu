@@ -34,6 +34,11 @@ $(document).ready( function() {
 
     var initialTreeData;
 
+    // Disable button "save" until the menu is fully loaded
+    // to avoid to override it with an empty menu.
+    const buttonSave = $('body.edit.menus #page-actions button[type=submit]');
+    buttonSave.prop('disabled', true);
+
     /**
      * Display element plugin for jsTree.
      * Adapted from jstree-plugins to add a link to admin page.
@@ -131,6 +136,7 @@ $(document).ready( function() {
             tree.jstree(true).close_all();
             // Don't store node state open/closed, since it's not stored.
             initialTreeData = JSON.stringify(tree.jstree(true).get_json(null, {no_state: true, no_a_attr: true, no_li_attr: true}));
+            buttonSave.prop('disabled', false);
         })
         .on('move_node.jstree', function(e, data) {
             // Open parent node after moving it.
