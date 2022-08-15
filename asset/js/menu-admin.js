@@ -30,7 +30,7 @@ $(document).ready( function() {
     const tree = $('#nav-tree');
     if (!tree.jstree) return;
 
-    const isEdit = $('#nav-tree').data('link-form-url') && $('#nav-tree').data('link-form-url').length > 0;
+    const isEdit = tree.data('link-form-url') && tree.data('link-form-url').length > 0;
 
     var initialTreeData;
 
@@ -117,7 +117,7 @@ $(document).ready( function() {
                     ? tree.data('jstree-data')
                     : {
                         // Only an url for the root node.
-                        url: $('#nav-tree').data('jstree-url'),
+                        url: tree.data('jstree-url'),
                     },
             },
             // Plugins jstree, omeka (jstree-plugins) or above.
@@ -144,37 +144,43 @@ $(document).ready( function() {
             }
         });
 
+    const navSelector = document.getElementById('nav-selector');
+    const navTree = document.getElementById('nav-tree');
+
     // Manage drag and drop from nav selector for custom links or page links.
     // @see https://www.jstree.com/api/#/?q=dnd ; https://jsfiddle.net/fvnn4c2a/665 ; https://developer.mozilla.org/en-US/docs/Web/API/DragEvent ; https://www.editcode.net/thread-277923-1-1.html
     // Store the dragged element.
-    document.getElementById('nav-selector').addEventListener('dragstart', function(e) {
-        const type = e.target.getAttribute('data-type');
-        var data = type === 'page'
-            ? {
-                label: e.target.getAttribute('data-label'),
-                id: e.target.getAttribute('data-id'),
-                slug: e.target.getAttribute('data-slug'),
-                is_public: e.target.getAttribute('data-is_public'),
-            }
-            : {};
-        var navLink = {
-            text: e.target.textContent,
-            data: {
-                type: type,
-                value: e.target.getAttribute('data-value'),
-                data: data,
-            }
-        };
-        e.dataTransfer.setData('navLink', JSON.stringify(navLink));
-    }, false);
+    // The nav selector is not available when in page menu/show.
+    if (navSelector) {
+        navSelector.addEventListener('dragstart', function(e) {
+            const type = e.target.getAttribute('data-type');
+            var data = type === 'page'
+                ? {
+                    label: e.target.getAttribute('data-label'),
+                    id: e.target.getAttribute('data-id'),
+                    slug: e.target.getAttribute('data-slug'),
+                    is_public: e.target.getAttribute('data-is_public'),
+                }
+                : {};
+            var navLink = {
+                text: e.target.textContent,
+                data: {
+                    type: type,
+                    value: e.target.getAttribute('data-value'),
+                    data: data,
+                }
+            };
+            e.dataTransfer.setData('navLink', JSON.stringify(navLink));
+        }, false);
+    }
 
     // Required to enable dropping and to prevend issue.
-    document.getElementById('nav-tree').addEventListener('dragover', function(e) {
+    navTree.addEventListener('dragover', function(e) {
         e.preventDefault();
     }, false);
 
     // Append the nav link to the target tree.
-    document.getElementById('nav-tree').addEventListener('drop', function(e) {
+    navTree.addEventListener('drop', function(e) {
         if (typeof e.dataTransfer === 'object') {
             var navLink = JSON.parse(e.dataTransfer.getData('navLink'));
             if (navLink) {
