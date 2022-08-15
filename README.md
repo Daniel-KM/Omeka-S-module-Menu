@@ -9,14 +9,14 @@ Menu (module for Omeka S)
 site, for example a top menu, a sidebar menu and a footer menu, or any structure
 anywhere.
 
-Furthermore, it adds to menu element type, that can be used in the main
+Furthermore, it adds two new menu element types, that can be used in the main
 navigation too:
 - Resource, that allows to add any resource as a menu element and take care of
-  its rights (it is not displayed if the user has no right to see it).
+  its rights (it is not displayed if the user has no right to see it);
 - Structure, that inserts an element without link, that is useful to create a
   separator or a sub-menu.
 
-The theme should be modified to display new menus.
+**Warning**: The theme should be modified to display new menus.
 
 
 Installation
