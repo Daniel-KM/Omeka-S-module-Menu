@@ -30,7 +30,8 @@
     }
 
     body.menus .jstree-node .jstree-anchor .jstree-displaylink.link-admin {
-        transform: rotate(180deg);
+        transform: rotate(90deg);
+        top: -3px;
     }
 
     #nav-tree .o-icon-private {

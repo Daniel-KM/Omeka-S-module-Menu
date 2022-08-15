@@ -51,7 +51,8 @@ $(document).ready( function() {
             attr:{role: 'presentation'}
         });
         var displayIconPrivate = $('<span>', {
-            class: 'o-icon-private',
+            // TODO Why the class is different from the template ("o-icon-private") in core?
+            class: 'jstree-icon jstree-private',
             attr:{'aria-label': Omeka.jsTranslate('Private')},
         });
         // TODO Manage CleanUrl.
@@ -85,7 +86,7 @@ $(document).ready( function() {
                     var anchor = nodeJq.children('.jstree-anchor');
                     var anchorClone;
                     var nodeUrl;
-                    if (nodeObj.data.data && nodeObj.data.data.is_public === false) {
+                    if (nodeObj.data.data && nodeObj.data.data.is_public === false && !anchor.find('.jstree-private, .o-icon-private').length) {
                         anchorClone = displayIconPrivate.clone();
                         anchor.append(anchorClone);
                     }
