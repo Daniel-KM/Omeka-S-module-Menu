@@ -40,6 +40,19 @@ $(document).ready( function() {
     buttonSave.prop('disabled', true);
 
     /**
+     * Convert public url of a resource or a page into the admin one.
+     *
+     * @todo Manage CleanUrl.
+     */
+    var publicUrlToAdminUrl = function(publicUrl, typeUrl) {
+        const regexPublicPageToAdmin = /(.*)\/s\/([a-zA-Z0-9_-]+)\/page\/([a-zA-Z0-9_-]+)/gm;
+        const regexPublicResourceToAdmin = /(.*)\/s\/[a-zA-Z0-9_-]+\/((?:item|item-set|media|resource|value-annotation|annotation)\/[a-zA-Z0-9_-]+)/gm;
+        return typeUrl === 'page'
+            ? publicUrl.replace(regexPublicPageToAdmin, `$1/admin/site/s/$2/page/$3`)
+            : publicUrl.replace(regexPublicResourceToAdmin, `$1/admin/$2`);
+    }
+
+    /**
      * Display element plugin for jsTree.
      * Adapted from jstree-plugins to add a link to admin page.
      */
@@ -60,9 +73,6 @@ $(document).ready( function() {
             class: 'jstree-icon jstree-private',
             attr:{'aria-label': Omeka.jsTranslate('Private')},
         });
-        // TODO Manage CleanUrl.
-        // TODO Manage site page admin link.
-        const regexPublicToAdmin = /(.*)\/s\/[a-zA-Z0-9_-]+\/((?:item|item-set|media|resource|value-annotation|annotation)\/[a-zA-Z0-9_-]+)/gm;
         this.bind = function() {
             parent.bind.call(this);
             this.element
@@ -74,9 +84,9 @@ $(document).ready( function() {
                         var node = icon.closest('.jstree-node');
                         var nodeObj = this.get_node(node);
                         var nodeUrl = nodeObj.data.url;
-                        // The url is public by default, so replace the /s/site/" by "/admin/".
+                        // The url is public by default, so update url.
                         if (e.currentTarget.classList.contains('link-admin')) {
-                            nodeUrl = nodeObj.data.url.replace(regexPublicToAdmin, `$1/admin/$2`);
+                            nodeUrl = publicUrlToAdminUrl(nodeObj.data.url, nodeObj.data.type);
                         }
                         window.open(nodeUrl, '_blank');
                     }, this)
@@ -98,12 +108,12 @@ $(document).ready( function() {
                     if (nodeObj.data.url) {
                         nodeUrl = nodeObj.data.url;
                         anchorClone = displayIconPublic.clone();
-                        anchorClone.attr('title', '[public] ' + nodeObj.data.type + ' #' + nodeObj.data.data.id);
+                        anchorClone.attr('title', '[public] ' + nodeObj.data.type + ' ' + (nodeObj.data.type === 'page' ? nodeUrl.split("/").pop() : '#' + nodeObj.data.data.id));
                         anchor.append(anchorClone);
-                        let nodeUrlAdmin = nodeUrl.replace(regexPublicToAdmin, `$1/admin/$2`);
+                        let nodeUrlAdmin = publicUrlToAdminUrl(nodeUrl, nodeObj.data.type);
                         if (nodeUrlAdmin !== nodeUrl) {
                             anchorClone = displayIconAdmin.clone();
-                            anchorClone.attr('title', '[admin] ' + nodeObj.data.type + ' #' + nodeObj.data.data.id);
+                            anchorClone.attr('title', '[admin] ' + nodeObj.data.type + ' ' + (nodeObj.data.type === 'page' ? nodeUrl.split("/").pop() : '#' + nodeObj.data.data.id));
                             anchor.append(anchorClone);
                         }
                     }
