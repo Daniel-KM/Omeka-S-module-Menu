@@ -7,26 +7,26 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-14 00:00+0000\n"
-"PO-Revision-Date: 2022-02-12 09:12+0100\n"
+"POT-Creation-Date: 2022-08-15 00:00+0000\n"
+"PO-Revision-Date: 2022-08-15 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.1.1\n"
 
-#: src/Controller/SiteAdmin/MenuController.php:199
+#: src/Controller/SiteAdmin/MenuController.php:200
 #, php-format
 msgid "%d menus successfully deleted"
 msgstr "%d menus ont été supprimés avec succès"
 
-#: src/Controller/SiteAdmin/MenuController.php:265
+#: src/Controller/SiteAdmin/MenuController.php:266
 msgid "[no label]"
 msgstr "[pas de libellé]"
 
-#: src/Generic/AbstractModule.php:66
+#: src/Generic/AbstractModule.php:66 src/Generic/AbstractModule.php:740
 #, php-format
 msgid "This module requires the module \"%s\"."
 msgstr "Ce module requiert le module « %s »."
@@ -54,7 +54,12 @@ msgid "The module removed tables \"%s\" from a previous broken install."
 msgstr ""
 "Le module a supprimé les tables « %s » depuis une installation échouée."
 
-#: src/Generic/AbstractModule.php:792
+#: src/Generic/AbstractModule.php:735
+#, php-format
+msgid "This module requires the module \"%1$s\", version %2$s or above."
+msgstr "Ce module requiert le module « %1$s », version %2$s ou supérieure."
+
+#: src/Generic/AbstractModule.php:832
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
@@ -134,6 +139,10 @@ msgstr "Ressource indisponible"
 msgid "Resource class"
 msgstr "Classe de ressource"
 
+#: view/common/navigation-link-form/structure.phtml:20
+msgid "Optional label"
+msgstr "Libellé facultatif"
+
 #: view/menu/site-admin/menu/add.phtml:18
 msgid "New menu"
 msgstr "Nouveau menu"
@@ -145,27 +154,27 @@ msgstr "Nouveau menu"
 msgid "Menu"
 msgstr "Menu"
 
-#: view/menu/site-admin/menu/browse.phtml:26
+#: view/menu/site-admin/menu/browse.phtml:28
 msgid "Menus"
 msgstr "Menus"
 
-#: view/menu/site-admin/menu/browse.phtml:36
+#: view/menu/site-admin/menu/browse.phtml:38
 msgid "Add new menu"
 msgstr "Ajouter un nouveau menu"
 
-#: view/menu/site-admin/menu/browse.phtml:73
+#: view/menu/site-admin/menu/browse.phtml:75
 msgid "Select menu"
 msgstr "Menu de sélection"
 
-#: view/menu/site-admin/menu/browse.phtml:121
+#: view/menu/site-admin/menu/browse.phtml:123
 msgid "Delete menus"
 msgstr "Supprimer les menus"
 
-#: view/menu/site-admin/menu/browse.phtml:122
+#: view/menu/site-admin/menu/browse.phtml:124
 msgid "Are you sure you would like to delete the selected menus?"
 msgstr "Êtes-vous sûr de vouloir supprimer les menus sélectionnés ?"
 
-#: view/menu/site-admin/menu/browse.phtml:124
+#: view/menu/site-admin/menu/browse.phtml:126
 #, php-format
 msgid ""
 "%1$s: this action will permanently delete %2$s menus and cannot be undone."
@@ -173,32 +182,30 @@ msgstr ""
 "%1$s : cette action supprimera le menu %2$s définitivement et ne pourra pas "
 "être annulée."
 
-#: view/menu/site-admin/menu/browse.phtml:137
+#: view/menu/site-admin/menu/browse.phtml:139
 msgid "Omeka could not find any menus."
 msgstr "Omeka ne trouve aucun menu."
 
-#: view/menu/site-admin/menu/delete-confirm.phtml:20
+#: view/menu/site-admin/menu/delete-confirm.phtml:19
 #, php-format
 msgid "Delete menu \"%s\""
 msgstr "Supprimer le menu « %s »"
 
-#: view/menu/site-admin/menu/form.phtml:53
-#: view/menu/site-admin/menu/form.phtml:62
+#: view/menu/site-admin/menu/form.phtml:52
 #: view/menu/site-admin/menu/show-details.phtml:26
 msgid "Tops to menus"
 msgstr "Éclater en menus"
 
-#: view/menu/site-admin/menu/form.phtml:53
-#: view/menu/site-admin/menu/form.phtml:62
+#: view/menu/site-admin/menu/form.phtml:52
 #: view/menu/site-admin/menu/show-details.phtml:26
 msgid "Create a new menu for each top menu"
 msgstr "Créer un nouveau menu pour chaque menu de premier niveau"
 
-#: view/menu/site-admin/menu/form.phtml:70
+#: view/menu/site-admin/menu/form.phtml:64
 msgid "Open all"
 msgstr "Tout ouvrir"
 
-#: view/menu/site-admin/menu/form.phtml:71
+#: view/menu/site-admin/menu/form.phtml:65
 msgid "Close all"
 msgstr "Tout fermer"
 
@@ -214,31 +221,31 @@ msgstr "Nom du menu"
 msgid "Menu & Breadcrumbs"
 msgstr "Menu & Fil d’Ariane"
 
-#: src/Form/SiteSettingsFieldset.php:20
+#: src/Form/SiteSettingsFieldset.php:21
 msgid "Crumbs"
 msgstr "Fil d’Ariane"
 
-#: src/Form/SiteSettingsFieldset.php:22
+#: src/Form/SiteSettingsFieldset.php:23
 msgid "Prepend home"
 msgstr "Ajouter la page d’accueil au début"
 
-#: src/Form/SiteSettingsFieldset.php:23
+#: src/Form/SiteSettingsFieldset.php:24
 msgid "Include \"Collections\""
 msgstr "Inclure « Collections »"
 
-#: src/Form/SiteSettingsFieldset.php:24
+#: src/Form/SiteSettingsFieldset.php:25
 msgid "Include main item set for item"
 msgstr "Inclure la collection principale du contenu"
 
-#: src/Form/SiteSettingsFieldset.php:25
+#: src/Form/SiteSettingsFieldset.php:26
 msgid "Append current resource"
 msgstr "Ajouter la ressource en cours"
 
-#: src/Form/SiteSettingsFieldset.php:36
+#: src/Form/SiteSettingsFieldset.php:37
 msgid "Prepended links"
 msgstr "Liens à ajouter au début"
 
-#: src/Form/SiteSettingsFieldset.php:37
+#: src/Form/SiteSettingsFieldset.php:38
 msgid ""
 "List of urls followed by a label, separated by a \"=\", one by line, that "
 "will be prepended to the breadcrumb."
@@ -246,11 +253,11 @@ msgstr ""
 "Liste des urls suivis par un libellé, séparés par un « = », une par ligne, "
 "qui seront ajoutées au fil d’Ariane."
 
-#: src/Form/SiteSettingsFieldset.php:53
+#: src/Form/SiteSettingsFieldset.php:54
 msgid "Url for collections"
 msgstr "Url pour les collections"
 
-#: src/Form/SiteSettingsFieldset.php:54
+#: src/Form/SiteSettingsFieldset.php:55
 msgid ""
 "The url to use for the link \"Collections\", if set above. Let empty to use "
 "the default one."
@@ -258,11 +265,11 @@ msgstr ""
 "L’url à utiliser pour le lien « Collections », si ajouté ci-dessus. Laisser "
 "vide pour utiliser l’url par défaut."
 
-#: src/Form/SiteSettingsFieldset.php:65
+#: src/Form/SiteSettingsFieldset.php:66
 msgid "Separator"
 msgstr "Séparateur"
 
-#: src/Form/SiteSettingsFieldset.php:66
+#: src/Form/SiteSettingsFieldset.php:67
 msgid ""
 "The separator between crumbs may be set as raw text or via css. it should be "
 "set as an html text (\"&gt;\")."
@@ -271,48 +278,48 @@ msgstr ""
 "que texte brut ou via les css. Il doit être indiqué comme chaîne html "
 "(« &gt; »)."
 
-#: src/Form/SiteSettingsFieldset.php:77
+#: src/Form/SiteSettingsFieldset.php:78
 msgid "Display on home page"
 msgstr "Afficher sur la page d’accueil"
 
-#: src/Controller/SiteAdmin/MenuController.php:147
+#: src/Controller/SiteAdmin/MenuController.php:148
 msgid "menu"
 msgstr "menu"
 
-#: src/Controller/SiteAdmin/MenuController.php:164
+#: src/Controller/SiteAdmin/MenuController.php:165
 #, php-format
 msgid "Menu \"%s\" successfully deleted"
 msgstr "Le menu « %s » a été supprimé avec succès"
 
-#: src/Controller/SiteAdmin/MenuController.php:186
+#: src/Controller/SiteAdmin/MenuController.php:187
 msgid "You must select at least one menu to batch delete."
 msgstr "Vous devez choisir au moins un menu à supprimer."
 
-#: src/Controller/SiteAdmin/MenuController.php:241
+#: src/Controller/SiteAdmin/MenuController.php:242
 msgid "This menu is empty and cannot be divided."
 msgstr "Ce menu est vide et ne peut pas être divisé."
 
-#: src/Controller/SiteAdmin/MenuController.php:272
+#: src/Controller/SiteAdmin/MenuController.php:273
 #, php-format
 msgid "Menu \"%s\" successfully created"
 msgstr "Le menu « %s » a été créé avec succès"
 
-#: src/Controller/SiteAdmin/MenuController.php:277
+#: src/Controller/SiteAdmin/MenuController.php:278
 #, php-format
 msgid "Menus \"%s\" successfully created"
 msgstr "Les menus « %s » ont été créés avec succès"
 
-#: src/Controller/SiteAdmin/MenuController.php:316
+#: src/Controller/SiteAdmin/MenuController.php:337
 #, php-format
 msgid "Menu \"%s\" uses an existing name and was renamed \"%s\"."
 msgstr "Le menu « %s » utilise un nom existant et a été renommé « %s »."
 
-#: src/Controller/SiteAdmin/MenuController.php:331
+#: src/Controller/SiteAdmin/MenuController.php:352
 #, php-format
 msgid "Menu \"%s\" was saved successfully."
 msgstr "Le menu « %s » a été enregistré avec succès."
 
-#: src/Controller/SiteAdmin/MenuController.php:486
+#: src/Controller/SiteAdmin/MenuController.php:507
 #, php-format
 msgid "Menu \"%s\" uses a reserved name and was renamed \"%s\"."
 msgstr "Le menu « %s » utilises un nom réservé et a été renommé « %s »."
@@ -320,6 +327,10 @@ msgstr "Le menu « %s » utilises un nom réservé et a été renommé « %s�
 #: src/Site/Navigation/Link/Resource.php:24
 msgid "Invalid navigation: resource link missing resource ID"
 msgstr "Navigation invalide : le lien de la ressource n’a pas d’ID"
+
+#: src/Site/Navigation/Link/Structure.php:13
+msgid "Structure"
+msgstr "Structure"
 
 #~ msgid "Id"
 #~ msgstr "Id"

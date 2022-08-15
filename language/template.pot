@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-14 00:00+0000\n"
+"POT-Creation-Date: 2022-08-15 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,16 +17,16 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Controller/SiteAdmin/MenuController.php:199
+#: src/Controller/SiteAdmin/MenuController.php:200
 #, php-format
 msgid "%d menus successfully deleted"
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:265
+#: src/Controller/SiteAdmin/MenuController.php:266
 msgid "[no label]"
 msgstr ""
 
-#: src/Generic/AbstractModule.php:66
+#: src/Generic/AbstractModule.php:66 src/Generic/AbstractModule.php:740
 #, php-format
 msgid "This module requires the module \"%s\"."
 msgstr ""
@@ -51,7 +51,12 @@ msgstr ""
 msgid "The module removed tables \"%s\" from a previous broken install."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:792
+#: src/Generic/AbstractModule.php:735
+#, php-format
+msgid "This module requires the module \"%1$s\", version %2$s or above."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:832
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
@@ -129,6 +134,10 @@ msgstr ""
 msgid "Resource class"
 msgstr ""
 
+#: view/common/navigation-link-form/structure.phtml:20
+msgid "Optional label"
+msgstr ""
+
 #: view/menu/site-admin/menu/add.phtml:18
 msgid "New menu"
 msgstr ""
@@ -140,58 +149,56 @@ msgstr ""
 msgid "Menu"
 msgstr ""
 
-#: view/menu/site-admin/menu/browse.phtml:26
+#: view/menu/site-admin/menu/browse.phtml:28
 msgid "Menus"
 msgstr ""
 
-#: view/menu/site-admin/menu/browse.phtml:36
+#: view/menu/site-admin/menu/browse.phtml:38
 msgid "Add new menu"
 msgstr ""
 
-#: view/menu/site-admin/menu/browse.phtml:73
+#: view/menu/site-admin/menu/browse.phtml:75
 msgid "Select menu"
 msgstr ""
 
-#: view/menu/site-admin/menu/browse.phtml:121
+#: view/menu/site-admin/menu/browse.phtml:123
 msgid "Delete menus"
 msgstr ""
 
-#: view/menu/site-admin/menu/browse.phtml:122
+#: view/menu/site-admin/menu/browse.phtml:124
 msgid "Are you sure you would like to delete the selected menus?"
 msgstr ""
 
-#: view/menu/site-admin/menu/browse.phtml:124
+#: view/menu/site-admin/menu/browse.phtml:126
 #, php-format
 msgid ""
 "%1$s: this action will permanently delete %2$s menus and cannot be undone."
 msgstr ""
 
-#: view/menu/site-admin/menu/browse.phtml:137
+#: view/menu/site-admin/menu/browse.phtml:139
 msgid "Omeka could not find any menus."
 msgstr ""
 
-#: view/menu/site-admin/menu/delete-confirm.phtml:20
+#: view/menu/site-admin/menu/delete-confirm.phtml:19
 #, php-format
 msgid "Delete menu \"%s\""
 msgstr ""
 
-#: view/menu/site-admin/menu/form.phtml:53
-#: view/menu/site-admin/menu/form.phtml:62
+#: view/menu/site-admin/menu/form.phtml:52
 #: view/menu/site-admin/menu/show-details.phtml:26
 msgid "Tops to menus"
 msgstr ""
 
-#: view/menu/site-admin/menu/form.phtml:53
-#: view/menu/site-admin/menu/form.phtml:62
+#: view/menu/site-admin/menu/form.phtml:52
 #: view/menu/site-admin/menu/show-details.phtml:26
 msgid "Create a new menu for each top menu"
 msgstr ""
 
-#: view/menu/site-admin/menu/form.phtml:70
+#: view/menu/site-admin/menu/form.phtml:64
 msgid "Open all"
 msgstr ""
 
-#: view/menu/site-admin/menu/form.phtml:71
+#: view/menu/site-admin/menu/form.phtml:65
 msgid "Close all"
 msgstr ""
 
@@ -207,102 +214,106 @@ msgstr ""
 msgid "Menu & Breadcrumbs"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:20
+#: src/Form/SiteSettingsFieldset.php:21
 msgid "Crumbs"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:22
+#: src/Form/SiteSettingsFieldset.php:23
 msgid "Prepend home"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:23
+#: src/Form/SiteSettingsFieldset.php:24
 msgid "Include \"Collections\""
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:24
+#: src/Form/SiteSettingsFieldset.php:25
 msgid "Include main item set for item"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:25
+#: src/Form/SiteSettingsFieldset.php:26
 msgid "Append current resource"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:36
+#: src/Form/SiteSettingsFieldset.php:37
 msgid "Prepended links"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:37
+#: src/Form/SiteSettingsFieldset.php:38
 msgid ""
 "List of urls followed by a label, separated by a \"=\", one by line, that "
 "will be prepended to the breadcrumb."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:53
+#: src/Form/SiteSettingsFieldset.php:54
 msgid "Url for collections"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:54
+#: src/Form/SiteSettingsFieldset.php:55
 msgid ""
 "The url to use for the link \"Collections\", if set above. Let empty to use "
 "the default one."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:65
+#: src/Form/SiteSettingsFieldset.php:66
 msgid "Separator"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:66
+#: src/Form/SiteSettingsFieldset.php:67
 msgid ""
 "The separator between crumbs may be set as raw text or via css. it should be "
 "set as an html text (\"&gt;\")."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:77
+#: src/Form/SiteSettingsFieldset.php:78
 msgid "Display on home page"
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:147
+#: src/Controller/SiteAdmin/MenuController.php:148
 msgid "menu"
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:164
+#: src/Controller/SiteAdmin/MenuController.php:165
 #, php-format
 msgid "Menu \"%s\" successfully deleted"
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:186
+#: src/Controller/SiteAdmin/MenuController.php:187
 msgid "You must select at least one menu to batch delete."
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:241
+#: src/Controller/SiteAdmin/MenuController.php:242
 msgid "This menu is empty and cannot be divided."
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:272
+#: src/Controller/SiteAdmin/MenuController.php:273
 #, php-format
 msgid "Menu \"%s\" successfully created"
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:277
+#: src/Controller/SiteAdmin/MenuController.php:278
 #, php-format
 msgid "Menus \"%s\" successfully created"
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:316
+#: src/Controller/SiteAdmin/MenuController.php:337
 #, php-format
 msgid "Menu \"%s\" uses an existing name and was renamed \"%s\"."
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:331
+#: src/Controller/SiteAdmin/MenuController.php:352
 #, php-format
 msgid "Menu \"%s\" was saved successfully."
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:486
+#: src/Controller/SiteAdmin/MenuController.php:507
 #, php-format
 msgid "Menu \"%s\" uses a reserved name and was renamed \"%s\"."
 msgstr ""
 
 #: src/Site/Navigation/Link/Resource.php:24
 msgid "Invalid navigation: resource link missing resource ID"
+msgstr ""
+
+#: src/Site/Navigation/Link/Structure.php:13
+msgid "Structure"
 msgstr ""
