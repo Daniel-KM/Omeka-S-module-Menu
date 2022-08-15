@@ -200,9 +200,11 @@ $(document).ready( function() {
                 // page links from the available list after they are added.
                 // TODO Factorize with jstree-plugins (editlink).
                 if (navLink.data.type === 'page') {
-                    $('.nav-page-link[data-id="' + navLink.data.id + '"]').hide();
+                    $('.nav-page-link[data-id="' + navLink.data.id + '"]')
+                        .removeClass('active')
+                        .hide();
                     var pageLinks = $('#nav-page-links');
-                    if (!pageLinks.children('.nav-page-link').filter(':visible').length) {
+                    if (!pageLinks.children('.nav-page-link').filter('.active').length) {
                         pageLinks.siblings('.page-selector-filter').hide();
                         pageLinks.after('<p>' + Omeka.jsTranslate('There are no available pages.') + '</p>');
                     }
@@ -213,10 +215,11 @@ $(document).ready( function() {
         }
     }, false);
 
+    // Copied and fixed from site-navigation.js.
     var filterPages = function() {
         var thisInput = $(this);
         var search = thisInput.val().toLowerCase();
-        var allPages = $('#nav-page-links .nav-page-link');
+        var allPages = $('#nav-page-links .nav-page-link.active');
         allPages.hide();
         var results = allPages.filter(function() {
             return $(this).attr('data-label').toLowerCase().indexOf(search) >= 0;
