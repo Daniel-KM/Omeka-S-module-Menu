@@ -227,7 +227,7 @@ class NavMenu extends AbstractHelper
         // then set it to always disable translation for any of its "child" helpers (menu,
         // breadcrumb, etc.)
         $helper = $this->view->getHelperPluginManager()->build('Navigation');
-        $helper->getPluginManager()->addInitializer(function ($container, $plugin) {
+        $helper->getPluginManager()->addInitializer(function ($container, $plugin): void {
             $plugin->setTranslatorEnabled(false);
         });
         return $helper($this->getPublicNavContainer($site, $menu, $options));

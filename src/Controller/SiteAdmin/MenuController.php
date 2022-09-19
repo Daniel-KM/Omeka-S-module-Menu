@@ -417,7 +417,7 @@ class MenuController extends AbstractActionController
         $linkedPages = [];
         $pages = $site->pages();
         $iterate = null;
-        $iterate = function ($linksIn) use (&$iterate, &$linkedPages, $pages) {
+        $iterate = function ($linksIn) use (&$iterate, &$linkedPages, $pages): void {
             foreach ($linksIn as $data) {
                 if ('page' === $data['type'] && isset($pages[$data['data']['id']])) {
                     $linkedPages[$data['data']['id']] = $pages[$data['data']['id']];

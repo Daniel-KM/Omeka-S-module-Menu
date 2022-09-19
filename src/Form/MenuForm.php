@@ -35,7 +35,7 @@ class MenuForm extends Form
             ->add([
                 'name' => 'name',
                 'required' => true,
-                'filters'  => [
+                'filters' => [
                     [
                         'name' => \Laminas\Filter\StringTrim::class,
                         'name' => \Laminas\Filter\StripTags::class,

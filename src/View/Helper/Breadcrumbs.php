@@ -566,9 +566,8 @@ class Breadcrumbs extends AbstractHelper
             'item' => 'Items', // @translate
             'media' => 'Media', // @translate
         ];
-        return isset($labels[$controller])
-            ? $labels[$controller]
-            : $controller;
+        return $labels[$controller]
+            ?? $controller;
     }
 
     protected function nestedPages($flat)
