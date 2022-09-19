@@ -11,6 +11,7 @@ return [
     'view_helpers' => [
         'invokables' => [
             'breadcrumbs' => View\Helper\Breadcrumbs::class,
+            'primaryItemSet' => View\Helper\PrimaryItemSet::class,
         ],
         'factories' => [
             'navMenu' => Service\ViewHelper\NavMenuFactory::class,
@@ -20,6 +21,7 @@ return [
         'invokables' => [
             Form\Element\DataTextarea::class => Form\Element\DataTextarea::class,
             Form\MenuForm::class => Form\MenuForm::class,
+            Form\SettingsFieldset::class => Form\SettingsFieldset::class,
             Form\SiteSettingsFieldset::class => Form\SiteSettingsFieldset::class,
         ],
         'factories' => [
@@ -111,6 +113,9 @@ return [
         ],
     ],
     'menu' => [
+        'settings' => [
+            'menu_property_itemset' => '',
+        ],
         'site_settings' => [
             'menu_breadcrumbs_crumbs' => [
                 'home',

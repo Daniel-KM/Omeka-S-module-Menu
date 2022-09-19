@@ -6,7 +6,7 @@
  * Display multiple menus in a site, for example a top menu, a sidebar menu and a
  * footer menu, or any structure anywhere.
  *
- * @copyright Daniel Berthereau, 2021
+ * @copyright Daniel Berthereau, 2021-2022
  * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
  *
  * This software is governed by the CeCILL license under French law and abiding
@@ -41,6 +41,7 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
+use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\MvcEvent;
 
@@ -109,11 +110,35 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {
+        // Main settings.
+        $sharedEventManager->attach(
+            \Omeka\Form\SettingForm::class,
+            'form.add_elements',
+            [$this, 'handleMainSettings']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Form\SettingForm::class,
+            'form.add_input_filters',
+            [$this, 'handleMainSettingsFilters']
+        );
+
         // Site settings.
         $sharedEventManager->attach(
             \Omeka\Form\SiteSettingsForm::class,
             'form.add_elements',
             [$this, 'handleSiteSettings']
         );
+    }
+
+    public function handleMainSettingsFilters(Event $event): void
+    {
+        $inputFilter = $event->getParam('inputFilter');
+        $inputFilter
+            ->get('menu')
+            ->add([
+                'name' => 'menu_property_itemset',
+                'required' => false,
+            ])
+        ;
     }
 }

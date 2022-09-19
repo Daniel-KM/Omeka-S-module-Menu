@@ -14,6 +14,7 @@ use Omeka\Stdlib\Message;
  * @var \Doctrine\DBAL\Connection $connection
  * @var \Doctrine\ORM\EntityManager $entityManager
  * @var \Omeka\Api\Manager $api
+ * @var \Omeka\Settings\Settings $settings
  * @var \Omeka\Settings\SiteSettings $siteSettings
  */
 $services = $serviceLocator;
@@ -21,6 +22,7 @@ $connection = $services->get('Omeka\Connection');
 $entityManager = $services->get('Omeka\EntityManager');
 $plugins = $services->get('ControllerPluginManager');
 $api = $plugins->get('api');
+$settings = $services->get('Omeka\Settings');
 $siteSettings = $services->get('Omeka\Settings\Site');
 
 if (version_compare($oldVersion, '3.3.1.1', '<')) {
@@ -71,4 +73,8 @@ SQL;
         }
         $siteSettings->delete('menu_menus');
     }
+}
+
+if (version_compare($oldVersion, '3.3.5', '<')) {
+    $settings->set('menu_property_itemset', $settings->get('next_property_itemset', ''));
 }
