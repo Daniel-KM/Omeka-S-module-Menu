@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-15 00:00+0000\n"
-"PO-Revision-Date: 2022-08-15 00:00+0000\n"
+"POT-Creation-Date: 2022-09-19 00:00+0000\n"
+"PO-Revision-Date: 2022-09-19 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -209,13 +209,38 @@ msgstr "Tout ouvrir"
 msgid "Close all"
 msgstr "Tout fermer"
 
-#: data/scripts/upgrade.php:41
+#: data/scripts/upgrade.php:43
 msgid "The settings for \"Breadcrumbs\" were upgraded."
 msgstr "Les paramètres pour le fil d’Ariane ont été mis à jour."
+
+#: data/scripts/upgrade.php:84
+#, php-format
+msgid ""
+"The helper \"PrimaryItemSet\" was moved from module %1$sNext%2$s and a param "
+"is added for it in %3$smain settings%2$s."
+msgstr ""
+"Le view/helper « PrimaryItemSet » a été ajouté depuis le module %1$sNext%2$s "
+"et une option a été ajoutée dans les %3$sparamètres généraux%2$s."
 
 #: src/Form/MenuForm.php:19
 msgid "Menu name"
 msgstr "Nom du menu"
+
+#: src/Form/SettingsFieldset.php:20
+msgid "Property to set primary item set"
+msgstr "Propriété utilisée pour définir la collection principale"
+
+#: src/Form/SettingsFieldset.php:21
+msgid ""
+"When an item is included in multiple item sets, the main one may be "
+"determined by this property."
+msgstr ""
+"Quand un contenu est inclus dans plusieurs collections, la principale peut "
+"être déterminée par cette propriété."
+
+#: src/Form/SettingsFieldset.php:28
+msgid "Select a property…"
+msgstr "Choisir une propriété… "
 
 #: src/Form/SiteSettingsFieldset.php:11
 msgid "Menu & Breadcrumbs"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-15 00:00+0000\n"
+"POT-Creation-Date: 2022-09-19 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -202,12 +202,33 @@ msgstr ""
 msgid "Close all"
 msgstr ""
 
-#: data/scripts/upgrade.php:41
+#: data/scripts/upgrade.php:43
 msgid "The settings for \"Breadcrumbs\" were upgraded."
+msgstr ""
+
+#: data/scripts/upgrade.php:84
+#, php-format
+msgid ""
+"The helper \"PrimaryItemSet\" was moved from module %1$sNext%2$s and a param "
+"is added for it in %3$smain settings%2$s."
 msgstr ""
 
 #: src/Form/MenuForm.php:19
 msgid "Menu name"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:20
+msgid "Property to set primary item set"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:21
+msgid ""
+"When an item is included in multiple item sets, the main one may be "
+"determined by this property."
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:28
+msgid "Select a property…"
 msgstr ""
 
 #: src/Form/SiteSettingsFieldset.php:11
