@@ -138,13 +138,13 @@ class Breadcrumbs extends AbstractHelper
                 break;
 
             case 'site/resource':
+            case 'site/contribution':
                 // Only actions "browse" and "search" are available in public.
                 $action = $routeMatch->getParam('action', 'browse');
                 if ($action === 'search') {
                     if ($options['collections']) {
                         $this->crumbCollections($options, $translate, $url, $siteSlug);
                     }
-
                     $controller = $this->extractController($routeMatch);
                     if ($controller !== 'search') {
                         $label = $this->extractLabel($controller);
@@ -165,7 +165,15 @@ class Breadcrumbs extends AbstractHelper
                     if ($options['collections'] && $controller !== 'item-set') {
                         $this->crumbCollections($options, $translate, $url, $siteSlug);
                     }
-
+                    if ($options['current']) {
+                        $label = $this->extractLabel($controller);
+                        $label = $translate($label);
+                    }
+                } elseif ($action === 'add') {
+                    $controller = $this->extractController($routeMatch);
+                    if ($options['collections'] && $controller !== 'item-set') {
+                        $this->crumbCollections($options, $translate, $url, $siteSlug);
+                    }
                     if ($options['current']) {
                         $label = $this->extractLabel($controller);
                         $label = $translate($label);
@@ -177,11 +185,15 @@ class Breadcrumbs extends AbstractHelper
                 }
                 break;
 
+            case 'site/contribution-id':
+                /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
+                $contribution = $vars->contribution;
+                // no break.
             case 'site/resource-id':
                 /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
                 $resource = $vars->resource;
                 // In case of an exception in a block, the resource may be null.
-                if (!$resource) {
+                if (!$resource && empty($contribution)) {
                     $this->crumbs[] = [
                         'label' => 'Error', // @translate
                         'uri' => $view->serverUrl(true),
@@ -189,8 +201,7 @@ class Breadcrumbs extends AbstractHelper
                     ];
                     break;
                 }
-                $type = $resource->resourceName();
-
+                $type = $resource ? $resource->resourceName() : 'contributions';
                 switch ($type) {
                     case 'media':
                         $item = $resource->item();
@@ -230,6 +241,9 @@ class Breadcrumbs extends AbstractHelper
                                 ];
                             }
                         }
+                        break;
+
+                    case 'contributions':
                         break;
 
                     case 'item_sets':
@@ -541,9 +555,11 @@ class Breadcrumbs extends AbstractHelper
             'Omeka\Controller\Site\ItemSet' => 'item-set',
             'Omeka\Controller\Site\Item' => 'item',
             'Omeka\Controller\Site\Media' => 'media',
+            'Contribute\Controller\Site\Contribution' => 'contribution',
             'item-set' => 'item-set',
             'item' => 'item',
             'media' => 'media',
+            'contribution' => 'contribution',
         ];
         $controller = $routeMatch->getParam('controller') ?: $routeMatch->getParam('__CONTROLLER__');
         if (isset($controllers[$controller])) {
@@ -565,9 +581,9 @@ class Breadcrumbs extends AbstractHelper
             'item-set' => 'Item sets', // @translate
             'item' => 'Items', // @translate
             'media' => 'Media', // @translate
+            'contribution' => 'Contributions', // @translate
         ];
-        return $labels[$controller]
-            ?? $controller;
+        return $labels[$controller] ?? $controller;
     }
 
     protected function nestedPages($flat)
