@@ -6,7 +6,7 @@
  * Display multiple menus in a site, for example a top menu, a sidebar menu and a
  * footer menu, or any structure anywhere.
  *
- * @copyright Daniel Berthereau, 2021-2022
+ * @copyright Daniel Berthereau, 2021-2023
  * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
  *
  * This software is governed by the CeCILL license under French law and abiding

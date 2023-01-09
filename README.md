@@ -69,6 +69,7 @@ TODO
 - [ ] Add a block layout.
 - [ ] Create a dynamic menu from resources (like Thesaurus, but without separate selection).
 - [ ] Create a link "Resource as page", so a dynamic page for a resource, so the page item/show will be a site page browsable like any page.
+- [ ] Store resource ids as integer, like page ids.
 
 
 Warning
@@ -119,7 +120,7 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2021-2022 (see [Daniel-KM])
+* Copyright Daniel Berthereau, 2021-2023 (see [Daniel-KM])
 
 These features are built for the future digital library [Le Ménestrel],
 currently managed with [Spip].
@@ -127,7 +128,7 @@ currently managed with [Spip].
 
 [Menu]: https://github.com/Daniel-KM/Omeka-S-module-Menu
 [Omeka S]: https://omeka.org/s
-[Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
+[Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [Navigation]: https://docs.laminas.dev/laminas-navigation/helpers/menu
 [Next]: https://github.com/Daniel-KM/Omeka-S-module-Next
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-Menu/issues
