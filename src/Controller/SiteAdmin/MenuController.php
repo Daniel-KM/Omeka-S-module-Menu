@@ -352,6 +352,40 @@ class MenuController extends AbstractActionController
             'Menu "%s" was saved successfully.', // @translate
             $newName
         ));
+
+        // Update the resources.
+        $broader = $this->settings()->get('menu_property_broader');
+        $narrower = $this->settings()->get('menu_property_narrower');
+        if (!$broader && !$narrower) {
+            return $newName;
+        }
+
+        $job = $this->jobDispatcher()->dispatch(\Menu\Job\MenuUpdateTreeInResources::class, [
+            'siteId' => $this->currentSite()->id(),
+            'menu' => $newName,
+        ]);
+
+        $urlHelper = $this->url();
+        // TODO Don't use PsrMessage for now to fix issues with Doctrine and inexisting file to remove.
+        $message = new Message(
+            'Processing update of relations of the resources, if any, in background (job %1$s#%2$d%3$s, %4$slogs%3$s).', // @translate
+            sprintf(
+                '<a href="%s">',
+                htmlspecialchars($urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
+            ),
+            $job->getId(),
+            '</a>',
+            sprintf(
+                '<a href="%s">',
+                // Check if module Log is enabled (avoid issue when disabled).
+                htmlspecialchars(class_exists(\Log\Stdlib\PsrMessage::class)
+                    ? $urlHelper->fromRoute('admin/log/default', [], ['query' => ['job_id' => $job->getId()]])
+                    : $urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
+            ))
+        );
+        $message->setEscapeHtml(false);
+        $this->messenger()->addSuccess($message);
+
         return $newName;
     }
 

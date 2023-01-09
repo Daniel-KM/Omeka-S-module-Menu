@@ -115,7 +115,7 @@ class Resource implements LinkInterface
 
         return [
             'label' => $data['label'] ?? '',
-            'id' => $data['id'],
+            'id' => (int) $data['id'],
             'is_public' => empty($privateResources[$data['id']]),
         ];
     }

@@ -14,6 +14,38 @@ class SettingsFieldset extends Fieldset
         $this
             ->setAttribute('id', 'menu')
             ->add([
+                'name' => 'menu_property_broader',
+                'type' => MenuElement\OptionalPropertySelect::class,
+                'options' => [
+                    'label' => 'Property to store a broader linked resource', // @translate
+                    'info' => 'Automatically update resources by adding a value to it when the menu uses resources. It may be dcterms:isPartOf or skos:broader or any other property. If empty, the resource won’t be updated.', // @translate
+                    'empty_option' => '',
+                    'term_as_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'menu_property_broader',
+                    'class' => 'chosen-select',
+                    'multiple' => false,
+                    'data-placeholder' => 'Select a property…', // @translate
+                ],
+            ])
+            ->add([
+                'name' => 'menu_property_narrower',
+                'type' => MenuElement\OptionalPropertySelect::class,
+                'options' => [
+                    'label' => 'Property to store a narrower linked resource', // @translate
+                    'info' => 'Automatically update resources by adding a value to it when the menu uses resources. It may be dcterms:hasPart or skos:narrower or any other property. If empty, the resource won’t be updated.', // @translate
+                    'empty_option' => '',
+                    'term_as_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'menu_property_narrower',
+                    'class' => 'chosen-select',
+                    'multiple' => false,
+                    'data-placeholder' => 'Select a property…', // @translate
+                ],
+            ])
+            ->add([
                 'name' => 'menu_property_itemset',
                 'type' => MenuElement\OptionalPropertySelect::class,
                 'options' => [

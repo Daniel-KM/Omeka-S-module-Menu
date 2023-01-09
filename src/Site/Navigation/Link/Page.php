@@ -21,7 +21,7 @@ class Page extends \Omeka\Site\Navigation\Link\Page
 
         return [
             'label' => $data['label'] ?? '',
-            'id' => $data['id'],
+            'id' => (int) $data['id'],
             'is_public' => empty($privatePages[$data['id']]),
         ];
     }
