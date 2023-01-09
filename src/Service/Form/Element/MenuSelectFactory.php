@@ -29,6 +29,6 @@ SQL;
             $menuNames = [];
         }
         $options['value_options'] = $menuNames;
-        return new MenuSelect(null, $options);
+        return new MenuSelect(null, $options ?? []);
     }
 }
