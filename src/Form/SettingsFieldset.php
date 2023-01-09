@@ -30,6 +30,19 @@ class SettingsFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'menu_update_templates',
+                'type' => MenuElement\OptionalResourceTemplateSelect::class,
+                'options' => [
+                    'label' => 'Limit update to specific templates', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'menu_update_templates',
+                    'class' => 'chosen-select',
+                    'multiple' => true,
+                    'data-placeholder' => 'Select templates…', // @translate
+                ],
+            ])
+            ->add([
                 'name' => 'menu_properties_broader',
                 'type' => MenuElement\OptionalPropertySelect::class,
                 'options' => [

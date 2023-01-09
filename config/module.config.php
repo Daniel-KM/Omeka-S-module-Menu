@@ -118,6 +118,7 @@ return [
     'menu' => [
         'settings' => [
             'menu_update_resources' => 'no',
+            'menu_update_templates' => [],
             'menu_properties_broader' => [],
             'menu_properties_narrower' => [],
             'menu_property_itemset' => '',

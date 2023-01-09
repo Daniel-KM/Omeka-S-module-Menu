@@ -90,6 +90,8 @@ class MenuUpdateTreeInResources extends AbstractJob
             return ;
         }
 
+        $onlyTemplates = $settings->get('menu_update_templates') ?: [];
+
         $broaderTerms = $settings->get('menu_properties_broader') ?: [];
         $narrowerTerms = $settings->get('menu_properties_narrower') ?: [];
 
@@ -126,7 +128,7 @@ class MenuUpdateTreeInResources extends AbstractJob
         $this->totalError = 0;
         $updateResourceFromMenu = null;
         $updateResourceFromMenu = function (array $links, ?int $parentResourceId = null)
-            use (&$updateResourceFromMenu, $broaders, $narrowers, $updateResources): void {
+            use (&$updateResourceFromMenu, $broaders, $narrowers, $updateResources, $onlyTemplates): void {
             foreach ($links as $link) {
                 /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
                 $resource = null;
@@ -145,33 +147,39 @@ class MenuUpdateTreeInResources extends AbstractJob
                     ++$this->totalProcessed;
 
                     $resourceId = $resource->id();
-                    $template = null;
-                    $broaderProperties = $broaders;
-                    $narrowerProperties = $narrowers;
+                    $template = $resource->resourceTemplate();
+                    if ($updateResources !== 'yes' && !$template) {
+                        $this->logger->warn(new Message(
+                            'Resource #%1$d has no template and cannot be updated.', // @translate
+                            $resourceId
+                        ));
+                        continue;
+                    }
 
-                    if ($updateResources === 'template_intersect' || $updateResources === 'template_properties') {
-                        $template = $resource->resourceTemplate();
-                        if (!$template) {
-                            $this->logger->warn(new Message(
-                                'Resource #%1$d has no template and cannot be updated.', // @translate
-                                $link['data']['id'] ?? 0
-                            ));
-                            continue;
-                        }
-                        if ($updateResources === 'template_properties') {
-                            $broaderProperties = $this->getPropertiesFromTemplate($template, 'menu_broader');
-                            $narrowerProperties = $this->getPropertiesFromTemplate($template, 'menu_narrower');
-                        } else {
-                            $broaderProperties = $this->filterPropertiesWithTemplate($broaders, $template);
-                            $narrowerProperties = $this->filterPropertiesWithTemplate($narrowers, $template);
-                        }
-                        if (!$broaderProperties && !$narrowerProperties) {
-                            $this->logger->warn(new Message(
-                                'The template #%1$d (%2$s) has no properties to update.', // @translate
-                                $template->id(), $template->label()
-                            ));
-                            continue;
-                        }
+                    if (!empty($onlyTemplates) && !in_array($template, $onlyTemplates)) {
+                        $this->logger->warn(new Message(
+                            'Resource #%1$d has a template not in the limited list of templates.', // @translate
+                            $resourceId
+                        ));
+                        continue;
+                    }
+
+                    if ($updateResources === 'template_properties') {
+                        $broaderProperties = $this->getPropertiesFromTemplate($template, 'menu_broader');
+                        $narrowerProperties = $this->getPropertiesFromTemplate($template, 'menu_narrower');
+                    } elseif ($updateResources === 'template_intersect') {
+                        $broaderProperties = $this->filterPropertiesWithTemplate($broaders, $template);
+                        $narrowerProperties = $this->filterPropertiesWithTemplate($narrowers, $template);
+                    } else {
+                        $broaderProperties = $broaders;
+                        $narrowerProperties = $narrowers;
+                    }
+                    if (!$broaderProperties && !$narrowerProperties) {
+                        $this->logger->warn(new Message(
+                            'The template #%1$d (%2$s) has no properties to update.', // @translate
+                            $template->id(), $template->label()
+                        ));
+                        continue;
                     }
 
                     // Update requires to pass all values, so json decode it.
