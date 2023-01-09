@@ -28,6 +28,7 @@ return [
         'factories' => [
             Form\Element\MenuSelect::class => Service\Form\Element\MenuSelectFactory::class,
             Form\Element\OptionalPropertySelect::class => Service\Form\Element\OptionalPropertySelectFactory::class,
+            Form\Element\OptionalResourceTemplateSelect::class => Service\Form\Element\OptionalResourceTemplateSelectFactory::class,
         ],
     ],
     'controllers' => [
