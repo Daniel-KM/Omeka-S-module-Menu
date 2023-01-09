@@ -22,6 +22,7 @@ class SettingsFieldset extends Fieldset
                         'no' => 'No', // @translate
                         'yes' => 'Yes', // @translate
                         'template_intersect' => 'Only when properties below exist in resource template', // @translate
+                        'template_properties' => 'According to template property settings (requires module Advanced Resource Template)', // @translate
                     ],
                 ],
                 'attributes' => [
@@ -41,7 +42,7 @@ class SettingsFieldset extends Fieldset
                     'id' => 'menu_properties_broader',
                     'class' => 'chosen-select',
                     'multiple' => true,
-                    'data-placeholder' => 'Select one or more properties…', // @translate
+                    'data-placeholder' => 'Select properties…', // @translate
                 ],
             ])
             ->add([
@@ -57,7 +58,7 @@ class SettingsFieldset extends Fieldset
                     'id' => 'menu_properties_narrower',
                     'class' => 'chosen-select',
                     'multiple' => true,
-                    'data-placeholder' => 'Select one or more properties…', // @translate
+                    'data-placeholder' => 'Select properties…', // @translate
                 ],
             ])
             ->add([

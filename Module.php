@@ -123,5 +123,43 @@ class Module extends AbstractModule
             'form.add_elements',
             [$this, 'handleSiteSettings']
         );
+
+        $sharedEventManager->attach(
+            // \Omeka\Form\ResourceTemplatePropertyFieldset::class,
+            \AdvancedResourceTemplate\Form\ResourceTemplatePropertyFieldset::class,
+            'form.add_elements',
+            [$this, 'addResourceTemplatePropertyFieldsetElements']
+        );
+    }
+
+    public function addResourceTemplatePropertyFieldsetElements(Event $event): void
+    {
+        /** @var \AdvancedResourceTemplate\Form\ResourceTemplatePropertyFieldset $fieldset */
+        $fieldset = $event->getTarget();
+        $fieldset
+            ->add([
+                'name' => 'menu_broader',
+                'type' => \Laminas\Form\Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Fill as broader when saving menu', // @translate
+                ],
+                'attributes' => [
+                    // 'id' => 'menu_broader',
+                    'class' => 'setting',
+                    'data-setting-key' => 'menu_broader',
+                ],
+            ])
+            ->add([
+                'name' => 'menu_narrower',
+                'type' => \Laminas\Form\Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Fill as narrower when saving menu', // @translate
+                ],
+                'attributes' => [
+                    // 'id' => 'menu_narrower',
+                    'class' => 'setting',
+                    'data-setting-key' => 'menu_narrower',
+                ],
+            ]);
     }
 }

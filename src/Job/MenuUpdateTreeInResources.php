@@ -83,7 +83,7 @@ class MenuUpdateTreeInResources extends AbstractJob
         }
 
         $updateResources = $settings->get('menu_update_resources');
-        if (!in_array($updateResources, ['yes', 'template_intersect'])) {
+        if (!in_array($updateResources, ['yes', 'template_intersect', 'template_properties'])) {
             $this->logger->notice(new Message(
                 'The settings does not require to update resources.' // @translate
             ));
@@ -93,23 +93,28 @@ class MenuUpdateTreeInResources extends AbstractJob
         $broaderTerms = $settings->get('menu_properties_broader') ?: [];
         $narrowerTerms = $settings->get('menu_properties_narrower') ?: [];
 
-        if (!$broaderTerms && !$narrowerTerms) {
-            $this->logger->notice(new Message(
-                'No relations to create: settings "broader" and "narrower" are no defined.' // @translate
-            ));
-            return;
-        }
+        if ($updateResources === 'template_properties') {
+            $broaders = [];
+            $narrowers = [];
+        } else {
+            if ($updateResources !== 'template_properties' && !$broaderTerms && !$narrowerTerms) {
+                $this->logger->notice(new Message(
+                    'No relations to create: settings "broader" and "narrower" are no defined.' // @translate
+                ));
+                return;
+            }
 
-        $propertyIds = $this->getPropertyIds();
+            $propertyIds = $this->getPropertyIds();
 
-        $broaders = array_intersect_key($propertyIds, array_flip($broaderTerms));
-        $narrowers = array_intersect_key($propertyIds, array_flip($narrowerTerms));
+            $broaders = array_intersect_key($propertyIds, array_flip($broaderTerms));
+            $narrowers = array_intersect_key($propertyIds, array_flip($narrowerTerms));
 
-        if (($broaderTerms && !$broaders) || ($narrowerTerms && !$narrowers)) {
-            $this->logger->err(new Message(
-                'Settings for "broader" or "narrower" are not correct.' // @translate
-            ));
-            return;
+            if (($broaderTerms && !$broaders) || ($narrowerTerms && !$narrowers)) {
+                $this->logger->err(new Message(
+                    'Settings for "broader" or "narrower" are not correct.' // @translate
+                ));
+                return;
+            }
         }
 
         // Use a recursive method, since the menu is an array and array_walk
@@ -144,7 +149,7 @@ class MenuUpdateTreeInResources extends AbstractJob
                     $broaderProperties = $broaders;
                     $narrowerProperties = $narrowers;
 
-                    if ($updateResources === 'template_intersect') {
+                    if ($updateResources === 'template_intersect' || $updateResources === 'template_properties') {
                         $template = $resource->resourceTemplate();
                         if (!$template) {
                             $this->logger->warn(new Message(
@@ -153,8 +158,13 @@ class MenuUpdateTreeInResources extends AbstractJob
                             ));
                             continue;
                         }
-                        $broaderProperties = $this->filterPropertiesWithTemplate($broaders, $template);
-                        $narrowerProperties = $this->filterPropertiesWithTemplate($narrowers, $template);
+                        if ($updateResources === 'template_properties') {
+                            $broaderProperties = $this->getPropertiesFromTemplate($template, 'menu_broader');
+                            $narrowerProperties = $this->getPropertiesFromTemplate($template, 'menu_narrower');
+                        } else {
+                            $broaderProperties = $this->filterPropertiesWithTemplate($broaders, $template);
+                            $narrowerProperties = $this->filterPropertiesWithTemplate($narrowers, $template);
+                        }
                         if (!$broaderProperties && !$narrowerProperties) {
                             $this->logger->warn(new Message(
                                 'The template #%1$d (%2$s) has no properties to update.', // @translate
@@ -300,6 +310,31 @@ class MenuUpdateTreeInResources extends AbstractJob
             }
         }
         return $properties;
+    }
+
+    protected function getPropertiesFromTemplate(ResourceTemplateRepresentation $template, $setting): array
+    {
+        static $templatePropeties = [];
+
+        if (!$template instanceof \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation) {
+            return [];
+        }
+
+        $templateId = $template->id();
+        if (isset($templatePropeties[$templateId][$setting])) {
+            return $templatePropeties[$templateId][$setting];
+        }
+
+        $result = [];
+        foreach ($template->resourceTemplateProperties() as $rtp) {
+            if ($rtp->mainDataValue($setting)) {
+                $property = $rtp->property();
+                $result[$property->term()] = $property->id();
+            }
+        }
+
+        $templatePropeties[$templateId][$setting] = $result;
+        return $result;
     }
 
     /**
