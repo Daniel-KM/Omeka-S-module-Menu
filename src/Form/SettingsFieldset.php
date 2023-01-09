@@ -3,7 +3,7 @@
 namespace Menu\Form;
 
 use Laminas\Form\Fieldset;
-use Omeka\Form\Element\PropertySelect;
+use Menu\Form\Element as MenuElement;
 
 class SettingsFieldset extends Fieldset
 {
@@ -15,7 +15,7 @@ class SettingsFieldset extends Fieldset
             ->setAttribute('id', 'menu')
             ->add([
                 'name' => 'menu_property_itemset',
-                'type' => PropertySelect::class,
+                'type' => MenuElement\OptionalPropertySelect::class,
                 'options' => [
                     'label' => 'Property to set primary item set', // @translate
                     'info' => 'When an item is included in multiple item sets, the main one may be determined by this property.', // @translate
@@ -25,6 +25,7 @@ class SettingsFieldset extends Fieldset
                 'attributes' => [
                     'id' => 'menu_property_itemset',
                     'class' => 'chosen-select',
+                    'multiple' => false,
                     'data-placeholder' => 'Select a property…', // @translate
                 ],
             ])
