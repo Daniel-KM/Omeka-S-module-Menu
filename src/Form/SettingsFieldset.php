@@ -21,6 +21,7 @@ class SettingsFieldset extends Fieldset
                     'value_options' => [
                         'no' => 'No', // @translate
                         'yes' => 'Yes', // @translate
+                        'template_intersect' => 'Only when properties below exist in resource template', // @translate
                     ],
                 ],
                 'attributes' => [
@@ -32,7 +33,7 @@ class SettingsFieldset extends Fieldset
                 'type' => MenuElement\OptionalPropertySelect::class,
                 'options' => [
                     'label' => 'Properties to store a broader linked resource', // @translate
-                    'info' => 'Automatically update resources by adding a value to it when the menu uses resources. It may be dcterms:isPartOf or skos:broader or any other property. If empty, the resource won’t be updated.', // @translate
+                    'info' => 'Automatically update resources by adding a value to it when the menu uses resources. It may be dcterms:isPartOf or skos:broader or any other property.', // @translate
                     'empty_option' => '',
                     'term_as_value' => true,
                 ],
@@ -48,7 +49,7 @@ class SettingsFieldset extends Fieldset
                 'type' => MenuElement\OptionalPropertySelect::class,
                 'options' => [
                     'label' => 'Properties to store a narrower linked resource', // @translate
-                    'info' => 'Automatically update resources by adding a value to it when the menu uses resources. It may be dcterms:hasPart or skos:narrower or any other property. If empty, the resource won’t be updated.', // @translate
+                    'info' => 'Automatically update resources by adding a value to it when the menu uses resources. It may be dcterms:hasPart or skos:narrower or any other property.', // @translate
                     'empty_option' => '',
                     'term_as_value' => true,
                 ],

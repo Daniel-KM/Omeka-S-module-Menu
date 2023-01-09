@@ -4,6 +4,7 @@ namespace Menu\Job;
 
 use Omeka\Api\Exception\NotFoundException;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+use Omeka\Api\Representation\ResourceTemplateRepresentation;
 use Omeka\Job\AbstractJob;
 use Omeka\Stdlib\Message;
 
@@ -72,7 +73,7 @@ class MenuUpdateTreeInResources extends AbstractJob
         }
 
         $updateResources = $settings->get('menu_update_resources');
-        if (!in_array($updateResources, ['yes'])) {
+        if (!in_array($updateResources, ['yes', 'template_intersect'])) {
             $this->logger->notice(new Message(
                 'The settings does not require to update resources.' // @translate
             ));
@@ -108,8 +109,9 @@ class MenuUpdateTreeInResources extends AbstractJob
         $this->totalError = 0;
         $updateResourceFromMenu = null;
         $updateResourceFromMenu = function (array $links, ?int $parentResourceId = null)
-            use (&$updateResourceFromMenu, $broaders, $narrowers): void {
+            use (&$updateResourceFromMenu, $broaders, $narrowers, $updateResources): void {
             foreach ($links as $link) {
+                /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
                 $resource = null;
                 $resourceId = null;
                 if ($link['type'] === 'resource') {
@@ -124,18 +126,42 @@ class MenuUpdateTreeInResources extends AbstractJob
                     }
 
                     $resourceId = $resource->id();
+                    $template = null;
+                    $broaderProperties = $broaders;
+                    $narrowerProperties = $narrowers;
+
+                    if ($updateResources === 'template_intersect') {
+                        $template = $resource->resourceTemplate();
+                        if (!$template) {
+                            $this->logger->warn(new Message(
+                                'Resource #%1$d has no template and cannot be updated.', // @translate
+                                $link['data']['id'] ?? 0
+                            ));
+                            continue;
+                        }
+                        $broaderProperties = $this->filterPropertiesWithTemplate($broaders, $template);
+                        $narrowerProperties = $this->filterPropertiesWithTemplate($narrowers, $template);
+                        if (!$broaderProperties && !$narrowerProperties) {
+                            $this->logger->warn(new Message(
+                                'The template #%1$d (%2$s) has no properties to update.', // @translate
+                                $template->id(), $template->label()
+                            ));
+                            continue;
+                        }
+                    }
 
                     // Update requires to pass all values, so json decode it.
                     $meta = json_decode(json_encode($resource), true);
                     $toUpdate = false;
 
-                    if ($broaders && $parentResourceId) {
-                        $meta = $this->appendLinkedResourceToValues($resource, $meta, $broaders, $parentResourceId, $toUpdate);
+                    if ($broaderProperties) {
+                        $meta = $this->appendLinkedResourceToValues($resource, $meta, $broaderProperties, $parentResourceId, $toUpdate);
                     }
 
-                    if ($narrowers) {
+                    if ($narrowerProperties) {
                         foreach ($link['links'] as $subLink) {
                             if ($subLink['type'] === 'resource') {
+                                /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $subResource */
                                 $subResource = $this->getResourceFromId($subLink['data']['id'] ?? null);
                                 if (!$subResource) {
                                     // The relation is already removed in resource.
@@ -143,7 +169,7 @@ class MenuUpdateTreeInResources extends AbstractJob
                                     continue;
                                 }
                                 $isToUpdate = false;
-                                $meta = $this->appendLinkedResourceToValues($resource, $meta, $narrowers, $subResource->id(), $isToUpdate);
+                                $meta = $this->appendLinkedResourceToValues($resource, $meta, $narrowerProperties, $subResource->id(), $isToUpdate);
                                 $toUpdate = $toUpdate || $isToUpdate;
                             }
                         }
@@ -190,10 +216,13 @@ class MenuUpdateTreeInResources extends AbstractJob
         AbstractResourceEntityRepresentation $resource,
         array $values,
         array $properties,
-        int $linkedResourceId,
+        ?int $linkedResourceId,
         bool &$isToUpdate
     ): array {
         $isToUpdate = false;
+        if (!count($properties) || !$linkedResourceId) {
+            return $values;
+        }
         foreach ($properties as $propertyTerm => $propertyId) {
             if (empty($values[$propertyTerm]) || !$this->isValuePresent($values[$propertyTerm], $linkedResourceId)) {
                 $isToUpdate = true;
@@ -209,6 +238,22 @@ class MenuUpdateTreeInResources extends AbstractJob
             }
         }
         return $values;
+    }
+
+    /**
+     * Get only properties present in a resource template, if any.
+     */
+    protected function filterPropertiesWithTemplate(array $properties, ?ResourceTemplateRepresentation $template): array
+    {
+        if (!$template) {
+            return [];
+        }
+        foreach ($properties as $propertyTerm => $propertyId) {
+            if (!$template->resourceTemplateProperty($propertyId)) {
+                unset($properties[$propertyTerm]);
+            }
+        }
+        return $properties;
     }
 
     /**

@@ -358,7 +358,7 @@ class MenuController extends AbstractActionController
         $settings = $this->settings();
 
         $updateResources = $settings->get('menu_update_resources');
-        if (!in_array($updateResources, ['yes'])) {
+        if (!in_array($updateResources, ['yes', 'template_intersect'])) {
             return $newName;
         }
 
