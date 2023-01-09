@@ -12,7 +12,8 @@ class SettingsFieldset extends Fieldset
     public function init(): void
     {
         $this
-            ->setAttribute('id', 'menu')
+            // Avoid to duplicate with page menu.
+            ->setAttribute('id', 'module-menu')
             ->add([
                 'name' => 'menu_update_resources',
                 'type' => MenuElement\OptionalRadio::class,

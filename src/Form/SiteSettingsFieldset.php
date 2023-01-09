@@ -13,7 +13,8 @@ class SiteSettingsFieldset extends Fieldset
     public function init(): void
     {
         $this
-            ->setAttribute('id', 'menu')
+            // Avoid to duplicate with page menu.
+            ->setAttribute('id', 'module-menu')
             ->add([
                 'name' => 'menu_breadcrumbs_crumbs',
                 'type' => Element\MultiCheckbox::class,
