@@ -116,8 +116,9 @@ return [
     ],
     'menu' => [
         'settings' => [
-            'menu_property_broader' => '',
-            'menu_property_narrower' => '',
+            'menu_update_resources' => 'no',
+            'menu_properties_broader' => [],
+            'menu_properties_narrower' => [],
             'menu_property_itemset' => '',
         ],
         'site_settings' => [

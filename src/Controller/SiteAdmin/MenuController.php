@@ -353,10 +353,21 @@ class MenuController extends AbstractActionController
             $newName
         ));
 
-        // Update the resources.
-        $broader = $this->settings()->get('menu_property_broader');
-        $narrower = $this->settings()->get('menu_property_narrower');
-        if (!$broader && !$narrower) {
+        // Update the resources if wanted.
+        /** @var \Omeka\Mvc\Controller\Plugin\Settings $settings */
+        $settings = $this->settings();
+
+        $updateResources = $settings->get('menu_update_resources');
+        if (!in_array($updateResources, ['yes'])) {
+            return $newName;
+        }
+
+        $broaderTerms = $settings->get('menu_properties_broader') ?: [];
+        $narrowerTerms = $settings->get('menu_properties_narrower') ?: [];
+        if (!$broaderTerms && !$narrowerTerms) {
+            $this->messenger()->addWarning(new Message(
+                'The settings require to update the resources when saving menu, but no properties are defined.' // @translate
+            ));
             return $newName;
         }
 

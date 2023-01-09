@@ -15,9 +15,19 @@ class MenuUpdateTreeInResources extends AbstractJob
     protected $api;
 
     /**
+     * @var \Doctrine\DBAL\Connection
+     */
+    protected $connection;
+
+    /**
      * @var \Laminas\Log\Logger
      */
     protected $logger;
+
+    /**
+     * @var array
+     */
+    protected $properties;
 
     /**
      * @var int
@@ -44,6 +54,7 @@ class MenuUpdateTreeInResources extends AbstractJob
         $services = $this->getServiceLocator();
         $this->api = $services->get('Omeka\ApiManager');
         $this->logger = $services->get('Omeka\Logger');
+        $this->connection = $services->get('Omeka\Connection');
         $settings = $services->get('Omeka\Settings');
         $siteSettings = $services->get('Omeka\Settings\Site');
 
@@ -60,34 +71,35 @@ class MenuUpdateTreeInResources extends AbstractJob
             return;
         }
 
-        $broaderTerm = $settings->get('menu_property_broader');
-        $narrowerTerm = $settings->get('menu_property_narrower');
-
-        if (!$broaderTerm && !$narrowerTerm) {
+        $updateResources = $settings->get('menu_update_resources');
+        if (!in_array($updateResources, ['yes'])) {
             $this->logger->notice(new Message(
-                'No relations to create: settings is part of and has part are no defined.' // @translate
+                'The settings does not require to update resources.' // @translate
+            ));
+            return ;
+        }
+
+        $broaderTerms = $settings->get('menu_properties_broader') ?: [];
+        $narrowerTerms = $settings->get('menu_properties_narrower') ?: [];
+
+        if (!$broaderTerms && !$narrowerTerms) {
+            $this->logger->notice(new Message(
+                'No relations to create: settings "broader" and "narrower" are no defined.' // @translate
             ));
             return;
         }
 
-        if ($broaderTerm) {
-            $broader = $this->api->search('properties', ['term' => $broaderTerm])->getContent();
-            $broader = reset($broader);
-        }
-        if ($narrowerTerm) {
-            $narrower = $this->api->search('properties', ['term' => $narrowerTerm])->getContent();
-            $narrower = reset($narrower);
-        }
+        $propertyIds = $this->getPropertyIds();
 
-        if (($broaderTerm && !$broader) || ($narrowerTerm && !$narrower)) {
+        $broaders = array_intersect_key($propertyIds, array_flip($broaderTerms));
+        $narrowers = array_intersect_key($propertyIds, array_flip($narrowerTerms));
+
+        if (($broaderTerms && !$broaders) || ($narrowerTerms && !$narrowers)) {
             $this->logger->err(new Message(
-                'Settings for is part of or has part are not correct.' // @translate
+                'Settings for "broader" or "narrower" are not correct.' // @translate
             ));
             return;
         }
-
-        $broaderId = $broader ? $broader->id() : null;
-        $narrowerId = $narrower ? $narrower->id() : null;
 
         // Use a recursive method, since the menu is an array and array_walk
         // cannot be used.
@@ -96,81 +108,52 @@ class MenuUpdateTreeInResources extends AbstractJob
         $this->totalError = 0;
         $updateResourceFromMenu = null;
         $updateResourceFromMenu = function (array $links, ?int $parentResourceId = null)
-            use (&$updateResourceFromMenu, $broaderTerm, $narrowerTerm, $broaderId, $narrowerId)
-        : void {
+            use (&$updateResourceFromMenu, $broaders, $narrowers): void {
             foreach ($links as $link) {
-                /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
                 $resource = null;
                 $resourceId = null;
                 if ($link['type'] === 'resource') {
-                    $resourceId = empty($link['data']['id']) ? null : (int) $link['data']['id'];
-                    try {
-                        $resource = $resourceId ? $this->api->read('resources', ['id' => $resourceId])->getContent() : null;
-                    } catch (NotFoundException $e) {
-                        // Nothing here.
-                    }
+                    $resource = $this->getResourceFromId($link['data']['id'] ?? null);
                     if (!$resource) {
                         $this->logger->warn(new Message(
                             'Resource #%1$d does not exist.', // @translate
-                            $resourceId
+                            $link['data']['id'] ?? 0
                         ));
                         ++$this->totalError;
                         continue;
                     }
 
+                    $resourceId = $resource->id();
+
                     // Update requires to pass all values, so json decode it.
-                    $toUpdate = false;
                     $meta = json_decode(json_encode($resource), true);
-                    if ($broaderTerm && $parentResourceId) {
-                        if (empty($meta[$broaderTerm]) || !$this->isValuePresent($meta[$broaderTerm], $parentResourceId)) {
-                            $toUpdate = true;
-                            // TODO Ideally, when the datatype is "resource:xxx", it should be checked against the resource, but this is "resource:item" most of the times and identified in template else.
-                            $dataType = $this->dataTypeForPropertyOfResource($resource, $broaderId)
-                                ?? $this->dataTypeResourceId($parentResourceId)
-                                ?? 'resource';
-                            $meta[$broaderTerm][] = [
-                                'property_id' => $broaderId,
-                                'type' => $dataType,
-                                'value_resource_id' => $parentResourceId,
-                            ];
-                        }
+                    $toUpdate = false;
+
+                    if ($broaders && $parentResourceId) {
+                        $meta = $this->appendLinkedResourceToValues($resource, $meta, $broaders, $parentResourceId, $toUpdate);
                     }
-                    if ($narrowerTerm) {
+
+                    if ($narrowers) {
                         foreach ($link['links'] as $subLink) {
                             if ($subLink['type'] === 'resource') {
-                                // The check is not required, but for info and
-                                // the reesource is loaded next anyway.
-                                /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
-                                $subResource = null;
-                                $subResourceId = empty($subLink['data']['id']) ? null : (int) $subLink['data']['id'];
-                                try {
-                                    $subResource = $subResourceId ? $this->api->read('resources', ['id' => $subResourceId])->getContent() : null;
-                                } catch (NotFoundException $e) {
-                                    // The relation is already removed in resource.
-                                    // Message will be appended below.
-                                    continue;
-                                }
+                                $subResource = $this->getResourceFromId($subLink['data']['id'] ?? null);
                                 if (!$subResource) {
+                                    // The relation is already removed in resource.
+                                    // Message will be appended on next loop.
                                     continue;
                                 }
-                                if (empty($meta[$narrowerTerm]) || !$this->isValuePresent($meta[$narrowerTerm], $subResourceId)) {
-                                    $toUpdate = true;
-                                    $dataType = $this->dataTypeForPropertyOfResource($resource, $narrowerId)
-                                        ?? $this->dataTypeResourceId($subResourceId)
-                                        ?? 'resource';
-                                    $meta[$narrowerTerm][] = [
-                                        'property_id' => $narrowerId,
-                                        'type' => $dataType,
-                                        'value_resource_id' => $subResourceId,
-                                    ];
-                                }
+                                $isToUpdate = false;
+                                $meta = $this->appendLinkedResourceToValues($resource, $meta, $narrowers, $subResource->id(), $isToUpdate);
+                                $toUpdate = $toUpdate || $isToUpdate;
                             }
                         }
                     }
+
                     if ($toUpdate) {
                         $this->api->update($resource->resourceName(), $resource->id(), $meta, [], ['isPartial' => false]);
                         ++$this->totalUpdated;
                     }
+
                     ++$this->totalProcessed;
                 }
                 if ($link['links']) {
@@ -187,6 +170,50 @@ class MenuUpdateTreeInResources extends AbstractJob
         ));
     }
 
+    protected function getResourceFromId($resourceId): ?AbstractResourceEntityRepresentation
+    {
+        $resourceId = (int) $resourceId;
+        if (!$resourceId) {
+            return null;
+        }
+        try {
+            return $this->api->read('resources', ['id' => $resourceId])->getContent();
+        } catch (NotFoundException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Append a linked resource to resource values if needed.
+     */
+    protected function appendLinkedResourceToValues(
+        AbstractResourceEntityRepresentation $resource,
+        array $values,
+        array $properties,
+        int $linkedResourceId,
+        bool &$isToUpdate
+    ): array {
+        $isToUpdate = false;
+        foreach ($properties as $propertyTerm => $propertyId) {
+            if (empty($values[$propertyTerm]) || !$this->isValuePresent($values[$propertyTerm], $linkedResourceId)) {
+                $isToUpdate = true;
+                // TODO Ideally, when the datatype is "resource:xxx", it should be checked against the resource, but this is "resource:item" most of the times and identified in template else.
+                $dataType = $this->dataTypeForPropertyOfResource($resource, $propertyId)
+                    ?? $this->dataTypeResourceId($linkedResourceId)
+                    ?? 'resource';
+                $values[$propertyTerm][] = [
+                    'property_id' => $propertyId,
+                    'type' => $dataType,
+                    'value_resource_id' => $linkedResourceId,
+                ];
+            }
+        }
+        return $values;
+    }
+
+    /**
+     * Check if a linked resource is present in a list of values.
+     */
     protected function isValuePresent(array $values, int $resourceId): bool
     {
         foreach ($values as $value) {
@@ -223,10 +250,14 @@ class MenuUpdateTreeInResources extends AbstractJob
     }
 
     /**
-     * Get the resource data type name of the resource.
+     * Get the resource data type name of a resource.
      */
-    protected function dataTypeResourceId(int $resourceId): ?string
+    protected function dataTypeResourceId(?int $resourceId): ?string
     {
+        if (empty($resourceId)) {
+            return null;
+        }
+
         try {
             $resource = $this->api->read('resources', ['id' => $resourceId])->getContent();
         } catch (NotFoundException$e) {
@@ -286,5 +317,35 @@ SQL;
         $resourceDataTypes = array_merge($customVocabResources, $resourceDataTypes);
 
         return $resourceDataTypes;
+    }
+
+    /**
+     * Get all property ids by term.
+     *
+     * @return array Associative array of ids by term.
+     */
+    protected function getPropertyIds(): array
+    {
+        if (isset($this->properties)) {
+            return $this->properties;
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select(
+                'DISTINCT CONCAT(vocabulary.prefix, ":", property.local_name) AS term',
+                'property.id AS id',
+                // Only the two first selects are needed, but some databases
+                // require "order by" or "group by" value to be in the select.
+                'vocabulary.id'
+            )
+            ->from('property', 'property')
+            ->innerJoin('property', 'vocabulary', 'vocabulary', 'property.vocabulary_id = vocabulary.id')
+            ->orderBy('vocabulary.id', 'asc')
+            ->addOrderBy('property.id', 'asc')
+            ->addGroupBy('property.id')
+        ;
+        $this->properties = array_map('intval', $this->connection->executeQuery($qb)->fetchAllKeyValue());
+        return $this->properties;
     }
 }
