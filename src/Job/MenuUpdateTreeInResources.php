@@ -33,6 +33,16 @@ class MenuUpdateTreeInResources extends AbstractJob
     /**
      * @var int
      */
+    protected $totalMenuElements = 0;
+
+    /**
+     * @var int
+     */
+    protected $totalResources = 0;
+
+    /**
+     * @var int
+     */
     protected $totalProcessed = 0;
 
     /**
@@ -104,6 +114,8 @@ class MenuUpdateTreeInResources extends AbstractJob
 
         // Use a recursive method, since the menu is an array and array_walk
         // cannot be used.
+        $this->totalMenuElements = $this->countMenuElements($menu);
+        $this->totalResources = $this->countMenuElements($menu, ['resource']);
         $this->totalProcessed = 0;
         $this->totalUpdated = 0;
         $this->totalError = 0;
@@ -124,6 +136,8 @@ class MenuUpdateTreeInResources extends AbstractJob
                         ++$this->totalError;
                         continue;
                     }
+
+                    ++$this->totalProcessed;
 
                     $resourceId = $resource->id();
                     $template = null;
@@ -179,10 +193,12 @@ class MenuUpdateTreeInResources extends AbstractJob
                         $this->api->update($resource->resourceName(), $resource->id(), $meta, [], ['isPartial' => false]);
                         ++$this->totalUpdated;
                     }
-
-                    ++$this->totalProcessed;
                 }
-                if ($link['links']) {
+            }
+
+            // Process sub-links in all cases to update all resources.
+            foreach ($links as $link) {
+                if (!empty($link['links'])) {
                     $updateResourceFromMenu($link['links'], $resourceId);
                 }
             }
@@ -191,11 +207,41 @@ class MenuUpdateTreeInResources extends AbstractJob
         $updateResourceFromMenu($menu);
 
         $this->logger->info(new Message(
-            'End of the job: %1$d resources processed, %2$d updated, %3$d errors.', // @translate
-            $this->totalProcessed, $this->totalUpdated, $this->totalError
+            'End of the job: %1$d menu elements, %2$d resources, %3$d/%4$d resources updated, %5$d errors.', // @translate
+            $this->totalMenuElements, $this->totalResources, $this->totalUpdated, $this->totalProcessed, $this->totalError
         ));
     }
 
+    /**
+     * Count the number of elements of a menu.
+     */
+    protected function countMenuElements(array $menu, array $onlyTypes = []): int
+    {
+        $total = 0;
+        $countElements = null;
+        $countElements = function (array $links) use (&$countElements, &$total, $onlyTypes): void {
+            foreach ($links as $link) {
+                if ($onlyTypes) {
+                    if (in_array($link['type'] ?? null, $onlyTypes)) {
+                        ++$total;
+                    }
+                } else {
+                    ++$total;
+                }
+                if (!empty($link['links'])) {
+                    $countElements($link['links']);
+                }
+            }
+        };
+        $countElements($menu);
+        return $total;
+    }
+
+    /**
+     * Get the resource from an id.
+     *
+     * Avoid the exception when the resource id does no exists.
+     */
     protected function getResourceFromId($resourceId): ?AbstractResourceEntityRepresentation
     {
         $resourceId = (int) $resourceId;
