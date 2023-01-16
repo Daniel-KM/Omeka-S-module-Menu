@@ -10,15 +10,21 @@ class SiteSettingsFieldset extends Fieldset
 {
     protected $label = 'Menu & Breadcrumbs'; // @translate
 
+    protected $elementGroups = [
+        'menu' => 'Menu', // @translate
+    ];
+
     public function init(): void
     {
         $this
             // Avoid to duplicate with page menu.
             ->setAttribute('id', 'module-menu')
+            ->setOption('element_groups', $this->elementGroups)
             ->add([
                 'name' => 'menu_breadcrumbs_crumbs',
                 'type' => Element\MultiCheckbox::class,
                 'options' => [
+                    'element_group' => 'menu',
                     'label' => 'Crumbs', // @translate
                     'value_options' => [
                         'home' => 'Prepend home', // @translate
@@ -35,6 +41,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'menu_breadcrumbs_prepend',
                 'type' => DataTextarea::class,
                 'options' => [
+                    'element_group' => 'menu',
                     'label' => 'Prepended links', // @translate
                     'info' => 'List of urls followed by a label, separated by a "=", one by line, that will be prepended to the breadcrumb.', // @translate
                     'as_key_value' => false,
@@ -52,6 +59,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'menu_breadcrumbs_collections_url',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'menu',
                     'label' => 'Url for collections', // @translate
                     'info' => 'The url to use for the link "Collections", if set above. Let empty to use the default one.', // @translate
                 ],
@@ -64,6 +72,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'menu_breadcrumbs_separator',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'menu',
                     'label' => 'Separator', // @translate
                     'info' => 'The separator between crumbs may be set as raw text or via css. it should be set as an html text ("&gt;").', // @translate
                 ],
@@ -76,6 +85,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'menu_breadcrumbs_homepage',
                 'type' => Element\Checkbox::class,
                 'options' => [
+                    'element_group' => 'menu',
                     'label' => 'Display on home page', // @translate
                 ],
                 'attributes' => [
