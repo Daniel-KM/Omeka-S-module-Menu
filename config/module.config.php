@@ -20,6 +20,7 @@ return [
     'form_elements' => [
         'invokables' => [
             Form\Element\DataTextarea::class => Form\Element\DataTextarea::class,
+            Form\Element\OptionalMultiCheckbox::class => Form\Element\OptionalMultiCheckbox::class,
             Form\Element\OptionalRadio::class => Form\Element\OptionalRadio::class,
             Form\MenuForm::class => Form\MenuForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,

@@ -4,7 +4,7 @@ namespace Menu\Form;
 
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
-use Menu\Form\Element\DataTextarea;
+use Menu\Form\Element as MenuElement;
 
 class SiteSettingsFieldset extends Fieldset
 {
@@ -22,7 +22,7 @@ class SiteSettingsFieldset extends Fieldset
             ->setOption('element_groups', $this->elementGroups)
             ->add([
                 'name' => 'menu_breadcrumbs_crumbs',
-                'type' => Element\MultiCheckbox::class,
+                'type' => MenuElement\OptionalMultiCheckbox::class,
                 'options' => [
                     'element_group' => 'menu',
                     'label' => 'Crumbs', // @translate
@@ -39,7 +39,7 @@ class SiteSettingsFieldset extends Fieldset
             ])
             ->add([
                 'name' => 'menu_breadcrumbs_prepend',
-                'type' => DataTextarea::class,
+                'type' => MenuElement\DataTextarea::class,
                 'options' => [
                     'element_group' => 'menu',
                     'label' => 'Prepended links', // @translate
