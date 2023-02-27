@@ -90,7 +90,6 @@ if (version_compare($oldVersion, '3.3.5', '<')) {
 
 if (version_compare($oldVersion, '3.3.6', '<')) {
     $urlHelper = $services->get('ViewHelperManager')->get('url');
-    $messenger = new Messenger();
     $message = new Message(
         'A %1$ssetting%2$s has been added to update related resources when saving menu.', // @translate
         '<a href="' . $urlHelper('admin/default', ['controller' => 'setting', 'action' => 'browse'], ['fragment' => 'module-menu']) . '">',
