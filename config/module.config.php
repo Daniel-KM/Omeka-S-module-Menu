@@ -11,6 +11,7 @@ return [
     'view_helpers' => [
         'invokables' => [
             'breadcrumbs' => View\Helper\Breadcrumbs::class,
+            'isHomePage' => View\Helper\IsHomePage::class,
             'primaryItemSet' => View\Helper\PrimaryItemSet::class,
         ],
         'factories' => [
