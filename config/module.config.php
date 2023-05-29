@@ -9,23 +9,15 @@ return [
         ],
     ],
     'view_helpers' => [
-        'invokables' => [
-            'breadcrumbs' => View\Helper\Breadcrumbs::class,
-            'isHomePage' => View\Helper\IsHomePage::class,
-            'primaryItemSet' => View\Helper\PrimaryItemSet::class,
-        ],
         'factories' => [
             'navMenu' => Service\ViewHelper\NavMenuFactory::class,
         ],
     ],
     'form_elements' => [
         'invokables' => [
-            Form\Element\DataTextarea::class => Form\Element\DataTextarea::class,
-            Form\Element\OptionalMultiCheckbox::class => Form\Element\OptionalMultiCheckbox::class,
             Form\Element\OptionalRadio::class => Form\Element\OptionalRadio::class,
             Form\MenuForm::class => Form\MenuForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
-            Form\SiteSettingsFieldset::class => Form\SiteSettingsFieldset::class,
         ],
         'factories' => [
             Form\Element\MenuSelect::class => Service\Form\Element\MenuSelectFactory::class,
@@ -123,19 +115,8 @@ return [
             'menu_update_templates' => [],
             'menu_properties_broader' => [],
             'menu_properties_narrower' => [],
-            'menu_property_itemset' => '',
         ],
         'site_settings' => [
-            'menu_breadcrumbs_crumbs' => [
-                'home',
-                'collections',
-                'itemset',
-                'current',
-            ],
-            'menu_breadcrumbs_prepend' => [],
-            'menu_breadcrumbs_collections_url' => '',
-            'menu_breadcrumbs_separator' => '&gt;',
-            'menu_breadcrumbs_homepage' => false,
             // This site setting is not managed in site settings, but in site menu "Menu".
             // There may be many "menu_menu:xxx".
             'menu_menu:' => [],

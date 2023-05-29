@@ -117,13 +117,6 @@ class Module extends AbstractModule
             [$this, 'handleMainSettings']
         );
 
-        // Site settings.
-        $sharedEventManager->attach(
-            \Omeka\Form\SiteSettingsForm::class,
-            'form.add_elements',
-            [$this, 'handleSiteSettings']
-        );
-
         $sharedEventManager->attach(
             // \Omeka\Form\ResourceTemplatePropertyFieldset::class,
             \AdvancedResourceTemplate\Form\ResourceTemplatePropertyFieldset::class,
