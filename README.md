@@ -78,8 +78,6 @@ TODO
 ----
 
 - [x] Convert to a standard Laminas navigation, in particular to manage rights better.
-- [x] Include breadcrumbs from module [Next].
-- [ ] Normalize breadcrumbs.
 - [ ] Replace the standard menu?
 - [ ] Add the right sidebar to select resources more easily.
 - [ ] Add a block layout.
