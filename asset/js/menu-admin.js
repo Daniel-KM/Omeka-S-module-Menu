@@ -129,6 +129,7 @@ $(document).ready( function() {
                 check_callback: true,
                 force_text: true,
                 // Get jstree data from attributes when an error occurs (not yet saved).
+                // Add "data" to be be able to load core plugins, and include item url.
                 data: tree.data('jstree-data')
                     ? tree.data('jstree-data')
                     : {
@@ -139,7 +140,7 @@ $(document).ready( function() {
             // Plugins jstree, omeka (jstree-plugins) or above.
             plugins: isEdit
                 ? ['privateStatus', 'dnd', 'removenode', 'editlink', 'displayElements']
-                : ['privateStatus', 'displayElements']
+                : ['privateStatus', 'displayElements'],
         })
         .on('loaded.jstree', function() {
             // Close all nodes by default.
@@ -251,11 +252,11 @@ $(document).ready( function() {
         }
     })());
 
-    $('#menu-open-all').on('click', function () {
+    $('#tree-open-all').on('click', function () {
         tree.jstree(true).open_all();
     });
 
-    $('#menu-close-all').on('click', function () {
+    $('#tree-close-all').on('click', function () {
         tree.jstree(true).close_all();
     });
 
