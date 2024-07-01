@@ -443,7 +443,7 @@ class MenuUpdateTreeInResources extends AbstractJob
 SELECT CONCAT("customvocab:", `id`)
 FROM `custom_vocab`
 WHERE `item_set_id` IS NOT NULL
-ORDER BY `id`;
+ORDER BY `id` ASC;
 SQL;
         $customVocabResources = $this->connection->executeQuery($sql)->fetchFirstColumn() ?: [];
 
