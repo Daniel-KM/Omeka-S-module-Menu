@@ -80,7 +80,7 @@ if (version_compare($oldVersion, '3.3.5', '<')) {
     $urlHelper = $services->get('ViewHelperManager')->get('url');
     $message = new Message(
         'The helper "PrimaryItemSet" was moved from module %1$sNext%2$s and a param is added for it in %3$smain settings%2$s.', // @translate
-        '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-Next" target="_blank">',
+        '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-Next" target="_blank" rel="noopener">',
         '</a>',
         '<a href="' . $urlHelper('admin/default', ['controller' => 'setting', 'action' => 'browse'], ['fragment' => 'module-menu']) . '">'
     );
