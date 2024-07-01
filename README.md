@@ -24,7 +24,7 @@ Installation
 
 See general end user documentation for [installing a module].
 
-The optional module [Generic] may be installed first.
+This module requires the module [Common], that should be installed first.
 
 The module uses an external library, so use the release zip to install it, or
 use and init the source.
@@ -37,7 +37,7 @@ not contain the dependency), and uncompress it in the `modules` directory.
 * From the source and for development
 
 If the module was installed from the source, rename the name of the folder of
-the module to `Menu`, go to the root module, and run:
+the module to `Menu`, go to the root of the module, and run:
 
 ```sh
 composer install --no-dev
@@ -142,8 +142,8 @@ currently managed with [Spip].
 
 [Menu]: https://github.com/Daniel-KM/Omeka-S-module-Menu
 [Omeka S]: https://omeka.org/s
-[Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
-[Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
+[installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
+[Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [Menu.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-Menu/-/releases
 [Navigation]: https://docs.laminas.dev/laminas-navigation/helpers/menu
 [Next]: https://github.com/Daniel-KM/Omeka-S-module-Next
