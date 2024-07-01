@@ -376,22 +376,22 @@ class MenuController extends AbstractActionController
             'menu' => $newName,
         ]);
 
-        $urlHelper = $this->url();
+        $urlPlugin = $this->url();
         // TODO Don't use PsrMessage for now to fix issues with Doctrine and inexisting file to remove.
         $message = new Message(
             'Processing update of relations of the resources, if any, in background (job %1$s#%2$d%3$s, %4$slogs%3$s).', // @translate
             sprintf(
                 '<a href="%s">',
-                htmlspecialchars($urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
+                htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
             ),
             $job->getId(),
             '</a>',
             sprintf(
                 '<a href="%s">',
                 // Check if module Log is enabled (avoid issue when disabled).
-                htmlspecialchars(class_exists(\Log\Stdlib\PsrMessage::class)
-                    ? $urlHelper->fromRoute('admin/log/default', [], ['query' => ['job_id' => $job->getId()]])
-                    : $urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
+                htmlspecialchars(class_exists(\Common\Stdlib\PsrMessage::class)
+                    ? $urlPlugin->fromRoute('admin/log/default', [], ['query' => ['job_id' => $job->getId()]])
+                    : $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
             ))
         );
         $message->setEscapeHtml(false);
