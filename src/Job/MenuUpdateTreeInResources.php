@@ -6,7 +6,6 @@ use Omeka\Api\Exception\NotFoundException;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Api\Representation\ResourceTemplateRepresentation;
 use Omeka\Job\AbstractJob;
-use Omeka\Stdlib\Message;
 
 class MenuUpdateTreeInResources extends AbstractJob
 {
@@ -19,6 +18,11 @@ class MenuUpdateTreeInResources extends AbstractJob
      * @var \Doctrine\DBAL\Connection
      */
     protected $connection;
+
+    /**
+     * @var \Common\Stdlib\EasyMeta
+     */
+    protected $easyMeta;
 
     /**
      * @var \Laminas\Log\Logger
@@ -66,6 +70,7 @@ class MenuUpdateTreeInResources extends AbstractJob
         $this->api = $services->get('Omeka\ApiManager');
         $this->logger = $services->get('Omeka\Logger');
         $this->connection = $services->get('Omeka\Connection');
+        $this->easyMeta = $services->get('EasyMeta');
         $settings = $services->get('Omeka\Settings');
         $siteSettings = $services->get('Omeka\Settings\Site');
 
@@ -75,18 +80,18 @@ class MenuUpdateTreeInResources extends AbstractJob
 
         $menu = $siteSettings->get('menu_menu:' . $menuName);
         if (!is_array($menu)) {
-            $this->logger->err(new Message(
-                'No menu exists with name "%1$s" in site #%2$s.', // @translate
-                $menuName, $siteId
-            ));
+            $this->logger->err(
+                'No menu exists with name "{menu_name}" in site #{site_id}.', // @translate
+                ['menu_name' => $menuName, 'site_id' => $siteId]
+            );
             return;
         }
 
         $updateResources = $settings->get('menu_update_resources');
         if (!in_array($updateResources, ['yes', 'template_intersect', 'template_properties'])) {
-            $this->logger->notice(new Message(
+            $this->logger->notice(
                 'The settings does not require to update resources.' // @translate
-            ));
+            );
             return ;
         }
 
@@ -100,21 +105,21 @@ class MenuUpdateTreeInResources extends AbstractJob
             $narrowers = [];
         } else {
             if ($updateResources !== 'template_properties' && !$broaderTerms && !$narrowerTerms) {
-                $this->logger->notice(new Message(
+                $this->logger->notice(
                     'No relations to create: settings "broader" and "narrower" are no defined.' // @translate
-                ));
+                );
                 return;
             }
 
-            $propertyIds = $this->getPropertyIds();
+            $propertyIds = $this->easyMeta->propertyIds();
 
             $broaders = array_intersect_key($propertyIds, array_flip($broaderTerms));
             $narrowers = array_intersect_key($propertyIds, array_flip($narrowerTerms));
 
             if (($broaderTerms && !$broaders) || ($narrowerTerms && !$narrowers)) {
-                $this->logger->err(new Message(
+                $this->logger->err(
                     'Settings for "broader" or "narrower" are not correct.' // @translate
-                ));
+                );
                 return;
             }
         }
@@ -136,10 +141,10 @@ class MenuUpdateTreeInResources extends AbstractJob
                 if ($link['type'] === 'resource') {
                     $resource = $this->getResourceFromId($link['data']['id'] ?? null);
                     if (!$resource) {
-                        $this->logger->warn(new Message(
-                            'Resource #%1$d does not exist.', // @translate
-                            $link['data']['id'] ?? 0
-                        ));
+                        $this->logger->warn(
+                            'Resource #{resource_id} does not exist.', // @translate
+                            ['resource_id', $link['data']['id'] ?? 0]
+                        );
                         ++$this->totalError;
                         continue;
                     }
@@ -149,18 +154,18 @@ class MenuUpdateTreeInResources extends AbstractJob
                     $resourceId = $resource->id();
                     $template = $resource->resourceTemplate();
                     if ($updateResources !== 'yes' && !$template) {
-                        $this->logger->warn(new Message(
-                            'Resource #%1$d has no template and cannot be updated.', // @translate
-                            $resourceId
-                        ));
+                        $this->logger->warn(
+                            'Resource #{resource_id} has no template and cannot be updated.', // @translate
+                            ['resource_id' => $resourceId]
+                        );
                         continue;
                     }
 
                     if (!empty($onlyTemplates) && !in_array($template, $onlyTemplates)) {
-                        $this->logger->warn(new Message(
+                        $this->logger->warn(
                             'Resource #%1$d has a template not in the limited list of templates.', // @translate
-                            $resourceId
-                        ));
+                            ['resource_id' => $resourceId]
+                        );
                         continue;
                     }
 
@@ -175,10 +180,10 @@ class MenuUpdateTreeInResources extends AbstractJob
                         $narrowerProperties = $narrowers;
                     }
                     if (!$broaderProperties && !$narrowerProperties) {
-                        $this->logger->warn(new Message(
-                            'The template #%1$d (%2$s) has no properties to update.', // @translate
-                            $template->id(), $template->label()
-                        ));
+                        $this->logger->warn(
+                            'The template {template_label} (#{template_id}) has no properties to update.', // @translate
+                            ['template_label' => $template->label(), 'template_id' => $template->id()]
+                        );
                         continue;
                     }
 
@@ -224,9 +229,15 @@ class MenuUpdateTreeInResources extends AbstractJob
 
         $updateResourceFromMenu($menu);
 
-        $this->logger->info(new Message(
-            'End of the job: %1$d menu elements, %2$d resources, %3$d/%4$d resources updated, %5$d errors.', // @translate
-            $this->totalMenuElements, $this->totalResources, $this->totalUpdated, $this->totalProcessed, $this->totalError
+        $this->logger->info(
+            'End of the job: {total} menu elements, {count} resources, {count_updated}/{count_processed} resources updated, {count_error} errors.', // @translate
+            [
+                'total' => $this->totalMenuElements,
+                'count' => $this->totalResources,
+                'count_updated' => $this->totalUpdated,
+                'count_processed' => $this->totalProcessed,
+                'count_error' => $this->totalError,
+            ]
         ));
     }
 
@@ -411,8 +422,7 @@ class MenuUpdateTreeInResources extends AbstractJob
     /**
      * List all datatypes whose main type is resource, ordered by most specific.
      *
-     * @see \BulkEdit\View\Helper\MainDataType
-     * @see \BulkEdit\Service\ViewHelper\CustomVocabBaseTypeFactory
+     * @uses \Common\Stdlib\EasyMeta
      *
      * @todo Use \BulkEdit\View\Helper\MainDataType when available.
      */
@@ -424,6 +434,9 @@ class MenuUpdateTreeInResources extends AbstractJob
             return $resourceDataTypes;
         }
 
+        $dataTypeMainCustomVocabs = $this->easyMeta->dataTypeMainCustomVocabs();
+        $customVocabResources = array_keys(array_filter($dataTypeMainCustomVocabs, fn ($v) => $v === 'resource'));
+
         $resourceDataTypes = [
             'resource:annotation',
             'resource:media',
@@ -432,54 +445,9 @@ class MenuUpdateTreeInResources extends AbstractJob
             'resource',
         ];
 
-        $customVocabResources = [];
-        $hasCustomVocab = ($module = $this->getServiceLocator()->get('Omeka\ModuleManager')->getModule('CustomVocab'))
-            && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
-        if (!$hasCustomVocab) {
-            return $resourceDataTypes;
-        }
-
-        $sql = <<<'SQL'
-SELECT CONCAT("customvocab:", `id`)
-FROM `custom_vocab`
-WHERE `item_set_id` IS NOT NULL
-ORDER BY `id` ASC;
-SQL;
-        $customVocabResources = $this->connection->executeQuery($sql)->fetchFirstColumn() ?: [];
-
         // The custom vocabs are more specific, so list them first.
         $resourceDataTypes = array_merge($customVocabResources, $resourceDataTypes);
 
         return $resourceDataTypes;
-    }
-
-    /**
-     * Get all property ids by term.
-     *
-     * @return array Associative array of ids by term.
-     */
-    protected function getPropertyIds(): array
-    {
-        if (isset($this->properties)) {
-            return $this->properties;
-        }
-
-        $qb = $this->connection->createQueryBuilder();
-        $qb
-            ->select(
-                'DISTINCT CONCAT(vocabulary.prefix, ":", property.local_name) AS term',
-                'property.id AS id',
-                // Only the two first selects are needed, but some databases
-                // require "order by" or "group by" value to be in the select.
-                'vocabulary.id'
-            )
-            ->from('property', 'property')
-            ->innerJoin('property', 'vocabulary', 'vocabulary', 'property.vocabulary_id = vocabulary.id')
-            ->orderBy('vocabulary.id', 'asc')
-            ->addOrderBy('property.id', 'asc')
-            ->addGroupBy('property.id')
-        ;
-        $this->properties = array_map('intval', $this->connection->executeQuery($qb)->fetchAllKeyValue());
-        return $this->properties;
     }
 }

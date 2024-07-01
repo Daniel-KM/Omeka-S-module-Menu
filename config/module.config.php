@@ -15,14 +15,11 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
-            Form\Element\OptionalRadio::class => Form\Element\OptionalRadio::class,
             Form\MenuForm::class => Form\MenuForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
         ],
         'factories' => [
             Form\Element\MenuSelect::class => Service\Form\Element\MenuSelectFactory::class,
-            Form\Element\OptionalPropertySelect::class => Service\Form\Element\OptionalPropertySelectFactory::class,
-            Form\Element\OptionalResourceTemplateSelect::class => Service\Form\Element\OptionalResourceTemplateSelectFactory::class,
         ],
     ],
     'controllers' => [

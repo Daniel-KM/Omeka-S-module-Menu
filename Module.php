@@ -1,14 +1,6 @@
 <?php declare(strict_types=1);
 
 /**
- * Menu
- *
- * Display multiple menus in a site, for example a top menu, a sidebar menu and a
- * footer menu, or any structure anywhere.
- *
- * @copyright Daniel Berthereau, 2021-2023
- * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
- *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
  * redistribute the software under the terms of the CeCILL license as circulated
@@ -32,21 +24,32 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
+
 namespace Menu;
 
-if (!class_exists(\Generic\AbstractModule::class)) {
-    require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
-        ? dirname(__DIR__) . '/Generic/AbstractModule.php'
-        : __DIR__ . '/src/Generic/AbstractModule.php';
+if (!class_exists(\Common\TraitModule::class)) {
+    require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
-use Generic\AbstractModule;
+use Common\TraitModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\MvcEvent;
+use Omeka\Module\AbstractModule;
 
+/**
+ * Menu
+ *
+ * Display multiple menus in a site, for example a top menu, a sidebar menu and a
+ * footer menu, or any structure anywhere.
+ *
+ * @copyright Daniel Berthereau, 2021-2024
+ * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
+ */
 class Module extends AbstractModule
 {
+    use TraitModule;
+
     const NAMESPACE = __NAMESPACE__;
 
     public function onBootstrap(MvcEvent $event): void

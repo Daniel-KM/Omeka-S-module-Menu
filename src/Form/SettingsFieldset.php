@@ -2,8 +2,8 @@
 
 namespace Menu\Form;
 
+use Common\Form\Element as CommonElement;
 use Laminas\Form\Fieldset;
-use Menu\Form\Element as MenuElement;
 
 class SettingsFieldset extends Fieldset
 {
@@ -21,7 +21,7 @@ class SettingsFieldset extends Fieldset
             ->setOption('element_groups', $this->elementGroups)
             ->add([
                 'name' => 'menu_update_resources',
-                'type' => MenuElement\OptionalRadio::class,
+                'type' => CommonElement\OptionalRadio::class,
                 'options' => [
                     'element_group' => 'menu',
                     'label' => 'Update resources on menu saving', // @translate
@@ -38,7 +38,7 @@ class SettingsFieldset extends Fieldset
             ])
             ->add([
                 'name' => 'menu_update_templates',
-                'type' => MenuElement\OptionalResourceTemplateSelect::class,
+                'type' => CommonElement\OptionalResourceTemplateSelect::class,
                 'options' => [
                     'element_group' => 'menu',
                     'label' => 'Limit update to specific templates', // @translate
@@ -52,7 +52,7 @@ class SettingsFieldset extends Fieldset
             ])
             ->add([
                 'name' => 'menu_properties_broader',
-                'type' => MenuElement\OptionalPropertySelect::class,
+                'type' => CommonElement\OptionalPropertySelect::class,
                 'options' => [
                     'element_group' => 'menu',
                     'label' => 'Properties to store a broader linked resource', // @translate
@@ -69,7 +69,7 @@ class SettingsFieldset extends Fieldset
             ])
             ->add([
                 'name' => 'menu_properties_narrower',
-                'type' => MenuElement\OptionalPropertySelect::class,
+                'type' => CommonElement\OptionalPropertySelect::class,
                 'options' => [
                     'element_group' => 'menu',
                     'label' => 'Properties to store a narrower linked resource', // @translate
