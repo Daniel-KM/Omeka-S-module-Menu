@@ -70,7 +70,7 @@ class MenuUpdateTreeInResources extends AbstractJob
         $this->api = $services->get('Omeka\ApiManager');
         $this->logger = $services->get('Omeka\Logger');
         $this->connection = $services->get('Omeka\Connection');
-        $this->easyMeta = $services->get('EasyMeta');
+        $this->easyMeta = $services->get('Common\EasyMeta');
         $settings = $services->get('Omeka\Settings');
         $siteSettings = $services->get('Omeka\Settings\Site');
 
