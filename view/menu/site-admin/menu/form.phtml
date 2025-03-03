@@ -53,7 +53,7 @@ $this->headScript()
     <?php if ($form): // Page menu/add or menu/edit. ?>
     <?php // The omeka cancel button cannot be used, because name may have been changed.?>
     <?= $hyperlink($translate('Cancel'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'show'], true), ['class' => 'show-cancel button']) ?>
-    <button type="submit"><?= $escape($submitLabel) ?></button>
+    <button type="submit" class="button"><?= $escape($submitLabel) ?></button>
     <?php else: // Page menu/show. ?>
     <?= $hyperlink($translate('Edit'), $url('admin/site/slug/menu-id', ['menu-slug' => $name, 'action' => 'edit'], true), ['class' => 'button']) ?>
     <?php endif; ?>
@@ -74,7 +74,7 @@ $this->headScript()
 
 <?php if ($form): ?>
 
-<button id="nav-selector-button" class="mobile-only"><?= $translate('Add a link to a site page') ?></button>
+<button id="nav-selector-button" class="button mobile-only"><?= $translate('Add a link to a site page') ?></button>
 <div id="nav-selector" class="always-open sidebar">
     <a href="#" class="mobile-only sidebar-close o-icon-close"><span class="screen-reader-text"><?= $translate('Close') ?></span></a>
 
@@ -95,7 +95,7 @@ $this->headScript()
                 draggable="true"
                 data-type="<?= $escape($type) ?>"
                 data-value="<?= $escape($type) ?>"
-                class="option"
+                class="button option"
                 ><?= $escape($translate($name)) ?></button>
             <?php endforeach; ?>
         </div>
@@ -110,6 +110,7 @@ $this->headScript()
         <?php foreach ($pages as $page): ?>
             <button class="nav-page-link option active"
                 type="button"
+                class="button"
                 data-type="page"
                 data-label="<?= $escape($page->title()) ?>"
                 data-id="<?= $escape($page->id()) ?>"
