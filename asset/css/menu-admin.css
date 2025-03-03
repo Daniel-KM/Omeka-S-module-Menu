@@ -1,6 +1,6 @@
 /* Import: styles */
 
-@media screen {
+@media all {
     header nav .menu::before,
     .menus .subhead::before,
     .menus .no-resources:before {
