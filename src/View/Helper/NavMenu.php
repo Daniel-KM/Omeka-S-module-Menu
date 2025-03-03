@@ -15,17 +15,17 @@ class NavMenu extends AbstractHelper
     /**
      * @var \Menu\Mvc\Controller\Plugin\NavigationTranslator
      */
-    protected $services;
-
-    /**
-     * @var \Menu\Mvc\Controller\Plugin\NavigationTranslator
-     */
     protected $navigationTranslator;
 
-    public function __construct(ServiceLocatorInterface $services, NavigationTranslator $navigationTranslator)
+    /**
+     * @var \Laminas\ServiceManager\ServiceLocatorInterface
+     */
+    protected $services;
+
+    public function __construct(NavigationTranslator $navigationTranslator, ServiceLocatorInterface $services)
     {
-        $this->services = $services;
         $this->navigationTranslator = $navigationTranslator;
+        $this->services = $services;
     }
 
     /**
@@ -218,6 +218,8 @@ class NavMenu extends AbstractHelper
      *
      * Adapted from SiteRepresentation::publicNav().
      * @see \Omeka\Api\Representation\SiteRepresentation::publicNav()
+     * @see \Menu\View\Helper\NavMenu::publicNav()
+     * @see \Guest\View\Helper\GuestNavigation::guestNav()
      *
      * @todo Check if the translator should be skipped here, in particular to display title of resources.
      */
@@ -238,6 +240,8 @@ class NavMenu extends AbstractHelper
      *
      * Adapted from SiteRepresentation::getPublicNavContainer().
      * @see \Omeka\Api\Representation\SiteRepresentation::getPublicNavContainer()
+     * @see \Menu\View\Helper\NavMenu::getPublicNavContainer()
+     * @see \Guest\View\Helper\GuestNavigation::getGuestNavContainer()
      */
     protected function getPublicNavContainer(SiteRepresentation $site, ?array $menu = null, array $options = []): \Laminas\Navigation\Navigation
     {

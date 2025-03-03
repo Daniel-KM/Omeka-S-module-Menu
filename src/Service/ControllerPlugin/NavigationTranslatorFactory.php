@@ -11,8 +11,8 @@ class NavigationTranslatorFactory implements FactoryInterface
     public function __invoke(ContainerInterface $services, $name, array $options = null)
     {
         return new NavigationTranslator(
-            $services->get('Omeka\Site\NavigationLinkManager'),
             $services->get('MvcTranslator'),
+            $services->get('Omeka\Site\NavigationLinkManager'),
             $services->get('ViewHelperManager')->get('Url')
         );
     }

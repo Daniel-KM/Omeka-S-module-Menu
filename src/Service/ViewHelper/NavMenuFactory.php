@@ -11,8 +11,8 @@ class NavMenuFactory implements FactoryInterface
     public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
         return new NavMenu(
-            $services,
-            $services->get('ControllerPluginManager')->get('navigationTranslator')
+            $services->get('ControllerPluginManager')->get('navigationTranslator'),
+            $services
         );
     }
 }

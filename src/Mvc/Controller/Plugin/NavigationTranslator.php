@@ -12,28 +12,33 @@ use Omeka\Site\Navigation\Link\Manager as LinkManager;
 /**
  * Genericized from \Omeka\Site\Navigation\Translator
  * @see \Omeka\Site\Navigation\Translator
+ * @see \Guest\Mvc\Controller\Plugin\NavigationTranslator
+ * @see \Menu\Mvc\Controller\Plugin\NavigationTranslator
  */
 class NavigationTranslator extends AbstractPlugin
 {
-    /**
-     * @var LinkManager
-     */
-    protected $linkManager;
-
     /**
      * @var I18n
      */
     protected $i18n;
 
     /**
+     * @var LinkManager
+     */
+    protected $linkManager;
+
+    /**
      * @var Url
      */
     protected $urlHelper;
 
-    public function __construct(LinkManager $linkManager, I18n $i18n, Url $urlHelper)
-    {
-        $this->linkManager = $linkManager;
+    public function __construct(
+        I18n $i18n,
+        LinkManager $linkManager,
+        Url $urlHelper
+    ) {
         $this->i18n = $i18n;
+        $this->linkManager = $linkManager;
         $this->urlHelper = $urlHelper;
     }
 
