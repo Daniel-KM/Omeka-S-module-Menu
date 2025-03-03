@@ -43,7 +43,8 @@ class Structure implements LinkInterface
     {
         return [
             'type' => 'uri',
-            'uri' => null,
+            // TODO The uri should be null, but it throws an exception with breadcrumbs (module BlockPlus) in new versions of php.
+            'uri' => '',
         ];
     }
 
