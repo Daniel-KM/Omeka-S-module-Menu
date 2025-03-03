@@ -43,7 +43,7 @@ use Omeka\Module\AbstractModule;
  * Display multiple menus in a site, for example a top menu, a sidebar menu and a
  * footer menu, or any structure anywhere.
  *
- * @copyright Daniel Berthereau, 2021-2024
+ * @copyright Daniel Berthereau, 2021-2025
  * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
  */
 class Module extends AbstractModule
