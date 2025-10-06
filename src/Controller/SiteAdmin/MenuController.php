@@ -389,7 +389,7 @@ class MenuController extends AbstractActionController
             sprintf(
                 '<a href="%s">',
                 // Check if module Log is enabled (avoid issue when disabled).
-                htmlspecialchars(class_exists(\Common\Stdlib\PsrMessage::class)
+                htmlspecialchars(class_exists('Log\Module', false)
                     ? $urlPlugin->fromRoute('admin/log/default', [], ['query' => ['job_id' => $job->getId()]])
                     : $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
             ))

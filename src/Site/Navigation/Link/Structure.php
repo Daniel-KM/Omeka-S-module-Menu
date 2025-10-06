@@ -31,15 +31,7 @@ class Structure implements LinkInterface
             : $data['label'];
     }
 
-    /**
-     * @deprecated Since Omeka v3.0 Use toLaminas() instead.
-     */
     public function toZend(array $data, SiteRepresentation $site)
-    {
-        return $this->toLaminas($data, $site);
-    }
-
-    public function toLaminas(array $data, SiteRepresentation $site)
     {
         $result = [
             'type' => 'uri',

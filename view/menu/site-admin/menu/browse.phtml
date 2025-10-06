@@ -47,10 +47,10 @@ $defaultRights = [
     <div class="batch-inputs">
         <select class="batch-actions-select" aria-label="<?= $translate('Batch actions') ?>">
             <option value="default"><?= $translate('Batch actions') ?></option>
-            <option value="delete-selected" disabled="true"><?= $translate('Delete selected') ?></option>
+            <option value="delete-selected" disabled="disabled"><?= $translate('Delete selected') ?></option>
         </select>
         <div class="batch-actions">
-            <button type="button" class="button default active" disabled="true"><?php echo $translate('Go'); ?></button>
+            <button type="button" class="button default active" disabled="disabled"><?= $translate('Go') ?></button>
             <a class="delete button sidebar-content delete-selected" data-sidebar-selector="#sidebar-delete-selected"><?= $translate('Go') ?></a>
         </div>
     </div>
@@ -63,7 +63,7 @@ $defaultRights = [
                 <?php if ($defaultRights['delete']): ?>
                 <input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>">
                 <?php endif; ?>
-                <?= $translate('Name'); ?>
+                <?= $translate('Name') ?>
             </th>
         </tr>
     </thead>

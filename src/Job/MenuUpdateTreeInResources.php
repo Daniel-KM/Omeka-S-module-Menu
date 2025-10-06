@@ -188,6 +188,7 @@ class MenuUpdateTreeInResources extends AbstractJob
                     }
 
                     // Update requires to pass all values, so json decode it.
+                    // TODO Don't use json_decode(json_encode()).
                     $meta = json_decode(json_encode($resource), true);
                     $toUpdate = false;
 
