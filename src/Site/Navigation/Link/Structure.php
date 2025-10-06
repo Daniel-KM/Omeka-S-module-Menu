@@ -41,11 +41,16 @@ class Structure implements LinkInterface
 
     public function toLaminas(array $data, SiteRepresentation $site)
     {
-        return [
+        $result = [
             'type' => 'uri',
             // TODO The uri should be null, but it throws an exception with breadcrumbs (module BlockPlus) in new versions of php.
             'uri' => '',
         ];
+        $class = $data['class'] ?? null;
+        if ($class) {
+            $result['class'] = $class;
+        }
+        return $result;
     }
 
     public function toJstree(array $data, SiteRepresentation $site)
