@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-19 00:00+0000\n"
+"POT-Creation-Date: 2025-10-06 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,43 +26,6 @@ msgstr ""
 msgid "[no label]"
 msgstr ""
 
-#: src/Generic/AbstractModule.php:66 src/Generic/AbstractModule.php:740
-#, php-format
-msgid "This module requires the module \"%s\"."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:73
-#, php-format
-msgid "This module requires modules \"%s\"."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:80
-msgid "This module has resources that cannot be installed."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:87
-msgid ""
-"This module cannot install its tables, because they exist already. Try to "
-"remove them first."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:328
-#, php-format
-msgid "The module removed tables \"%s\" from a previous broken install."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:735
-#, php-format
-msgid "This module requires the module \"%1$s\", version %2$s or above."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:832
-#, php-format
-msgid ""
-"The module \"%s\" was automatically deactivated because the dependencies are "
-"unavailable."
-msgstr ""
-
 #: src/Site/Navigation/Link/Resource.php:40
 msgid "[Unknown resource]"
 msgstr ""
@@ -70,56 +33,6 @@ msgstr ""
 #: src/Site/Navigation/Link/Resource.php:49
 #, php-format
 msgid "[Unknown resource #%d]"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:375 src/View/Helper/Breadcrumbs.php:385
-#: src/View/Helper/Breadcrumbs.php:413 src/View/Helper/Breadcrumbs.php:448
-#: src/View/Helper/Breadcrumbs.php:454
-msgid "Dashboard"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:391 src/View/Helper/Breadcrumbs.php:475
-msgid "Basket"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:399
-msgid "Collecting"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:416
-msgid "Login"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:419
-msgid "Register"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:422
-msgid "Authentication error"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:466
-msgid "Update account"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:469
-msgid "Update email"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:472
-msgid "Accept terms"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:478
-msgid "Selection"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:495
-msgid "Current page"
-msgstr ""
-
-#: src/View/Helper/Breadcrumbs.php:529
-msgid "Collections"
 msgstr ""
 
 #: view/common/navigation-link-form/resource.phtml:39
@@ -130,12 +43,12 @@ msgstr ""
 msgid "Resource unavailable"
 msgstr ""
 
-#: view/common/navigation-link-form/resource.phtml:59
-msgid "Resource class"
+#: view/common/navigation-link-form/structure.phtml:21
+msgid "Optional label"
 msgstr ""
 
-#: view/common/navigation-link-form/structure.phtml:20
-msgid "Optional label"
+#: view/common/navigation-link-form/structure.phtml:24
+msgid "Optional html class"
 msgstr ""
 
 #: view/menu/site-admin/menu/add.phtml:18
@@ -184,21 +97,21 @@ msgstr ""
 msgid "Delete menu \"%s\""
 msgstr ""
 
-#: view/menu/site-admin/menu/form.phtml:52
+#: view/menu/site-admin/menu/form.phtml:51
 #: view/menu/site-admin/menu/show-details.phtml:26
 msgid "Tops to menus"
 msgstr ""
 
-#: view/menu/site-admin/menu/form.phtml:52
+#: view/menu/site-admin/menu/form.phtml:51
 #: view/menu/site-admin/menu/show-details.phtml:26
 msgid "Create a new menu for each top menu"
 msgstr ""
 
-#: view/menu/site-admin/menu/form.phtml:64
+#: view/menu/site-admin/menu/form.phtml:63
 msgid "Open all"
 msgstr ""
 
-#: view/menu/site-admin/menu/form.phtml:65
+#: view/menu/site-admin/menu/form.phtml:64
 msgid "Close all"
 msgstr ""
 
@@ -206,87 +119,117 @@ msgstr ""
 msgid "The settings for \"Breadcrumbs\" were upgraded."
 msgstr ""
 
-#: data/scripts/upgrade.php:84
+#: data/scripts/upgrade.php:82
 #, php-format
 msgid ""
 "The helper \"PrimaryItemSet\" was moved from module %1$sNext%2$s and a param "
 "is added for it in %3$smain settings%2$s."
 msgstr ""
 
+#: data/scripts/upgrade.php:94
+#, php-format
+msgid ""
+"A %1$ssetting%2$s has been added to update related resources when saving "
+"menu."
+msgstr ""
+
+#: Module.php:140
+msgid "Menu: Fill as broader when saving menu"
+msgstr ""
+
+#: Module.php:152
+msgid "Menu: Fill as narrower when saving menu"
+msgstr ""
+
+#: src/Job/MenuUpdateTreeInResources.php:84
+msgid "No menu exists with name \"{menu_name}\" in site #{site_id}."
+msgstr ""
+
+#: src/Job/MenuUpdateTreeInResources.php:93
+msgid "The settings does not require to update resources."
+msgstr ""
+
+#: src/Job/MenuUpdateTreeInResources.php:109
+msgid ""
+"No relations to create: settings \"broader\" and \"narrower\" are no defined."
+msgstr ""
+
+#: src/Job/MenuUpdateTreeInResources.php:121
+msgid "Settings for \"broader\" or \"narrower\" are not correct."
+msgstr ""
+
+#: src/Job/MenuUpdateTreeInResources.php:145
+msgid "Resource #{resource_id} does not exist."
+msgstr ""
+
+#: src/Job/MenuUpdateTreeInResources.php:158
+msgid "Resource #{resource_id} has no template and cannot be updated."
+msgstr ""
+
+#: src/Job/MenuUpdateTreeInResources.php:166
+#, php-format
+msgid "Resource #%1$d has a template not in the limited list of templates."
+msgstr ""
+
+#: src/Job/MenuUpdateTreeInResources.php:184
+msgid ""
+"The template {template_label} (#{template_id}) has no properties to update."
+msgstr ""
+
+#: src/Job/MenuUpdateTreeInResources.php:234
+msgid ""
+"End of the job: {total} menu elements, {count} resources, {count_updated}/"
+"{count_processed} resources updated, {count_error} errors."
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:27
+msgid "Update resources on menu saving"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:31
+msgid "Only when properties below exist in resource template"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:32
+msgid ""
+"According to template property settings (requires module Advanced Resource "
+"Template)"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:44
+msgid "Limit update to specific templates"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:50
+msgid "Select templates…"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:58
+msgid "Properties to store a broader linked resource"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:59
+msgid ""
+"Automatically update resources by adding a value to it when the menu uses "
+"resources. It may be dcterms:isPartOf or skos:broader or any other property."
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:67 src/Form/SettingsFieldset.php:84
+msgid "Select properties…"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:75
+msgid "Properties to store a narrower linked resource"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:76
+msgid ""
+"Automatically update resources by adding a value to it when the menu uses "
+"resources. It may be dcterms:hasPart or skos:narrower or any other property."
+msgstr ""
+
 #: src/Form/MenuForm.php:19
 msgid "Menu name"
-msgstr ""
-
-#: src/Form/SettingsFieldset.php:20
-msgid "Property to set primary item set"
-msgstr ""
-
-#: src/Form/SettingsFieldset.php:21
-msgid ""
-"When an item is included in multiple item sets, the main one may be "
-"determined by this property."
-msgstr ""
-
-#: src/Form/SettingsFieldset.php:28
-msgid "Select a property…"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:11
-msgid "Menu & Breadcrumbs"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:21
-msgid "Crumbs"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:23
-msgid "Prepend home"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:24
-msgid "Include \"Collections\""
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:25
-msgid "Include main item set for item"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:26
-msgid "Append current resource"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:37
-msgid "Prepended links"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:38
-msgid ""
-"List of urls followed by a label, separated by a \"=\", one by line, that "
-"will be prepended to the breadcrumb."
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:54
-msgid "Url for collections"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:55
-msgid ""
-"The url to use for the link \"Collections\", if set above. Let empty to use "
-"the default one."
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:66
-msgid "Separator"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:67
-msgid ""
-"The separator between crumbs may be set as raw text or via css. it should be "
-"set as an html text (\"&gt;\")."
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:78
-msgid "Display on home page"
 msgstr ""
 
 #: src/Controller/SiteAdmin/MenuController.php:148
@@ -326,15 +269,28 @@ msgstr ""
 msgid "Menu \"%s\" was saved successfully."
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:507
+#: src/Controller/SiteAdmin/MenuController.php:369
+msgid ""
+"The settings require to update the resources when saving menu, but no "
+"properties are defined."
+msgstr ""
+
+#: src/Controller/SiteAdmin/MenuController.php:382
+#, php-format
+msgid ""
+"Processing update of relations of the resources, if any, in background (job "
+"%1$s#%2$d%3$s, %4$slogs%3$s)."
+msgstr ""
+
+#: src/Controller/SiteAdmin/MenuController.php:552
 #, php-format
 msgid "Menu \"%s\" uses a reserved name and was renamed \"%s\"."
 msgstr ""
 
-#: src/Site/Navigation/Link/Resource.php:24
-msgid "Invalid navigation: resource link missing resource ID"
-msgstr ""
-
 #: src/Site/Navigation/Link/Structure.php:13
 msgid "Structure"
+msgstr ""
+
+#: src/Site/Navigation/Link/Resource.php:24
+msgid "Invalid navigation: resource link missing resource ID"
 msgstr ""

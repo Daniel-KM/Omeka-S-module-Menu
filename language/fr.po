@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-19 00:00+0000\n"
-"PO-Revision-Date: 2022-09-19 00:00+0000\n"
+"POT-Creation-Date: 2025-10-06 00:00+0000\n"
+"PO-Revision-Date: 2025-10-06 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: src/Controller/SiteAdmin/MenuController.php:200
 #, php-format
@@ -26,48 +26,6 @@ msgstr "%d menus ont été supprimés avec succès"
 msgid "[no label]"
 msgstr "[pas de libellé]"
 
-#: src/Generic/AbstractModule.php:66 src/Generic/AbstractModule.php:740
-#, php-format
-msgid "This module requires the module \"%s\"."
-msgstr "Ce module requiert le module « %s »."
-
-#: src/Generic/AbstractModule.php:73
-#, php-format
-msgid "This module requires modules \"%s\"."
-msgstr "Ce module requiert les modules « %s »."
-
-#: src/Generic/AbstractModule.php:80
-msgid "This module has resources that cannot be installed."
-msgstr "Ce module a des ressources qui ne peuvent pas être installées."
-
-#: src/Generic/AbstractModule.php:87
-msgid ""
-"This module cannot install its tables, because they exist already. Try to "
-"remove them first."
-msgstr ""
-"Ce module ne peut pas installer ses tables car elles existent déjà. Essayez "
-"de les supprimer manuellement."
-
-#: src/Generic/AbstractModule.php:328
-#, php-format
-msgid "The module removed tables \"%s\" from a previous broken install."
-msgstr ""
-"Le module a supprimé les tables « %s » depuis une installation échouée."
-
-#: src/Generic/AbstractModule.php:735
-#, php-format
-msgid "This module requires the module \"%1$s\", version %2$s or above."
-msgstr "Ce module requiert le module « %1$s », version %2$s ou supérieure."
-
-#: src/Generic/AbstractModule.php:832
-#, php-format
-msgid ""
-"The module \"%s\" was automatically deactivated because the dependencies are "
-"unavailable."
-msgstr ""
-"Le module « %s » a été automatiquement désactivé car ses dépendances ne sont "
-"plus disponibles."
-
 #: src/Site/Navigation/Link/Resource.php:40
 msgid "[Unknown resource]"
 msgstr "[Ressource inconnue]"
@@ -77,56 +35,6 @@ msgstr "[Ressource inconnue]"
 msgid "[Unknown resource #%d]"
 msgstr "[Ressource inconnue #%d]"
 
-#: src/View/Helper/Breadcrumbs.php:375 src/View/Helper/Breadcrumbs.php:385
-#: src/View/Helper/Breadcrumbs.php:413 src/View/Helper/Breadcrumbs.php:448
-#: src/View/Helper/Breadcrumbs.php:454
-msgid "Dashboard"
-msgstr "Tableau de bord"
-
-#: src/View/Helper/Breadcrumbs.php:391 src/View/Helper/Breadcrumbs.php:475
-msgid "Basket"
-msgstr "Panier"
-
-#: src/View/Helper/Breadcrumbs.php:399
-msgid "Collecting"
-msgstr "Collectes"
-
-#: src/View/Helper/Breadcrumbs.php:416
-msgid "Login"
-msgstr "Identifiez-vous"
-
-#: src/View/Helper/Breadcrumbs.php:419
-msgid "Register"
-msgstr "Inscrivez-vous"
-
-#: src/View/Helper/Breadcrumbs.php:422
-msgid "Authentication error"
-msgstr "Erreur d’authentification"
-
-#: src/View/Helper/Breadcrumbs.php:466
-msgid "Update account"
-msgstr "Mettre à jour le compte"
-
-#: src/View/Helper/Breadcrumbs.php:469
-msgid "Update email"
-msgstr "Mettre à jour le mail"
-
-#: src/View/Helper/Breadcrumbs.php:472
-msgid "Accept terms"
-msgstr "Accepter les termes et conditions"
-
-#: src/View/Helper/Breadcrumbs.php:478
-msgid "Selection"
-msgstr "Sélection"
-
-#: src/View/Helper/Breadcrumbs.php:495
-msgid "Current page"
-msgstr "Page actuelle"
-
-#: src/View/Helper/Breadcrumbs.php:529
-msgid "Collections"
-msgstr "Collections"
-
 #: view/common/navigation-link-form/resource.phtml:39
 msgid "Resource id"
 msgstr "Id de la ressource"
@@ -135,13 +43,13 @@ msgstr "Id de la ressource"
 msgid "Resource unavailable"
 msgstr "Ressource indisponible"
 
-#: view/common/navigation-link-form/resource.phtml:59
-msgid "Resource class"
-msgstr "Classe de ressource"
-
-#: view/common/navigation-link-form/structure.phtml:20
+#: view/common/navigation-link-form/structure.phtml:21
 msgid "Optional label"
 msgstr "Libellé facultatif"
+
+#: view/common/navigation-link-form/structure.phtml:24
+msgid "Optional html class"
+msgstr "Classe html facultative"
 
 #: view/menu/site-admin/menu/add.phtml:18
 msgid "New menu"
@@ -191,21 +99,21 @@ msgstr "Omeka ne trouve aucun menu."
 msgid "Delete menu \"%s\""
 msgstr "Supprimer le menu « %s »"
 
-#: view/menu/site-admin/menu/form.phtml:52
+#: view/menu/site-admin/menu/form.phtml:51
 #: view/menu/site-admin/menu/show-details.phtml:26
 msgid "Tops to menus"
 msgstr "Éclater en menus"
 
-#: view/menu/site-admin/menu/form.phtml:52
+#: view/menu/site-admin/menu/form.phtml:51
 #: view/menu/site-admin/menu/show-details.phtml:26
 msgid "Create a new menu for each top menu"
 msgstr "Créer un nouveau menu pour chaque menu de premier niveau"
 
-#: view/menu/site-admin/menu/form.phtml:64
+#: view/menu/site-admin/menu/form.phtml:63
 msgid "Open all"
 msgstr "Tout ouvrir"
 
-#: view/menu/site-admin/menu/form.phtml:65
+#: view/menu/site-admin/menu/form.phtml:64
 msgid "Close all"
 msgstr "Tout fermer"
 
@@ -213,7 +121,7 @@ msgstr "Tout fermer"
 msgid "The settings for \"Breadcrumbs\" were upgraded."
 msgstr "Les paramètres pour le fil d’Ariane ont été mis à jour."
 
-#: data/scripts/upgrade.php:84
+#: data/scripts/upgrade.php:82
 #, php-format
 msgid ""
 "The helper \"PrimaryItemSet\" was moved from module %1$sNext%2$s and a param "
@@ -222,90 +130,134 @@ msgstr ""
 "Le view/helper « PrimaryItemSet » a été ajouté depuis le module %1$sNext%2$s "
 "et une option a été ajoutée dans les %3$sparamètres généraux%2$s."
 
+#: data/scripts/upgrade.php:94
+#, php-format
+msgid ""
+"A %1$ssetting%2$s has been added to update related resources when saving "
+"menu."
+msgstr ""
+"Un %1$sparamètre%2$s a été ajouté pour mettre à jour les ressources liées "
+"lorsque le menu est enregistré."
+
+#: Module.php:140
+msgid "Menu: Fill as broader when saving menu"
+msgstr "Menu : Définir comme générique en enregistrant le menu"
+
+#: Module.php:152
+msgid "Menu: Fill as narrower when saving menu"
+msgstr "Menu : Définir comme spécifique en enregistrant le menu"
+
+#: src/Job/MenuUpdateTreeInResources.php:84
+msgid "No menu exists with name \"{menu_name}\" in site #{site_id}."
+msgstr "Aucun menu avec le nom \"{menu_name}\" dans le site #{site_id}."
+
+#: src/Job/MenuUpdateTreeInResources.php:93
+msgid "The settings does not require to update resources."
+msgstr "Les paramètres ne demandent pas de mettre à jour les ressources."
+
+#: src/Job/MenuUpdateTreeInResources.php:109
+msgid ""
+"No relations to create: settings \"broader\" and \"narrower\" are no defined."
+msgstr ""
+"Aucune relation créée: les paramètres \"générique\" et \"spécifiques\" ne "
+"sont pas définis."
+
+#: src/Job/MenuUpdateTreeInResources.php:121
+msgid "Settings for \"broader\" or \"narrower\" are not correct."
+msgstr ""
+"Les paramètres pour \"générique\" ou \"spécifique\" ne sont pas corrects."
+
+#: src/Job/MenuUpdateTreeInResources.php:145
+msgid "Resource #{resource_id} does not exist."
+msgstr "La ressource #{resource_id} n’existe pas."
+
+#: src/Job/MenuUpdateTreeInResources.php:158
+msgid "Resource #{resource_id} has no template and cannot be updated."
+msgstr ""
+"La ressource #{resource_id} n’a pas de modèle et ne peut pas être mise à "
+"jour."
+
+#: src/Job/MenuUpdateTreeInResources.php:166
+#, php-format
+msgid "Resource #%1$d has a template not in the limited list of templates."
+msgstr ""
+"La ressource #%1$d a un modèle qui n’est pas dans la liste des modèles."
+
+#: src/Job/MenuUpdateTreeInResources.php:184
+msgid ""
+"The template {template_label} (#{template_id}) has no properties to update."
+msgstr ""
+"Le modèle {template_label} (#{template_id}) n’a pas de propriété à mettre à "
+"jour."
+
+#: src/Job/MenuUpdateTreeInResources.php:234
+msgid ""
+"End of the job: {total} menu elements, {count} resources, {count_updated}/"
+"{count_processed} resources updated, {count_error} errors."
+msgstr ""
+"Fin de la tâche : {total} éléments de menu, {count} ressources, "
+"{count_updated}/{count_processed} ressources mises à jour, {count_error} "
+"erreurs."
+
+#: src/Form/SettingsFieldset.php:27
+msgid "Update resources on menu saving"
+msgstr "Mettre à jour les ressources à l’enregistrement du menu"
+
+#: src/Form/SettingsFieldset.php:31
+msgid "Only when properties below exist in resource template"
+msgstr ""
+"Seulement lorsque les propriétés ci-dessous existent dans le modèle de "
+"ressource"
+
+#: src/Form/SettingsFieldset.php:32
+msgid ""
+"According to template property settings (requires module Advanced Resource "
+"Template)"
+msgstr ""
+"Conformément aux paramètres de la propriété du modèle (nécessite le module "
+"Advanced Resource Template)"
+
+#: src/Form/SettingsFieldset.php:44
+msgid "Limit update to specific templates"
+msgstr "Limiter la mise à jour des à des modèles spécifiques"
+
+#: src/Form/SettingsFieldset.php:50
+msgid "Select templates…"
+msgstr "Choisir des modèles…"
+
+#: src/Form/SettingsFieldset.php:58
+msgid "Properties to store a broader linked resource"
+msgstr "Propriété pour enregistrer une ressource liée générique"
+
+#: src/Form/SettingsFieldset.php:59
+msgid ""
+"Automatically update resources by adding a value to it when the menu uses "
+"resources. It may be dcterms:isPartOf or skos:broader or any other property."
+msgstr ""
+"Mettre à jour automatiquement les ressources en ajouter une valeur dans un "
+"menu utilisant les ressources. La propriété peut être dcterms:isPartOf, skos:"
+"broader ou toute autre."
+
+#: src/Form/SettingsFieldset.php:67 src/Form/SettingsFieldset.php:84
+msgid "Select properties…"
+msgstr "Choisir des propriétés…"
+
+#: src/Form/SettingsFieldset.php:75
+msgid "Properties to store a narrower linked resource"
+msgstr "Propriétés pour enregistrer une ressource liée spécifique"
+
+#: src/Form/SettingsFieldset.php:76
+msgid ""
+"Automatically update resources by adding a value to it when the menu uses "
+"resources. It may be dcterms:hasPart or skos:narrower or any other property."
+msgstr ""
+"Mettre à jour automatiquement les ressources en ajouter une valeur dans un "
+"menu utilisant les ressources. La propriété peut être dcterms:hasPart, skos:"
+"narrower ou toute autre."
+
 #: src/Form/MenuForm.php:19
 msgid "Menu name"
 msgstr "Nom du menu"
-
-#: src/Form/SettingsFieldset.php:20
-msgid "Property to set primary item set"
-msgstr "Propriété utilisée pour définir la collection principale"
-
-#: src/Form/SettingsFieldset.php:21
-msgid ""
-"When an item is included in multiple item sets, the main one may be "
-"determined by this property."
-msgstr ""
-"Quand un contenu est inclus dans plusieurs collections, la principale peut "
-"être déterminée par cette propriété."
-
-#: src/Form/SettingsFieldset.php:28
-msgid "Select a property…"
-msgstr "Choisir une propriété… "
-
-#: src/Form/SiteSettingsFieldset.php:11
-msgid "Menu & Breadcrumbs"
-msgstr "Menu & Fil d’Ariane"
-
-#: src/Form/SiteSettingsFieldset.php:21
-msgid "Crumbs"
-msgstr "Fil d’Ariane"
-
-#: src/Form/SiteSettingsFieldset.php:23
-msgid "Prepend home"
-msgstr "Ajouter la page d’accueil au début"
-
-#: src/Form/SiteSettingsFieldset.php:24
-msgid "Include \"Collections\""
-msgstr "Inclure « Collections »"
-
-#: src/Form/SiteSettingsFieldset.php:25
-msgid "Include main item set for item"
-msgstr "Inclure la collection principale du contenu"
-
-#: src/Form/SiteSettingsFieldset.php:26
-msgid "Append current resource"
-msgstr "Ajouter la ressource en cours"
-
-#: src/Form/SiteSettingsFieldset.php:37
-msgid "Prepended links"
-msgstr "Liens à ajouter au début"
-
-#: src/Form/SiteSettingsFieldset.php:38
-msgid ""
-"List of urls followed by a label, separated by a \"=\", one by line, that "
-"will be prepended to the breadcrumb."
-msgstr ""
-"Liste des urls suivis par un libellé, séparés par un « = », une par ligne, "
-"qui seront ajoutées au fil d’Ariane."
-
-#: src/Form/SiteSettingsFieldset.php:54
-msgid "Url for collections"
-msgstr "Url pour les collections"
-
-#: src/Form/SiteSettingsFieldset.php:55
-msgid ""
-"The url to use for the link \"Collections\", if set above. Let empty to use "
-"the default one."
-msgstr ""
-"L’url à utiliser pour le lien « Collections », si ajouté ci-dessus. Laisser "
-"vide pour utiliser l’url par défaut."
-
-#: src/Form/SiteSettingsFieldset.php:66
-msgid "Separator"
-msgstr "Séparateur"
-
-#: src/Form/SiteSettingsFieldset.php:67
-msgid ""
-"The separator between crumbs may be set as raw text or via css. it should be "
-"set as an html text (\"&gt;\")."
-msgstr ""
-"Le séparateur entre les éléments du fil d’Ariane doit être indiqué en tant "
-"que texte brut ou via les css. Il doit être indiqué comme chaîne html "
-"(« &gt; »)."
-
-#: src/Form/SiteSettingsFieldset.php:78
-msgid "Display on home page"
-msgstr "Afficher sur la page d’accueil"
 
 #: src/Controller/SiteAdmin/MenuController.php:148
 msgid "menu"
@@ -344,18 +296,171 @@ msgstr "Le menu « %s » utilise un nom existant et a été renommé « %s �
 msgid "Menu \"%s\" was saved successfully."
 msgstr "Le menu « %s » a été enregistré avec succès."
 
-#: src/Controller/SiteAdmin/MenuController.php:507
+#: src/Controller/SiteAdmin/MenuController.php:369
+msgid ""
+"The settings require to update the resources when saving menu, but no "
+"properties are defined."
+msgstr ""
+"Les paramètres demandent de mettre à jour les ressources lors de "
+"l’enregistrement du menu, mais aucune propriété n’est définie."
+
+#: src/Controller/SiteAdmin/MenuController.php:382
+#, php-format
+msgid ""
+"Processing update of relations of the resources, if any, in background (job "
+"%1$s#%2$d%3$s, %4$slogs%3$s)."
+msgstr ""
+"Traitement des mises à jour des éventuelles relations des ressources en "
+"arrière plan (jtâche %1$s#%2$d%3$s, %4$sjournaux%3$s)."
+
+#: src/Controller/SiteAdmin/MenuController.php:552
 #, php-format
 msgid "Menu \"%s\" uses a reserved name and was renamed \"%s\"."
 msgstr "Le menu « %s » utilises un nom réservé et a été renommé « %s »."
+
+#: src/Site/Navigation/Link/Structure.php:13
+msgid "Structure"
+msgstr "Structure"
 
 #: src/Site/Navigation/Link/Resource.php:24
 msgid "Invalid navigation: resource link missing resource ID"
 msgstr "Navigation invalide : le lien de la ressource n’a pas d’ID"
 
-#: src/Site/Navigation/Link/Structure.php:13
-msgid "Structure"
-msgstr "Structure"
+#, php-format
+#~ msgid "This module requires the module \"%s\"."
+#~ msgstr "Ce module requiert le module « %s »."
+
+#, php-format
+#~ msgid "This module requires modules \"%s\"."
+#~ msgstr "Ce module requiert les modules « %s »."
+
+#~ msgid "This module has resources that cannot be installed."
+#~ msgstr "Ce module a des ressources qui ne peuvent pas être installées."
+
+#~ msgid ""
+#~ "This module cannot install its tables, because they exist already. Try to "
+#~ "remove them first."
+#~ msgstr ""
+#~ "Ce module ne peut pas installer ses tables car elles existent déjà. "
+#~ "Essayez de les supprimer manuellement."
+
+#, php-format
+#~ msgid "The module removed tables \"%s\" from a previous broken install."
+#~ msgstr ""
+#~ "Le module a supprimé les tables « %s » depuis une installation échouée."
+
+#, php-format
+#~ msgid "This module requires the module \"%1$s\", version %2$s or above."
+#~ msgstr "Ce module requiert le module « %1$s », version %2$s ou supérieure."
+
+#, php-format
+#~ msgid ""
+#~ "The module \"%s\" was automatically deactivated because the dependencies "
+#~ "are unavailable."
+#~ msgstr ""
+#~ "Le module « %s » a été automatiquement désactivé car ses dépendances ne "
+#~ "sont plus disponibles."
+
+#~ msgid "Dashboard"
+#~ msgstr "Tableau de bord"
+
+#~ msgid "Basket"
+#~ msgstr "Panier"
+
+#~ msgid "Collecting"
+#~ msgstr "Collectes"
+
+#~ msgid "Login"
+#~ msgstr "Identifiez-vous"
+
+#~ msgid "Register"
+#~ msgstr "Inscrivez-vous"
+
+#~ msgid "Authentication error"
+#~ msgstr "Erreur d’authentification"
+
+#~ msgid "Update account"
+#~ msgstr "Mettre à jour le compte"
+
+#~ msgid "Update email"
+#~ msgstr "Mettre à jour le mail"
+
+#~ msgid "Accept terms"
+#~ msgstr "Accepter les termes et conditions"
+
+#~ msgid "Selection"
+#~ msgstr "Sélection"
+
+#~ msgid "Current page"
+#~ msgstr "Page actuelle"
+
+#~ msgid "Collections"
+#~ msgstr "Collections"
+
+#~ msgid "Resource class"
+#~ msgstr "Classe de ressource"
+
+#~ msgid "Property to set primary item set"
+#~ msgstr "Propriété utilisée pour définir la collection principale"
+
+#~ msgid ""
+#~ "When an item is included in multiple item sets, the main one may be "
+#~ "determined by this property."
+#~ msgstr ""
+#~ "Quand un contenu est inclus dans plusieurs collections, la principale "
+#~ "peut être déterminée par cette propriété."
+
+#~ msgid "Menu & Breadcrumbs"
+#~ msgstr "Menu & Fil d’Ariane"
+
+#~ msgid "Crumbs"
+#~ msgstr "Fil d’Ariane"
+
+#~ msgid "Prepend home"
+#~ msgstr "Ajouter la page d’accueil au début"
+
+#~ msgid "Include \"Collections\""
+#~ msgstr "Inclure « Collections »"
+
+#~ msgid "Include main item set for item"
+#~ msgstr "Inclure la collection principale du contenu"
+
+#~ msgid "Append current resource"
+#~ msgstr "Ajouter la ressource en cours"
+
+#~ msgid "Prepended links"
+#~ msgstr "Liens à ajouter au début"
+
+#~ msgid ""
+#~ "List of urls followed by a label, separated by a \"=\", one by line, that "
+#~ "will be prepended to the breadcrumb."
+#~ msgstr ""
+#~ "Liste des urls suivis par un libellé, séparés par un « = », une par "
+#~ "ligne, qui seront ajoutées au fil d’Ariane."
+
+#~ msgid "Url for collections"
+#~ msgstr "Url pour les collections"
+
+#~ msgid ""
+#~ "The url to use for the link \"Collections\", if set above. Let empty to "
+#~ "use the default one."
+#~ msgstr ""
+#~ "L’url à utiliser pour le lien « Collections », si ajouté ci-dessus. "
+#~ "Laisser vide pour utiliser l’url par défaut."
+
+#~ msgid "Separator"
+#~ msgstr "Séparateur"
+
+#~ msgid ""
+#~ "The separator between crumbs may be set as raw text or via css. it should "
+#~ "be set as an html text (\"&gt;\")."
+#~ msgstr ""
+#~ "Le séparateur entre les éléments du fil d’Ariane doit être indiqué en "
+#~ "tant que texte brut ou via les css. Il doit être indiqué comme chaîne "
+#~ "html (« &gt; »)."
+
+#~ msgid "Display on home page"
+#~ msgstr "Afficher sur la page d’accueil"
 
 #~ msgid "Id"
 #~ msgstr "Id"
