@@ -25,7 +25,7 @@ if ($id) {
 }
 ?>
 
-<label><?= $translate('Type'); ?>
+<label><?= $translate('Type') ?>
     <input type="text" value="<?= $escape($translate($link->getName())) ?>" disabled="disabled"/>
 </label>
 <?php if ($resource): ?>
@@ -33,7 +33,7 @@ if ($id) {
     <input type="text" value="<?= $escape($resourceLabel) ?>" disabled="disabled"/>
 </label>
 <?php endif; ?>
-<label><?= $translate('Label'); ?>
+<label><?= $translate('Label') ?>
     <input type="text" data-name="label" value="<?= $escape($label) ?>"/>
 </label>
 <label><?= $translate('Resource id') ?>

@@ -84,6 +84,7 @@ class Resource implements LinkInterface
                 // This is a resource for acl permissions.
                 'resource' => \Omeka\Entity\Resource::class,
                 'privilege' => 'read',
+                'class' => 'resource',
             ];
         }
         $controllerName = $resource->getControllerName();
@@ -97,6 +98,7 @@ class Resource implements LinkInterface
                 'action' => 'show',
                 'id' => $id,
             ],
+            'class' => 'resource ' . $controllerName,
         ];
     }
 
