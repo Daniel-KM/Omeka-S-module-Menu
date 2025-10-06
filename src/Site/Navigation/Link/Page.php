@@ -11,7 +11,7 @@ class Page extends \Omeka\Site\Navigation\Link\Page
         static $privatePages = null;
 
         // Get all resource visibilities one time to avoid a looped query.
-        if (is_null($privatePages)) {
+        if ($privatePages === null) {
             // Get only private resources: they are generally a small number in
             // a digital library. It avoids a too much big output.
             $privatePages = $site->getServiceLocator()->get('Omeka\Connection')

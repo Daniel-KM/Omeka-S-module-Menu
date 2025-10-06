@@ -430,7 +430,7 @@ class MenuUpdateTreeInResources extends AbstractJob
     {
         static $resourceDataTypes;
 
-        if (!is_null($resourceDataTypes)) {
+        if ($resourceDataTypes !== null) {
             return $resourceDataTypes;
         }
 

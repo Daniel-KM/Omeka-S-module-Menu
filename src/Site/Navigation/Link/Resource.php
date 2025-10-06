@@ -107,7 +107,7 @@ class Resource implements LinkInterface
         static $privateResources = null;
 
         // Get all resource visibilities one time to avoid a looped query.
-        if (is_null($privateResources)) {
+        if ($privateResources === null) {
             // Get only private resources: they are generally a small number in
             // a digital library. It avoids a too much big output.
             $privateResources = $site->getServiceLocator()->get('Omeka\Connection')

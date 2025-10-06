@@ -120,14 +120,14 @@ class NavigationTranslator extends AbstractPlugin
                             && $compareData($linkData, $activeUrl['data'])
                         ) {
                             $linksOut[$key]['active'] = true;
-                            if (is_null($activeRoot)) {
+                            if ($activeRoot === null) {
                                 $activeRoot = $currentRootKey;
                             }
                         }
                     } elseif (is_string($activeUrl)) {
                         if ($this->getLinkUrl($linkType, $data, $site) === $activeUrl) {
                             $linksOut[$key]['active'] = true;
-                            if (is_null($activeRoot)) {
+                            if ($activeRoot === null) {
                                 $activeRoot = $currentRootKey;
                             }
                         }
@@ -141,7 +141,7 @@ class NavigationTranslator extends AbstractPlugin
             }
             return $linksOut;
         };
-        $nav = is_null($menu) ? $site->navigation() : $menu;
+        $nav = $menu === null ? $site->navigation() : $menu;
         $links = $buildLinks($nav);
 
         $maxDepthInactive = $options['maxDepthInactive'] ?? null;
@@ -159,7 +159,7 @@ class NavigationTranslator extends AbstractPlugin
         };
 
         // If there is no active url, maxDepth should be used.
-        if ($links && $activeUrl && !is_null($maxDepthInactive)) {
+        if ($links && $activeUrl && $maxDepthInactive !== null) {
             // Remove inactive sub-branches.
             foreach ($links as $key => &$link) {
                 if ($key === $activeRoot) {
@@ -170,7 +170,7 @@ class NavigationTranslator extends AbstractPlugin
             unset($link);
         }
 
-        if (!$links && is_null($menu)) {
+        if (!$links && $menu === null) {
             // The site must have at least one page for navigation to work.
             $links = [[
                 'label' => $this->i18n->translate('Home'),
@@ -206,7 +206,7 @@ class NavigationTranslator extends AbstractPlugin
             }
             return $linksOut;
         };
-        $nav = is_null($menu) ? $site->navigation() : $menu;
+        $nav = $menu === null ? $site->navigation() : $menu;
         return $buildLinks($nav);
     }
 
@@ -215,7 +215,7 @@ class NavigationTranslator extends AbstractPlugin
      */
     public function fromJstree(?array $jstree): array
     {
-        if (is_null($jstree)) {
+        if ($jstree === null) {
             return [];
         }
         $buildPages = null;
@@ -246,7 +246,7 @@ class NavigationTranslator extends AbstractPlugin
     public function getLinkLabel(LinkInterface $linkType, array $data, SiteRepresentation $site): string
     {
         $label = $linkType->getLabel($data, $site);
-        return is_null($label) || $label === ''
+        return $label === null || $label === ''
             ? $this->i18n->translate($linkType->getName())
             : $label;
     }

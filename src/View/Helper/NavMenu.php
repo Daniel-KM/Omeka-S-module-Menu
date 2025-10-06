@@ -170,12 +170,12 @@ class NavMenu extends AbstractHelper
             // options in order to pass them to special templates.
             $maxDepth = $options['maxDepth'];
             $maxDepthInactive = $options['maxDepthInactive'];
-            if (!is_null($maxDepthInactive)
-                && !is_null($maxDepth)
+            if ($maxDepthInactive !== null
+                && $maxDepth !== null
                 && $maxDepthInactive >= $maxDepth
             ) {
                 $maxDepthInactive = null;
-            } elseif (!is_null($maxDepthInactive)) {
+            } elseif ($maxDepthInactive !== null) {
                 $maxDepthInactive = (int) $maxDepthInactive;
             }
             $optionsPublicNav = [
