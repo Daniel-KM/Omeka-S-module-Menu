@@ -29,7 +29,7 @@ if ($id) {
     <input type="text" value="<?= $escape($translate($link->getName())) ?>" disabled="disabled"/>
 </label>
 <?php if ($resource): ?>
-<label><?= $escape($translate(ucfirst(str_replace('-', ' ', $resource->getControllerName())))) ?>
+<label><?= $escape($translate(ucfirst(strtr($resource->getControllerName(), ['-' => ' '])))) ?>
     <input type="text" value="<?= $escape($resourceLabel) ?>" disabled="disabled"/>
 </label>
 <?php endif; ?>
