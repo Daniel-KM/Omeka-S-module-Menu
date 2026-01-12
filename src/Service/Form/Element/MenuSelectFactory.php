@@ -16,11 +16,11 @@ class MenuSelectFactory implements FactoryInterface
             /** @var \Doctrine\DBAL\Connection $connection */
             $connection = $services->get('Omeka\Connection');
             $sql = <<<'SQL'
-SELECT 'SUBSTRING(id, 11), 'SUBSTRING(id, 11)
-FROM `site_setting`
-WHERE `site_id` = :site_id;
-    AND `id` LIKE :menu
-SQL;
+                SELECT SUBSTRING(`id`, 11), SUBSTRING(`id`, 11)
+                FROM `site_setting`
+                WHERE `site_id` = :site_id
+                    AND `id` LIKE :menu
+                SQL;
             $menuNames = $connection->executeQuery($sql, [
                 'site_id' => $currentSite->id(),
                 'menu' => 'menu\_menu:%',
@@ -29,6 +29,7 @@ SQL;
             $menuNames = [];
         }
         $options['value_options'] = $menuNames;
+        $options['empty_option'] = '';
         return new MenuSelect(null, $options ?? []);
     }
 }
