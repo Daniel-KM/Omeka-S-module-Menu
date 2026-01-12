@@ -53,59 +53,44 @@ class MenuController extends AbstractActionController
 
     public function addAction()
     {
-        $form = $this->getForm(MenuForm::class);
-        if ($this->getRequest()->isPost()) {
-            $name = $this->checkAndSaveMenuFromPost($form, true);
-            if (is_string($name)) {
-                $params = $this->params()->fromRoute();
-                $params['menu-slug'] = $name;
-                $params['action'] = 'edit';
-                return $this->redirect()->toRoute('admin/site/slug/menu-id', $params, true);
-            }
-            $formData = $this->params()->fromPost();
-            $name = $formData['name'];
-            $jstree = empty($formData['jstree']) ? [] : json_decode($formData['jstree'], true);
-        } else {
-            $name = '';
-            $jstree = [];
-        }
-
-        $site = $this->currentSite();
-        $menuSite = $this->navigationTranslator()->fromJstree($jstree);
-        return new ViewModel([
-            'site' => $site,
-            'form' => $form,
-            'name' => $name,
-            // The default jstree shouldn't be null because it can't be fetched.
-            'jstree' => $jstree,
-            'linkedPages' => $this->linkedPagesInMenu($site, $menuSite),
-            'notLinkedPages' => $this->notLinkedPagesInMenu($site, $menuSite),
-        ]);
+        return $this->addOrEditAction(true);
     }
 
     public function editAction()
     {
-        $name = $this->params()->fromRoute('menu-slug');
-        $menu = $this->siteSettings()->get('menu_menu:' . $name);
-        if (!is_array($menu)) {
-            throw new NotFoundException();
+        return $this->addOrEditAction(false);
+    }
+
+    /**
+     * Common logic for add and edit actions.
+     */
+    protected function addOrEditAction(bool $isNew)
+    {
+        $name = $isNew ? '' : $this->params()->fromRoute('menu-slug');
+
+        if (!$isNew) {
+            $menu = $this->siteSettings()->get('menu_menu:' . $name);
+            if (!is_array($menu)) {
+                throw new NotFoundException();
+            }
         }
 
         /** @var \Menu\Form\MenuForm $form */
         $form = $this->getForm(MenuForm::class);
 
         if ($this->getRequest()->isPost()) {
-            $name = $this->checkAndSaveMenuFromPost($form, false);
-            if (is_string($name)) {
-                // Do a redirect in case of a new name.
+            $savedName = $this->checkAndSaveMenuFromPost($form, $isNew);
+            if (is_string($savedName)) {
                 $params = $this->params()->fromRoute();
-                $params['menu-slug'] = $name;
+                $params['menu-slug'] = $savedName;
                 $params['action'] = 'edit';
                 return $this->redirect()->toRoute('admin/site/slug/menu-id', $params, true);
             }
             $formData = $this->params()->fromPost();
             $name = $formData['name'];
             $jstree = empty($formData['jstree']) ? [] : json_decode($formData['jstree'], true);
+        } elseif ($isNew) {
+            $jstree = [];
         } else {
             $jstree = null;
             $form->setData([
@@ -115,17 +100,23 @@ class MenuController extends AbstractActionController
         }
 
         $site = $this->currentSite();
-        $confirmForm = $this->getConfirmForm($name);
         $menuSite = $this->navigationTranslator()->fromJstree($jstree);
-        return new ViewModel([
+
+        $viewModel = new ViewModel([
             'site' => $site,
             'form' => $form,
-            'confirmForm' => $confirmForm,
             'name' => $name,
+            // The default jstree shouldn't be null because it can't be fetched.
             'jstree' => $jstree,
             'linkedPages' => $this->linkedPagesInMenu($site, $menuSite),
             'notLinkedPages' => $this->notLinkedPagesInMenu($site, $menuSite),
         ]);
+
+        if (!$isNew) {
+            $viewModel->setVariable('confirmForm', $this->getConfirmForm($name));
+        }
+
+        return $viewModel;
     }
 
     public function deleteConfirmAction()
@@ -410,7 +401,7 @@ class MenuController extends AbstractActionController
         $newName = $this->slugifyName($name);
         $existingMenu = $siteSettings->get('menu_menu:' . $newName);
         if (is_array($existingMenu)) {
-            $newName .= '-' . substr(bin2hex(\Laminas\Math\Rand::getBytes(20)), 0, 8);
+            $newName .= '-' . $this->randomSuffix();
         }
         $siteSettings->set('menu_menu:' . $newName, $menu);
         return $newName;
@@ -557,7 +548,7 @@ class MenuController extends AbstractActionController
     }
 
     /**
-     * Transform the given string into a valid URL slug
+     * Transform the given string into a valid url slug
      *
      * Copy from \Omeka\Api\Adapter\SiteSlugTrait::slugify().
      */
