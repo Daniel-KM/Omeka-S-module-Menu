@@ -1,0 +1,16 @@
+/* Menu module - Public styles */
+
+/* Breadcrumbs */
+@media all {
+    nav.breadcrumbs {
+        width: 100%;
+    }
+    nav.breadcrumbs > ul,
+    nav.breadcrumbs > ol {
+        list-style: none;
+    }
+    nav.breadcrumbs > ul > li,
+    nav.breadcrumbs > ol > li {
+        display: inline;
+    }
+}

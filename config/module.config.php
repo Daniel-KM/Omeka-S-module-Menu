@@ -9,14 +9,28 @@ return [
         ],
     ],
     'view_helpers' => [
+        'invokables' => [
+            'breadcrumbs' => View\Helper\Breadcrumbs::class,
+        ],
         'factories' => [
             'navMenu' => Service\ViewHelper\NavMenuFactory::class,
+        ],
+    ],
+    'block_layouts' => [
+        'invokables' => [
+            'breadcrumbs' => Site\BlockLayout\Breadcrumbs::class,
+        ],
+    ],
+    'resource_page_block_layouts' => [
+        'invokables' => [
+            'breadcrumbs' => Site\ResourcePageBlockLayout\Breadcrumbs::class,
         ],
     ],
     'form_elements' => [
         'invokables' => [
             Form\MenuForm::class => Form\MenuForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
+            Form\SiteSettingsFieldset::class => Form\SiteSettingsFieldset::class,
         ],
         'factories' => [
             Form\Element\MenuSelect::class => Service\Form\Element\MenuSelectFactory::class,
@@ -106,6 +120,11 @@ return [
             ],
         ],
     ],
+    'block_templates' => [
+        'breadcrumbs' => [
+            'breadcrumbs-standard' => 'Menu: Omeka breadcrumbs', // @translate
+        ],
+    ],
     'menu' => [
         'settings' => [
             'menu_update_resources' => 'no',
@@ -117,6 +136,23 @@ return [
             // This site setting is not managed in site settings, but in site menu "Menu".
             // There may be many "menu_menu:xxx".
             'menu_menu:' => [],
+            // Breadcrumbs.
+            'menu_breadcrumbs_crumbs' => [
+                'home',
+                'collections',
+                'itemset',
+                'itemsetstree',
+                'current',
+                // 'current_link',
+            ],
+            'menu_breadcrumbs_prepend' => [],
+            'menu_breadcrumbs_collections_url' => '',
+            'menu_breadcrumbs_separator' => '',
+            'menu_breadcrumbs_homepage' => false,
+        ],
+        'block_settings' => [
+            'breadcrumbs' => [
+            ],
         ],
     ],
 ];
