@@ -5,12 +5,14 @@ namespace Menu\Form;
 use Common\Form\Element as CommonElement;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
+use Menu\Form\Element as MenuElement;
 
 class SiteSettingsFieldset extends Fieldset
 {
     protected $label = 'Menu'; // @translate
 
     protected $elementGroups = [
+        'menu' => 'Menu', // @translate
         'breadcrumbs' => 'Breadcrumbs', // @translate
     ];
 
@@ -19,6 +21,23 @@ class SiteSettingsFieldset extends Fieldset
         $this
             ->setAttribute('id', 'menu-site-settings')
             ->setOption('element_groups', $this->elementGroups)
+
+            // Menu for resource pages.
+
+            ->add([
+                'name' => 'menu_resource_menu',
+                'type' => MenuElement\MenuSelect::class,
+                'options' => [
+                    'element_group' => 'menu',
+                    'label' => 'Menu for resource pages', // @translate
+                    'info' => 'Select the menu to display on resource pages (items, media, item sets) via the resource block "Menu".', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'menu_resource_menu',
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select a menu…', // @translate
+                ],
+            ])
 
             // Breadcrumbs.
 

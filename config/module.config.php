@@ -24,6 +24,7 @@ return [
     'resource_page_block_layouts' => [
         'invokables' => [
             'breadcrumbs' => Site\ResourcePageBlockLayout\Breadcrumbs::class,
+            'menu' => Site\ResourcePageBlockLayout\Menu::class,
         ],
     ],
     'form_elements' => [
@@ -149,6 +150,8 @@ return [
             'menu_breadcrumbs_collections_url' => '',
             'menu_breadcrumbs_separator' => '',
             'menu_breadcrumbs_homepage' => false,
+            // Menu for resource pages.
+            'menu_resource_menu' => '',
         ],
         'block_settings' => [
             'breadcrumbs' => [
