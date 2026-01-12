@@ -19,6 +19,7 @@ return [
     'block_layouts' => [
         'invokables' => [
             'breadcrumbs' => Site\BlockLayout\Breadcrumbs::class,
+            'menu' => Site\BlockLayout\Menu::class,
         ],
     ],
     'resource_page_block_layouts' => [
@@ -155,6 +156,9 @@ return [
         ],
         'block_settings' => [
             'breadcrumbs' => [
+            ],
+            'menu' => [
+                'menu' => '',
             ],
         ],
     ],
