@@ -7,7 +7,8 @@ Menu (module for Omeka S)
 
 [Menu] is a module for [Omeka S] that allows to display multiple menus in a
 site, for example a top menu, a sidebar menu and a footer menu, or any structure
-anywhere.
+anywhere. It also includes a way to include breadcrumbs for site pages and
+resource pages.
 
 Furthermore, it adds two new menu element types, that can be used in the main
 navigation too:
@@ -43,6 +44,15 @@ the module to `Menu`, go to the root of the module, and run:
 composer install --no-dev
 ```
 
+- For test
+
+The module includes a comprehensive test suite with unit and functional tests.
+Run them from the root of Omeka:
+
+```sh
+vendor/bin/phpunit -c modules/Menu/phpunit.xml --testdox
+```
+
 
 Quick start
 -----------
@@ -74,13 +84,71 @@ Note that the active url should generally be set when using multiple linked
 resources, because it is not managed directly by default.
 
 
+Site Page Block
+---------------
+
+The block "Menu" can be added to any site page to display a selected menu. In
+the block configuration, choose which menu to display from the dropdown list.
+
+
+Resource Page Block
+-------------------
+
+The resource page block "Menu" displays a menu on item, item set, and media
+pages. The menu to display is configured in the site settings under the "Menu"
+section ("Menu for resource pages" setting).
+
+
+Breadcrumbs
+-----------
+
+The module provides a complete breadcrumbs feature for site pages and resource
+pages. It includes:
+
+### View Helper
+
+A breadcrumb may be added on resources pages via the command `echo $this->breadcrumbs();`.
+The default template is `common/breadcrumbs.phtml`, so the breadcrumb can be
+themed. Some options are available too.
+
+By default, the breadcrumbs for an item use the first item set as the parent
+crumb. The first item set is the item set with the smallest id. If you want to
+use another item set, set it as resource in the property that is set in the main
+settings, or in the options of the view helper.
+
+### Site Page Block
+
+The block "Breadcrumbs" can be added to any site page to display the breadcrumbs
+according to site settings.
+
+### Resource Page Block
+
+The resource page block "Breadcrumbs" displays the breadcrumbs on item, item set,
+and media pages according to site settings.
+
+### Site Settings
+
+The breadcrumbs can be configured in site settings with the following options:
+- Crumbs: Choose which elements to include:
+  - Prepend home
+  - Include "Collections" (link to item-set/browse)
+  - Include main item set for item
+  - Include item sets tree (requires module ItemSetsTree)
+  - Append current resource
+  - Append current resource as a link
+- Prepended links: Add custom links before the breadcrumb
+- Url for collections: Custom URL for the "Collections" link
+- Separator: Custom separator between crumbs (HTML allowed, e.g., `&gt;`)
+- Display on home page: Show breadcrumbs on the home page
+
+
 TODO
 ----
 
 - [x] Convert to a standard Laminas navigation, in particular to manage rights better.
+- [x] Add a block layout.
 - [ ] Replace the standard menu?
 - [ ] Add the right sidebar to select resources more easily.
-- [ ] Add a block layout.
 - [ ] Create a dynamic menu from resources (like Thesaurus, but without separate selection).
 - [ ] Create a link "Resource as page", so a dynamic page for a resource, so the page item/show will be a site page browsable like any page.
 - [ ] Store resource ids as integer, like page ids.
@@ -93,6 +161,11 @@ Use it at your own risk.
 
 It’s always recommended to backup your files and your databases and to check
 your archives regularly so you can roll back if needed.
+
+```sh
+# database dump example
+mariadb-dump -u omeka -p omeka | gzip > "omeka.$(date +%Y%m%d_%H%M%S).sql.gz"
+```
 
 
 Troubleshooting
@@ -134,10 +207,10 @@ of the CeCILL license and that you accept its terms.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2021-2023 (see [Daniel-KM])
+* Copyright Daniel Berthereau, 2021-2026 (see [Daniel-KM])
 
-These features are built for the future digital library [Le Ménestrel],
-currently managed with [Spip].
+These features were built for various digital libraries, in particular to manage
+the quick links in the footer.
 
 
 [Menu]: https://github.com/Daniel-KM/Omeka-S-module-Menu
