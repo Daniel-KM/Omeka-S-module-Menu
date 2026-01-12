@@ -2,766 +2,219 @@
 
 namespace Menu\View\Helper;
 
-use Laminas\Navigation\Navigation;
-use Laminas\Navigation\Page\AbstractPage;
-use Laminas\Router\Http\RouteMatch;
 use Laminas\View\Helper\AbstractHelper;
-use Omeka\Api\Representation\ItemRepresentation;
-use Omeka\Api\Representation\ItemSetRepresentation;
-use Omeka\Api\Representation\SiteRepresentation;
+use Menu\Site\Navigation\Breadcrumb\ContainerBuilder;
 
+/**
+ * Laminas-compliant breadcrumbs view helper.
+ *
+ * This helper uses a proper Laminas Navigation container built by ContainerBuilder,
+ * then delegates rendering to the standard Laminas breadcrumbs navigation helper.
+ *
+ * Usage in templates:
+ *   <?= $this->breadcrumbs() ?>
+ *   <?= $this->breadcrumbs(['separator' => ' > ', 'home' => true]) ?>
+ *
+ * Options:
+ *   - home: bool - Include home link (default: true)
+ *   - collections: bool - Include collections link (default: true)
+ *   - collections_url: string - Custom URL for collections
+ *   - itemset: bool - Include primary item set (default: true)
+ *   - itemsetstree: bool - Include item set tree (default: true)
+ *   - current: bool - Include current page/resource (default: true)
+ *   - separator: string - Separator between crumbs (default: use CSS)
+ *   - linkLast: bool - Render last crumb as link (default: false)
+ *   - minDepth: int - Minimum depth to render (default: 0)
+ *   - partial: string - Custom partial template
+ *   - template: string - Alias for partial
+ */
 class Breadcrumbs extends AbstractHelper
 {
     /**
+     * @var ContainerBuilder
+     */
+    protected $containerBuilder;
+
+    /**
+     * Default template for rendering.
+     *
      * @var string
      */
     protected $defaultTemplate = 'common/breadcrumbs';
 
-    /**
-     * @var array
-     */
-    protected $crumbs;
-
-    /**
-     * @var \Omeka\View\Helper\Api
-     */
-    protected $api;
-
-    /**
-     * Prepare the breadcrumb via a partial for resources and pages.
-     *
-     * For pages, the output is the same than the default Omeka breadcrumbs.
-     *
-     * @todo Manage the case where the home page is not a page and the editor doesn't want breadcrumb on it.
-     *
-     * @todo Build a real navigation container then check rights automatically.
-     * @link https://docs.laminas.dev/laminas-navigation/helpers/breadcrumbs/
-     *
-     * @params array $options Managed options:
-     * - home (bool) Prepend home (true by default)
-     * - prepend (array) A list of crumbs to insert after home
-     * - collections (bool) Insert a link to the list of collections
-     * - collections_url (string) Url to use for the link to collections
-     * - itemset (bool) Insert the first item set as crumb for an item (true by
-     *   default)
-     * - itemsetstree (bool) Insert the item set tree as crumb for an item (true
-     *   by default, require module ItemSetsTree)
-     * - current (bool) Append current resource if any (true by default; always
-     *   true for pages currently)
-     * - property_itemset (string) Property where is set the first parent item
-     *   set of an item when they are multiple.
-     * - homepage (bool) Display the breadcrumbs on the home page (false by
-     *   default)
-     * - separator (string) Separator, escaped for html (no default: use css)
-     * - template (string) The partial to use (default: "common/breadcrumbs")
-     * Options are passed to the partial too.
-     * @return string The html breadcrumb via the partial.
-     */
-    public function __invoke(array $options = [])
+    public function __construct(ContainerBuilder $containerBuilder)
     {
-        /**
-         * @var \Laminas\View\Renderer\PhpRenderer $view
-         * @var \Omeka\Api\Representation\SiteRepresentation $site
-         */
+        $this->containerBuilder = $containerBuilder;
+    }
+
+    /**
+     * Render breadcrumbs using Laminas Navigation.
+     *
+     * @param array $options Breadcrumb options
+     * @return string HTML output
+     */
+    public function __invoke(array $options = []): string
+    {
         $view = $this->getView();
 
-        // In some case, there is no vars (see ItemController for search).
+        // Get current site
         $site = $this->currentSite();
         if (!$site) {
             return '';
         }
 
-        // To set the site slug make creation of next urls quicker internally.
-        $siteSlug = $site->slug();
-        $vars = $view->vars();
+        // Get current resource from view variables
+        $resource = $view->resource ?? $view->item ?? $view->itemSet ?? $view->media ?? null;
 
-        $plugins = $view->getHelperPluginManager();
-        $this->api = $plugins->get('api');
-        $url = $plugins->get('url');
-        $translate = $plugins->get('translate');
-        $siteSetting = $plugins->get('siteSetting');
+        // Get route match
+        $routeMatch = $this->getRouteMatch();
 
-        $crumbsSettingsDefault = [
-            'home' => true,
-            'prepend' => [],
-            'collections' => true,
-            'collections_url' => $siteSetting('menu_breadcrumbs_collections_url'),
-            'itemset' => true,
-            'itemsetstree' => true,
-            'current' => true,
-            'property_itemset' => $siteSetting('menu_breadcrumbs_property_itemset'),
-            'homepage' => false,
-            'separator' => $siteSetting('menu_breadcrumbs_separator', ''),
-            'template' => $this->defaultTemplate,
-        ];
+        // Check homepage setting
+        if (empty($options['homepage'])) {
+            $matchedRoute = $routeMatch ? $routeMatch->getMatchedRouteName() : null;
+            if ($matchedRoute === 'site' || $matchedRoute === 'top') {
+                return '';
+            }
+        }
 
-        // Default values when not set in the site.
-        $crumbsSettings = $siteSetting('menu_breadcrumbs_crumbs', [
-            'home' => true,
-            'collections' => true,
-            'itemset' => true,
-            'itemsetstree' => true,
-            'current' => true,
-            'current_link' => false,
+        // Merge with site settings
+        $siteSetting = $view->plugin('siteSetting');
+        $siteOptions = $this->getSiteSettings($siteSetting);
+        $options = array_merge($siteOptions, $options);
+
+        // Build the navigation container
+        $container = $this->containerBuilder->build($site, $routeMatch, $resource, $options);
+
+        // Use partial template if specified
+        $template = $options['template'] ?? $options['partial'] ?? null;
+        if ($template) {
+            return $this->renderWithPartial($container, $options, $template);
+        }
+
+        // Use standard Laminas breadcrumbs rendering
+        return $this->renderStandard($container, $options);
+    }
+
+    /**
+     * Render using standard Laminas breadcrumbs helper.
+     */
+    protected function renderStandard($container, array $options): string
+    {
+        $view = $this->getView();
+
+        // Get the navigation breadcrumbs helper
+        $navHelper = $view->navigation($container);
+        $breadcrumbs = $navHelper->breadcrumbs();
+
+        // Configure the helper
+        if (isset($options['separator'])) {
+            $breadcrumbs->setSeparator(' ' . $options['separator'] . ' ');
+        }
+
+        if (isset($options['linkLast'])) {
+            $breadcrumbs->setLinkLast((bool) $options['linkLast']);
+        }
+
+        if (isset($options['minDepth'])) {
+            $breadcrumbs->setMinDepth((int) $options['minDepth']);
+        }
+
+        // Render
+        $html = $breadcrumbs->render();
+
+        // Wrap in semantic HTML
+        if ($html) {
+            $translate = $view->plugin('translate');
+            $escapeAttr = $view->plugin('escapeHtmlAttr');
+            $html = sprintf(
+                '<div class="breadcrumbs-parent"><nav id="breadcrumb" class="breadcrumbs" aria-label="%s">%s</nav></div>',
+                $escapeAttr($translate('Breadcrumb')),
+                $html
+            );
+        }
+
+        return $html;
+    }
+
+    /**
+     * Render using a partial template.
+     */
+    protected function renderWithPartial($container, array $options, string $template): string
+    {
+        $view = $this->getView();
+        $site = $this->currentSite();
+
+        // Build flat crumbs array for backward compatibility with old themes.
+        $crumbs = $this->buildFlatCrumbs($container);
+
+        return $view->partial($template, [
+            'site' => $site,
+            'breadcrumbs' => $container,
+            'options' => $options,
+            // Keep the crumbs for compatibility with old themes.
+            'crumbs' => $crumbs,
         ]);
+    }
 
-        // The multicheckbox skips keys of unset boxes, so they are added.
-        // Copy options from fieldset \Menu\Form\SiteSettingsFieldset.
-        $crumbsSettings = array_fill_keys($crumbsSettings, true) + [
-            'home' => false,
-            'collections' => false,
-            'itemset' => false,
-            'itemsetstree' => false,
-            'current' => false,
-            'current_link' => false,
-        ];
-
-        $hasItemSetsTree = $plugins->has('itemSetsTree');
-        if (!$hasItemSetsTree) {
-            $crumbsSettings['itemsetstree'] = false;
-        }
-
-        // Avoid duplication between main item set and item sets tree.
-        if (!empty($crumbsSettings['itemset']) && !empty($crumbsSettings['itemsetstree'])) {
-            $crumbsSettings['itemset'] = false;
-        }
-
-        $options += $crumbsSettings + $crumbsSettingsDefault;
-
-        /** @var \Laminas\Router\Http\RouteMatch $routeMatch */
-        $routeMatch = $site->getServiceLocator()->get('Application')->getMvcEvent()->getRouteMatch();
-        $matchedRouteName = $routeMatch->getMatchedRouteName();
-
-        // Use a standard Zend/Laminas navigation breadcrumb.
-        // The crumb is built flat and converted into a hierarchical one below.
-        $this->crumbs = [];
-
-        if ($options['home']) {
-            $this->crumbs[] = [
-                'label' => $translate('Home'), // @translate
-                'uri' => $site->siteUrl($siteSlug),
-                'resource' => $site,
-            ];
-        }
-
-        $prepend = $siteSetting('menu_breadcrumbs_prepend', []);
-        if ($prepend) {
-            $this->crumbs = array_merge($this->crumbs, $prepend);
-        }
-
-        if ($options['prepend']) {
-            $this->crumbs = array_merge($this->crumbs, $options['prepend']);
-        }
-
-        $label = null;
-
-        switch ($matchedRouteName) {
-            // Home page, without default site or defined home page.
-            case 'top':
-            case 'site':
-                if (!$options['homepage']) {
-                    return '';
-                }
-                if (!$options['home'] != $options['current']) {
-                    $this->crumbHome($site);
-                }
-                break;
-
-            case 'site/resource':
-            case 'site/contribution':
-                // Only actions "browse" and "search" are available in public.
-                $action = $routeMatch->getParam('action', 'browse');
-                if ($action === 'search') {
-                    if ($options['collections']) {
-                        $this->crumbCollections($options, $translate, $url, $siteSlug);
-                    }
-                    $controller = $this->extractController($routeMatch);
-                    if ($controller !== 'search') {
-                        $label = $this->extractLabel($controller);
-                        $this->crumbs[] = [
-                            'label' => $translate($label),
-                            'uri' => $url(
-                                $matchedRouteName,
-                                ['site-slug' => $siteSlug, 'controller' => $controller, 'action' => 'browse']
-                            ),
-                            'resource' => null,
-                        ];
-                    }
-                    if ($options['current']) {
-                        $label = $translate('Search'); // @translate
-                    }
-                } elseif ($action === 'browse') {
-                    $controller = $this->extractController($routeMatch);
-                    if ($options['collections'] && $controller !== 'item-set') {
-                        $this->crumbCollections($options, $translate, $url, $siteSlug);
-                    }
-                    if ($options['current']) {
-                        $label = $this->extractLabel($controller);
-                        $label = $translate($label);
-                    }
-                } elseif ($action === 'add') {
-                    $controller = $this->extractController($routeMatch);
-                    if ($options['collections'] && $controller !== 'item-set') {
-                        $this->crumbCollections($options, $translate, $url, $siteSlug);
-                    }
-                    if ($options['current']) {
-                        $label = $this->extractLabel($controller);
-                        $label = $translate($label);
-                    }
-                } else {
-                    if ($options['current']) {
-                        $label = $translate('Unknown'); // @translate
-                    }
-                }
-                break;
-
-            case 'site/contribution-id':
-                /** @var \Contribute\Api\Representation\ContributionRepresentation $contribution */
-                $contribution = $vars->contribution;
-                // no break.
-            case 'site/resource-id':
-                /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
-                $resource = $vars->resource;
-                // In case of an exception in a block, the resource may be null.
-                if (!$resource && empty($contribution)) {
-                    $this->crumbs[] = [
-                        'label' => 'Error', // @translate
-                        'uri' => $view->serverUrl(true),
-                        'resource' => null,
-                    ];
-                    break;
-                }
-                $type = $resource ? $resource->resourceName() : 'contributions';
-                switch ($type) {
-                    case 'media':
-                        $item = $resource->item();
-                        if ($options['collections']) {
-                            $this->crumbCollections($options, $translate, $url, $siteSlug);
-                        }
-                        if ($options['itemset']) {
-                            $this->crumbPrimaryItemSet($item, $site);
-                        } elseif ($options['itemsetstree']) {
-                            $this->crumbItemSetsTree($item, $site);
-                        }
-                        $this->crumbItem($item, $site);
-                        break;
-
-                    case 'items':
-                        if ($options['collections']) {
-                            $this->crumbCollections($options, $translate, $url, $siteSlug);
-                        }
-                        if ($options['itemset']) {
-                            $this->crumbPrimaryItemSet($resource, $site);
-                        } elseif ($options['itemsetstree']) {
-                            $this->crumbItemSetsTree($resource, $site);
-                        }
-                        break;
-
-                    case 'contributions':
-                        break;
-
-                    case 'item_sets':
-                    default:
-                        if ($options['collections']) {
-                            $this->crumbCollections($options, $translate, $url, $siteSlug);
-                        }
-                        break;
-                }
-                if ($options['current']) {
-                    $label = (string) $resource->displayTitle();
-                }
-                break;
-
-            case 'site/item-set':
-                if ($options['collections']) {
-                    $this->crumbCollections($options, $translate, $url, $siteSlug);
-                }
-                if ($options['current']) {
-                    $action = $routeMatch->getParam('action', 'browse');
-                    // In Omeka S, item set show is a redirect to item browse
-                    // with a special partial, so normally, there is no "show",
-                    // except with specific redirection.
-                    /** @var \Omeka\Api\Representation\ItemSetRepresentation $resource */
-                    $resource = $vars->itemSet ?? $vars->resource;
-                    if ($resource) {
-                        $label = (string) $resource->displayTitle();
-                    }
-                }
-                break;
-
-            case 'site/page':
-                // The page should exist because the breadcrumbs use its view.
-                // But in case of an exception in a block, the page may be null.
-                try {
-                    // Api doesn't allow to search one page by slug.
-                    /** @var \Omeka\Api\Representation\SitePageRepresentation $page */
-                    $page = $this->api->read('site_pages', ['site' => $site->id(), 'slug' => $view->params()->fromRoute('page-slug')])->getContent();
-                } catch (\Omeka\Api\Exception\NotFoundException $e) {
-                    $this->crumbs[] = [
-                        'label' => 'Error', // @translate
-                        'uri' => $view->serverUrl(true),
-                        'resource' => null,
-                    ];
-                    break;
-                }
-                if (!$options['homepage']) {
-                    $homepage = $site->homepage();
-                    if (!$homepage) {
-                        $linkedPages = $site->linkedPages();
-                        $homepage = $linkedPages ? current($linkedPages) : null;
-                    }
-                    // This is the home page and home page is not wanted.
-                    if ($homepage && $homepage->id() === $page->id()) {
-                        return '';
-                    }
-                }
-
-                // Find the page inside navigation. By construction, this is the
-                // active page of the navigation. If not in navigation, it's a
-                // root page.
-
-                /**
-                 * @var \Laminas\View\Helper\Navigation $nav
-                 * @var \Laminas\Navigation\Navigation $container
-                 * @see \Laminas\View\Helper\Navigation\Breadcrumbs::renderPartialModel()
-                 * @todo Use the container directly, prepending root pages.
-                 */
-                $nav = $site->publicNav();
-                $container = $nav->getContainer();
-                $active = $nav->findActive($container);
-                if ($active) {
-                    // This process uses the short title in the navigation (label).
-                    $active = $active['page'];
-                    $parents = [];
-                    if ($options['current']) {
-                        $parents[] = [
-                            'label' => $active->getLabel(),
-                            'uri' => $active->getHref(),
-                            'resource' => $page,
-                        ];
-                    }
-
-                    while ($parent = $active->getParent()) {
-                        if (!$parent instanceof AbstractPage) {
-                            break;
-                        }
-
-                        $parents[] = [
-                            'label' => $parent->getLabel(),
-                            'uri' => $parent->getHref(),
-                            'resource' => null,
-                        ];
-
-                        // Break if at the root of the given container.
-                        if ($parent === $container) {
-                            break;
-                        }
-
-                        $active = $parent;
-                    }
-                    $parents = array_reverse($parents);
-                    $this->crumbs = array_merge($this->crumbs, $parents);
-                }
-                // The page is not in the navigation menu, so it's a root page.
-                elseif ($options['current']) {
-                    $label = $page->title();
-                }
-                break;
-
-            // Module Advanced Search or Search.
-            case strpos($matchedRouteName, 'search-page-') === 0:
-                if ($options['collections']) {
-                    $this->crumbCollections($options, $translate, $url, $siteSlug);
-                }
-                // Manage the case where the search page is used for item set,
-                // like item/browse for item-set/show.
-                $itemSet = null;
-                if ($options['itemset']) {
-                    $itemSetId = $routeMatch->getParam('item-set-id', null) ?: $view->params()->fromQuery('collection');
-                    if ($itemSetId) {
-                        try {
-                            $itemSet = $this->api->read('item_sets', ['id' => $itemSetId])->getContent();
-                        } catch (\Exception $e) {
-                            $itemSet = null;
-                        }
-                        // Don't add the item set if it is not search in order
-                        // to avoid to duplicate it when current is set.
-                        if (!$options['current']) {
-                            $this->crumbItemSet($itemSet, $site);
-                        }
-                        // Display page?
-                    }
-                } elseif ($options['itemsetstree']) {
-                    $itemSetId = $routeMatch->getParam('item-set-id', null) ?: $view->params()->fromQuery('collection');
-                    if ($itemSetId) {
-                        try {
-                            $itemSet = $this->api->read('item_sets', ['id' => $itemSetId])->getContent();
-                        } catch (\Exception $e) {
-                            $itemSet = null;
-                        }
-                        // Don't add the item set if it is not search in order
-                        // to avoid to duplicate it when current is set.
-                        if (!$options['current']) {
-                            $this->crumbItemSetsTree($itemSet, $site);
-                        }
-                    }
-                }
-                if ($options['current']) {
-                    $label = $itemSet
-                        ? (string) $itemSet->displayTitle()
-                        : $translate('Search'); // @translate
-                }
-                break;
-
-            // For compatibility with old version of module Basket.
-            case 'site/basket':
-                $this->crumbDashboard($plugins, $siteSetting, $translate, $url, $siteSlug);
-                if ($options['current']) {
-                    $label = $translate('Basket'); // @translate
-                }
-                break;
-
-            case 'site/collecting':
-                // TODO Add the page where the collecting form is.
-                // Action can be "submit", "success" or "item-show".
-                if ($options['current']) {
-                    $label = $translate('Collecting'); // @translate
-                }
-                break;
-
-            // Route for the contact us basket of an anonymous visitor.
-            case 'site/contact-us':
-                if ($options['current']) {
-                    $label = $siteSetting('contactus_selection_label', $translate('Selection for contact')); // @translate
-                }
-                break;
-
-            // Route for the selection of an anonymous visitor.
-            case 'site/selection':
-                if ($options['current']) {
-                    $label = $siteSetting('selection_label', $translate('Selection')); // @translate
-                }
-                break;
-
-            case 'site/guest':
-            case 'site/guest/anonymous':
-            // Routes "guest-user" are kept for the old module GuestUser.
-            case 'site/guest-user':
-            case 'site/guest-user/anonymous':
-                if ($options['current']) {
-                    $action = $routeMatch->getParam('action', 'me');
-                    switch ($action) {
-                        case 'me':
-                            $setting = $plugins->get('setting');
-                            $label = $translate($setting('guestuser_dashboard_label') ?: 'Dashboard'); // @translate
-                            break;
-                        case 'login':
-                            $label = $translate('Login'); // @translate
-                            break;
-                        case 'register':
-                            $label = $translate('Register'); // @translate
-                            break;
-                        case 'auth-error':
-                            $label = $translate('Authentication error'); // @translate
-                            break;
-                        case 'forgot-password':
-                            $label = $translate('Forgot password'); // @translate
-                            break;
-                        case 'confirm':
-                            $label = $translate('Confirm'); // @translate
-                            break;
-                        case 'confirm-email':
-                            $label = $translate('Confirm email'); // @translate
-                            break;
-                        default:
-                            $label = $translate('User'); // @translate
-                            break;
-                    }
-                }
-                break;
-
-            case 'site/guest/guest':
-            case 'site/guest/basket':
-            case 'site/guest/contact-us':
-            case 'site/guest/selection':
-            case 'site/guest-user/guest':
-                $isGuestUser = $matchedRouteName === 'site/guest-user/guest';
-                $this->crumbDashboard($plugins, $siteSetting, $translate, $url, $siteSlug, $isGuestUser);
-                if ($options['current']) {
-                    $label = $this->getGuestActionLabel(
-                        $routeMatch->getParam('action', 'me'),
-                        $translate,
-                        $siteSetting
-                    );
-                }
-                break;
-
-            default:
-                if ($options['current']) {
-                    $label = $translate('Current page'); // @translate
-                }
-                break;
-        }
-
-        if ($options['current'] && isset($label)) {
-            $this->crumbs[] = [
-                'label' => $label,
-                'uri' => $view->serverUrl(true),
-                'resource' => null,
-            ];
-        }
-
-        $template = $options['template'];
-        unset($options['template']);
-
-        /** @see \Omeka\Api\Representation\SiteRepresentation::publicNav() */
-        $nested = $this->nestedPages($this->crumbs);
-
-        return $view->partial(
-            $template,
-            [
-                'site' => $site,
-                'breadcrumbs' => new Navigation($nested),
-                'options' => $options,
-                // Keep the crumbs for compatibility with old themes.
-                'crumbs' => $this->crumbs,
-            ]
+    /**
+     * Build flat crumbs array from Navigation container for backward compatibility.
+     *
+     * Old themes expect $crumbs as array of ['label' => ..., 'uri' => ..., 'resource' => ...]
+     */
+    protected function buildFlatCrumbs($container): array
+    {
+        $crumbs = [];
+        $iterator = new \RecursiveIteratorIterator(
+            $container,
+            \RecursiveIteratorIterator::SELF_FIRST
         );
-    }
 
-    protected function crumbHome(SiteRepresentation $site): void
-    {
-        $this->crumbs[] = [
-            'label' => $this->getView()->translate('Home'),
-            'uri' => $site->siteUrl($site->slug()),
-            'resource' => $site,
-        ];
-    }
-
-    protected function crumbCollections(array $options, $translate, $url, $siteSlug): void
-    {
-        $this->crumbs[] = [
-            'label' => $translate('Collections'),
-            'uri' => $options['collections_url'] ?: $url(
-                'site/resource',
-                ['site-slug' => $siteSlug, 'controller' => 'item-set', 'action' => 'browse']
-            ),
-            'resource' => null,
-        ];
-    }
-
-    protected function crumbItemSet(ItemSetRepresentation $itemSet, SiteRepresentation $site): void
-    {
-        $this->crumbs[] = [
-            'label' => (string) $itemSet->displayTitle(),
-            'uri' => $itemSet->siteUrl($site->slug()),
-            'resource' => $itemSet,
-        ];
-    }
-
-    protected function crumbPrimaryItemSet(ItemRepresentation $item, SiteRepresentation $site): void
-    {
-        $itemSet = $this->getView()->primaryItemSet($item, $site);
-        if ($itemSet) {
-            $this->crumbs[] = [
-                'label' => (string) $itemSet->displayTitle(),
-                'uri' => $itemSet->siteUrl($site->slug()),
-                'resource' => $itemSet,
-            ];
-        }
-    }
-
-    protected function crumbItemSetsTree($itemOrItemSet, SiteRepresentation $site): void
-    {
-        static $itemSetsTree;
-
-        if (is_null($itemSetsTree)) {
-            $itemSetsTree = $this->itemSetsTreeQuick();
-        }
-
-        // Get the item set that has the more ancestors: it will be the more
-        // precise one.
-        if ($itemOrItemSet instanceof ItemRepresentation) {
-            $item = $itemOrItemSet;
-            $itemSets = $item->itemSets();
-            if (!$itemSets) {
-                return;
+        foreach ($iterator as $page) {
+            $resource = null;
+            if ($page instanceof \Menu\Site\Navigation\Page\ResourcePage) {
+                $resource = $page->getOmekaResource();
             }
-            $is = null;
-            $total = 0;
-            foreach ($itemSets as $itemSetId => $itemSet) {
-                if (isset($itemSetsTree[$itemSetId])
-                    && count($itemSetsTree[$itemSetId]['ancestors']) > $total
-                ) {
-                    $total = count($itemSetsTree[$itemSetId]['ancestors']);
-                    $is = $itemSet;
-                }
-            }
-            if (!$is) {
-                $this->crumbPrimaryItemSet($item, $site);
-                return;
-            }
-            $itemSet = $is;
-            $includeCurrent = true;
-        } elseif ($itemOrItemSet instanceof ItemSetRepresentation) {
-            $itemSet = $itemOrItemSet;
-            if (!isset($itemSetsTree[$itemSet->id()])) {
-                $this->crumbItemSet($itemSet, $site);
-                return;
-            }
-            $includeCurrent = false;
-        } else {
-            return;
-        }
 
-        $siteSlug = $site->slug();
-
-        // Prepare the crumbs for the item sets.
-        // Rights are already checked during building of the tree.
-        foreach (array_reverse($itemSetsTree[$itemSet->id()]['ancestors']) as $ancestorItemSetId) {
-            try {
-                $ancestorItemSet = $this->api->read('item_sets', ['id' => $ancestorItemSetId])->getContent();
-            } catch (\Exception $e) {
-                continue;
-            }
-            $this->crumbs[] = [
-                'label' => (string) $ancestorItemSet->displayTitle(),
-                'uri' => $ancestorItemSet->siteUrl($siteSlug),
-                'resource' => $ancestorItemSet,
+            $crumbs[] = [
+                'label' => $page->getLabel(),
+                'uri' => $page->getUri(),
+                'resource' => $resource,
             ];
         }
 
-        if ($includeCurrent) {
-            $this->crumbs[] = [
-                'label' => (string) $itemSet->displayTitle(),
-                'uri' => $itemSet->siteUrl($siteSlug),
-                'resource' => $itemSet,
-            ];
-        }
-    }
-
-    protected function crumbItem(ItemRepresentation $item, SiteRepresentation $site): void
-    {
-        $this->crumbs[] = [
-            'label' => (string) $item->displayTitle(),
-            'uri' => $item->siteUrl($site->slug()),
-            'resource' => $item,
-        ];
+        return $crumbs;
     }
 
     /**
-     * Add dashboard crumb for guest module routes.
+     * Get breadcrumb settings from site settings.
      */
-    protected function crumbDashboard($plugins, $siteSetting, $translate, $url, string $siteSlug, bool $isGuestUser = false): void
+    protected function getSiteSettings($siteSetting): array
     {
-        $route = $isGuestUser ? 'site/guest-user' : 'site/guest';
-        $widgetHelper = $isGuestUser ? 'guestUserWidget' : 'guestWidget';
+        $crumbsSettings = $siteSetting('menu_breadcrumbs_crumbs', []);
 
-        if ($plugins->has($widgetHelper) || $plugins->has('guestWidget')) {
-            $setting = $plugins->get('setting');
-            $label = $siteSetting('guest_dashboard_label') ?: $setting('guest_dashboard_label');
-            $this->crumbs[] = [
-                'label' => $label ?: $translate('Dashboard'), // @translate
-                'uri' => $url($route, ['site-slug' => $siteSlug, 'action' => 'me']),
-                'resource' => null,
+        // Convert multicheckbox format to boolean options
+        if (is_array($crumbsSettings)) {
+            $crumbsSettings = array_fill_keys($crumbsSettings, true) + [
+                'home' => false,
+                'collections' => false,
+                'itemset' => false,
+                'itemsetstree' => false,
+                'current' => false,
             ];
         }
-    }
 
-    /**
-     * Get label for guest action routes.
-     */
-    protected function getGuestActionLabel(string $action, $translate, $siteSetting): string
-    {
-        $labels = [
-            'logout' => 'Logout', // @translate
-            'update-account' => 'Update account', // @translate
-            'update-email' => 'Update email', // @translate
-            'accept-terms' => 'Accept terms', // @translate
-            'basket' => 'Basket', // @translate
+        return [
+            'home' => $crumbsSettings['home'] ?? true,
+            'collections' => $crumbsSettings['collections'] ?? true,
+            'itemset' => $crumbsSettings['itemset'] ?? true,
+            'itemsetstree' => $crumbsSettings['itemsetstree'] ?? true,
+            'current' => $crumbsSettings['current'] ?? true,
+            'prepend' => $siteSetting('menu_breadcrumbs_prepend', []),
+            'collections_url' => $siteSetting('menu_breadcrumbs_collections_url', ''),
+            'separator' => $siteSetting('menu_breadcrumbs_separator', ''),
+            'homepage' => $siteSetting('menu_breadcrumbs_homepage', false),
+            'property_itemset' => $siteSetting('menu_breadcrumbs_property_itemset', ''),
         ];
-
-        if (isset($labels[$action])) {
-            return $translate($labels[$action]);
-        }
-
-        if ($action === 'contact-us') {
-            return $siteSetting('contactus_selection_label', $translate('Selection for contact')); // @translate
-        }
-
-        if ($action === 'selection') {
-            return $siteSetting('selection_label', $translate('Selection')); // @translate
-        }
-
-        return $translate('User'); // @translate
-    }
-
-    protected function extractController(RouteMatch $routeMatch)
-    {
-        $controllers = [
-            'Omeka\Controller\Site\ItemSet' => 'item-set',
-            'Omeka\Controller\Site\Item' => 'item',
-            'Omeka\Controller\Site\Media' => 'media',
-            'Contribute\Controller\Site\Contribution' => 'contribution',
-            'item-set' => 'item-set',
-            'item' => 'item',
-            'media' => 'media',
-            'contribution' => 'contribution',
-        ];
-        $controller = $routeMatch->getParam('controller') ?: $routeMatch->getParam('__CONTROLLER__');
-        if (isset($controllers[$controller])) {
-            return $controllers[$controller];
-        }
-
-        if ($routeMatch->getParam('action') === 'search'
-            && ($controller === 'Omeka\Controller\Site\Index' || $controller === 'index')
-        ) {
-            return 'search';
-        }
-
-        return $controller;
-    }
-
-    protected function extractLabel($controller)
-    {
-        $labels = [
-            'item-set' => 'Item sets', // @translate
-            'item' => 'Items', // @translate
-            'media' => 'Media', // @translate
-            'contribution' => 'Contributions', // @translate
-        ];
-        return $labels[$controller] ?? $controller;
-    }
-
-    protected function nestedPages($flat)
-    {
-        $nested = [];
-        $last = count($flat) - 1;
-        foreach (array_values($flat) as $level => $sub) {
-            // This is required on new versions of php: issue with "structure"
-            // of module Menu.
-            if (!isset($sub['uri'])) {
-                $sub['uri'] = '';
-            }
-            if ($level === 0) {
-                $nested[] = $sub;
-                $current = &$nested[0];
-            } else {
-                $current = $sub;
-            }
-            $current['pages'] = [];
-            // Resource should be an instance of \Laminas\Permissions\Acl\Resource\ResourceInterface.
-            unset($current['resource']);
-            if ($level !== $last) {
-                $current['pages'][] = null;
-                $current = &$current['pages'][0];
-            } else {
-                // Active is required at least for the last page, else the
-                // container won't render anything.
-                $current['active'] = true;
-            }
-        }
-        return $nested;
     }
 
     /**
@@ -769,7 +222,8 @@ class Breadcrumbs extends AbstractHelper
      */
     protected function currentSite(): ?\Omeka\Api\Representation\SiteRepresentation
     {
-        return $this->view->site ?? $this->view->site = $this->view
+        $view = $this->getView();
+        return $view->site ?? $view->site = $view
             ->getHelperPluginManager()
             ->get('Laminas\View\Helper\ViewModel')
             ->getRoot()
@@ -777,154 +231,18 @@ class Breadcrumbs extends AbstractHelper
     }
 
     /**
-     * Get flat tree of item sets quickly.
-     *
-     * Use a quick connection request instead of a long procedure.
-     *
-     * @see \AdvancedSearch\View\Helper\AbstractFacet::itemsSetsTreeQuick()
-     * @see \Menu\View\Helper\Breadcrumbs::itemsSetsTreeQuick()
-     * @see \SearchSolr\ValueExtractor\AbstractResourceEntityValueExtractor::itemSetsTreeQuick()
-     *
-     * @todo Simplify ordering: by sql (for children too) or store.
-     *
-     * @return array
+     * Get the current route match.
      */
-    protected function itemSetsTreeQuick(): array
+    protected function getRouteMatch(): ?\Laminas\Router\Http\RouteMatch
     {
-        // Run an api request to check rights.
         $site = $this->currentSite();
-        $itemSetTitles = $this->api->search('item_sets', ['site_id' => $site->id(), 'return_scalar' => 'title'])->getContent();
-        if (!count($itemSetTitles)) {
-            return [];
+        if (!$site) {
+            return null;
         }
 
-        /** @var \Doctrine\DBAL\Connection $connection */
-        $connection = $site->getServiceLocator()->get('Omeka\Connection');
-
-        $sortingMethod = $this->getView()->setting('itemsetstree_sorting_method', 'title') === 'rank' ? 'rank' : 'title';
-        // Whitelist of allowed order by columns to prevent sql injection.
-        $allowedOrderColumns = [
-            'rank' => 'item_sets_tree_edge.rank',
-            'title' => 'resource.title',
-        ];
-        $orderByColumn = $allowedOrderColumns[$sortingMethod] ?? $allowedOrderColumns['title'];
-
-        // TODO Use query builder.
-        $sql = <<<SQL
-            SELECT
-                item_sets_tree_edge.item_set_id,
-                item_sets_tree_edge.item_set_id AS "id",
-                item_sets_tree_edge.parent_item_set_id AS "parent",
-                item_sets_tree_edge.rank AS "rank",
-                resource.title as "title"
-            FROM item_sets_tree_edge
-            JOIN resource ON resource.id = item_sets_tree_edge.item_set_id
-            WHERE item_sets_tree_edge.item_set_id IN (:ids)
-            GROUP BY resource.id
-            ORDER BY $orderByColumn ASC;
-            SQL;
-        $flatTree = $connection->executeQuery($sql, ['ids' => array_keys($itemSetTitles)], ['ids' => $connection::PARAM_INT_ARRAY])->fetchAllAssociativeIndexed();
-
-        // Use integers or string to simplify comparaisons.
-        foreach ($flatTree as &$node) {
-            $node['id'] = (int) $node['id'];
-            $node['parent'] = (int) $node['parent'] ?: null;
-            $node['rank'] = (int) $node['rank'];
-            $node['title'] = (string) $node['title'];
-        }
-        unset($node);
-
-        // Build parent-to-children index in a single pass for next process.
-        $childrenByParent = [];
-        foreach ($flatTree as $id => $node) {
-            $parentId = $node['parent'];
-            if ($parentId !== null) {
-                $childrenByParent[$parentId][$id] = $id;
-            }
-        }
-
-        $structure = [];
-        foreach ($flatTree as $id => $node) {
-            $children = $childrenByParent[$id] ?? [];
-            $ancestors = [];
-            $nodeWhile = $node;
-            while ($parentId = $nodeWhile['parent']) {
-                $ancestors[$parentId] = $parentId;
-                $nodeWhile = $flatTree[$parentId] ?? null;
-                if (!$nodeWhile) {
-                    break;
-                }
-            }
-            $structure[$id] = $node;
-            $structure[$id]['children'] = $children;
-            $structure[$id]['ancestors'] = $ancestors;
-            $structure[$id]['level'] = count($ancestors);
-        }
-
-        // Order by sorting method.
-        if ($sortingMethod === 'rank') {
-            $sortingFunction = fn ($a, $b) => $structure[$a]['rank'] - $structure[$b]['rank'];
-        } else {
-            $sortingFunction = fn ($a, $b) => strcmp($structure[$a]['title'], $structure[$b]['title']);
-        }
-
-        foreach ($structure as &$node) {
-            usort($node['children'], $sortingFunction);
-        }
-        unset($node);
-
-        // Get and order root nodes.
-        $roots = [];
-        foreach ($structure as $id => $node) {
-            if (!$node['level']) {
-                $roots[$id] = $node;
-            }
-        }
-
-        // Root is already ordered via sql.
-
-        // Reorder whole structure recursively.
-        $result = [];
-        $this->flattenTreeStructure($structure, array_keys($roots), $result);
-        $structure = $result;
-
-        // Append missing item sets.
-        foreach (array_diff_key($itemSetTitles, $flatTree) as $id => $title) {
-            if (isset($structure[$id])) {
-                continue;
-            }
-            $structure[$id] = [
-                'id' => $id,
-                'parent' => null,
-                'rank' => 0,
-                'title' => $title,
-                'children' => [],
-                'ancestors' => [],
-                'level' => 0,
-            ];
-        }
-
-        return $structure;
-    }
-
-    /**
-     * Recursively flatten a tree structure by traversing children.
-     *
-     * @param array $structure The full structure with all nodes
-     * @param array $ids The IDs to process at this level
-     * @param array $result The result array (passed by reference)
-     */
-    private function flattenTreeStructure(array $structure, array $ids, array &$result): void
-    {
-        foreach ($ids as $id) {
-            if (!isset($structure[$id])) {
-                continue;
-            }
-            $node = $structure[$id];
-            $result[$id] = $node;
-            if (!empty($node['children'])) {
-                $this->flattenTreeStructure($structure, $node['children'], $result);
-            }
-        }
+        return $site->getServiceLocator()
+            ->get('Application')
+            ->getMvcEvent()
+            ->getRouteMatch();
     }
 }

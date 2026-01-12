@@ -3,16 +3,19 @@
 namespace Menu;
 
 return [
+    'service_manager' => [
+        'factories' => [
+            'Menu\Site\Navigation\Breadcrumb\ContainerBuilder' => Service\Navigation\BreadcrumbContainerBuilderFactory::class,
+        ],
+    ],
     'view_manager' => [
         'template_path_stack' => [
             dirname(__DIR__) . '/view',
         ],
     ],
     'view_helpers' => [
-        'invokables' => [
-            'breadcrumbs' => View\Helper\Breadcrumbs::class,
-        ],
         'factories' => [
+            'breadcrumbs' => Service\ViewHelper\BreadcrumbsFactory::class,
             'navMenu' => Service\ViewHelper\NavMenuFactory::class,
         ],
     ],
