@@ -415,25 +415,7 @@ class Breadcrumbs extends AbstractHelper
 
             // For compatibility with old version of module Basket.
             case 'site/basket':
-                if ($plugins->has('guestWidget')) {
-                    $setting = $plugins->get('setting');
-                    $label = $siteSetting('guest_dashboard_label') ?: $setting('guest_dashboard_label');
-                    $this->crumbs[] = [
-                        'label' => $label ?: $translate('Dashboard'), // @translate
-                        'uri' => $url('site/guest', ['site-slug' => $siteSlug, 'action' => 'me']),
-                        'resource' => null,
-                    ];
-                }
-                // For compatibility with old module GuestUser.
-                elseif ($plugins->has('guestUserWidget')) {
-                    $setting = $plugins->get('setting');
-                    $label = $siteSetting('guest_dashboard_label') ?: $setting('guest_dashboard_label');
-                    $this->crumbs[] = [
-                        'label' => $label ?: $translate('Dashboard'), // @translate
-                        'uri' => $url('site/guest-user', ['site-slug' => $siteSlug, 'action' => 'me']),
-                        'resource' => null,
-                    ];
-                }
+                $this->crumbDashboard($plugins, $siteSetting, $translate, $url, $siteSlug);
                 if ($options['current']) {
                     $label = $translate('Basket'); // @translate
                 }
@@ -503,49 +485,14 @@ class Breadcrumbs extends AbstractHelper
             case 'site/guest/contact-us':
             case 'site/guest/selection':
             case 'site/guest-user/guest':
-                $setting = $plugins->get('setting');
-                $label = $siteSetting('guest_dashboard_label') ?: $setting('guest_dashboard_label');
-                if ($matchedRouteName === 'site/guest-user/guest') {
-                    $this->crumbs[] = [
-                        'label' => $label ?: $translate('Dashboard'), // @translate
-                        'uri' => $url('site/guest-user', ['site-slug' => $siteSlug]),
-                        'resource' => null,
-                    ];
-                } else {
-                    $this->crumbs[] = [
-                        'label' => $label ?: $translate('Dashboard'), // @translate
-                        'uri' => $url('site/guest', ['site-slug' => $siteSlug]),
-                        'resource' => null,
-                    ];
-                }
+                $isGuestUser = $matchedRouteName === 'site/guest-user/guest';
+                $this->crumbDashboard($plugins, $siteSetting, $translate, $url, $siteSlug, $isGuestUser);
                 if ($options['current']) {
-                    $action = $routeMatch->getParam('action', 'me');
-                    switch ($action) {
-                        case 'logout':
-                            $label = $translate('Logout'); // @translate
-                            break;
-                        case 'update-account':
-                            $label = $translate('Update account'); // @translate
-                            break;
-                        case 'update-email':
-                            $label = $translate('Update email'); // @translate
-                            break;
-                        case 'accept-terms':
-                            $label = $translate('Accept terms'); // @translate
-                            break;
-                        case 'basket':
-                            $label = $translate('Basket'); // @translate
-                            break;
-                        case 'contact-us':
-                            $label = $siteSetting('contactus_selection_label', $translate('Selection for contact')); // @translate
-                            break;
-                        case 'selection':
-                            $label = $siteSetting('selection_label', $translate('Selection')); // @translate
-                            break;
-                        default:
-                            $label = $translate('User'); // @translate
-                            break;
-                    }
+                    $label = $this->getGuestActionLabel(
+                        $routeMatch->getParam('action', 'me'),
+                        $translate,
+                        $siteSetting
+                    );
                 }
                 break;
 
@@ -700,6 +647,53 @@ class Breadcrumbs extends AbstractHelper
             'uri' => $item->siteUrl($site->slug()),
             'resource' => $item,
         ];
+    }
+
+    /**
+     * Add dashboard crumb for guest module routes.
+     */
+    protected function crumbDashboard($plugins, $siteSetting, $translate, $url, string $siteSlug, bool $isGuestUser = false): void
+    {
+        $route = $isGuestUser ? 'site/guest-user' : 'site/guest';
+        $widgetHelper = $isGuestUser ? 'guestUserWidget' : 'guestWidget';
+
+        if ($plugins->has($widgetHelper) || $plugins->has('guestWidget')) {
+            $setting = $plugins->get('setting');
+            $label = $siteSetting('guest_dashboard_label') ?: $setting('guest_dashboard_label');
+            $this->crumbs[] = [
+                'label' => $label ?: $translate('Dashboard'), // @translate
+                'uri' => $url($route, ['site-slug' => $siteSlug, 'action' => 'me']),
+                'resource' => null,
+            ];
+        }
+    }
+
+    /**
+     * Get label for guest action routes.
+     */
+    protected function getGuestActionLabel(string $action, $translate, $siteSetting): string
+    {
+        $labels = [
+            'logout' => 'Logout', // @translate
+            'update-account' => 'Update account', // @translate
+            'update-email' => 'Update email', // @translate
+            'accept-terms' => 'Accept terms', // @translate
+            'basket' => 'Basket', // @translate
+        ];
+
+        if (isset($labels[$action])) {
+            return $translate($labels[$action]);
+        }
+
+        if ($action === 'contact-us') {
+            return $siteSetting('contactus_selection_label', $translate('Selection for contact')); // @translate
+        }
+
+        if ($action === 'selection') {
+            return $siteSetting('selection_label', $translate('Selection')); // @translate
+        }
+
+        return $translate('User'); // @translate
     }
 
     protected function extractController(RouteMatch $routeMatch)
