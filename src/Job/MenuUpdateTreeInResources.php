@@ -239,7 +239,7 @@ class MenuUpdateTreeInResources extends AbstractJob
                 'count_processed' => $this->totalProcessed,
                 'count_error' => $this->totalError,
             ]
-        ));
+        );
     }
 
     /**
