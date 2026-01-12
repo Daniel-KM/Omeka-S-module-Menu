@@ -323,7 +323,7 @@ class MenuController extends AbstractActionController
         if ($oldName !== $newName) {
             $existingMenu = $siteSettings->get('menu_menu:' . $newName);
             if (is_array($existingMenu)) {
-                $newName .= '-' . substr(bin2hex(\Laminas\Math\Rand::getBytes(20)), 0, 8);
+                $newName .= '-' . $this->randomSuffix();
                 $this->messenger()->addWarning(new Message(
                     'Menu "%s" uses an existing name and was renamed "%s".', // @translate
                     $name, $newName
@@ -413,10 +413,9 @@ class MenuController extends AbstractActionController
     protected function getConfirmForm(string $menuName): \Omeka\Form\ConfirmForm
     {
         /** @var \Omeka\Form\ConfirmForm $confirmForm */
-        $confirmForm = $this
-            ->getForm(\Omeka\Form\ConfirmForm::class)
-            ->setAttribute('action', $this->url()->fromRoute('admin/site/slug/menu-id', ['menu-slug' => $menuName, 'action' => 'delete'], true));
+        $confirmForm = $this->getForm(\Omeka\Form\ConfirmForm::class);
         $confirmForm
+            ->setAttribute('action', $this->url()->fromRoute('admin/site/slug/menu-id', ['menu-slug' => $menuName, 'action' => 'delete'], true))
             ->setButtonLabel('Confirm delete'); // @translate
         return $confirmForm;
     }
@@ -427,13 +426,12 @@ class MenuController extends AbstractActionController
     protected function getConfirmFormMultiple(): \Omeka\Form\ConfirmForm
     {
         /** @var \Omeka\Form\ConfirmForm $confirmForm */
-        $confirmForm = $this
-            ->getForm(\Omeka\Form\ConfirmForm::class)
-            ->setAttribute('action', $this->url()->fromRoute('admin/site/slug/menu', ['action' => 'batch-delete'], true));
+        $confirmForm = $this->getForm(\Omeka\Form\ConfirmForm::class);
         $confirmForm
+            ->setAttribute('action', $this->url()->fromRoute('admin/site/slug/menu', ['action' => 'batch-delete'], true))
+            ->setAttribute('id', 'confirm-delete-selected')
             ->setButtonLabel('Confirm delete'); // @translate
-        return $confirmForm
-            ->setAttribute('id', 'confirm-delete-selected');
+        return $confirmForm;
     }
 
     /**
@@ -442,17 +440,12 @@ class MenuController extends AbstractActionController
      * This is the equivalent of SiteRepresentation::linkedPages(), but for any menu.
      *
      * @see \Omeka\Api\Representation\SiteRepresentation::linkedPages()
+     * @todo Is it useful to cache all menus of a site? Only for bulk job.
      */
     protected function linkedPagesInMenu(SiteRepresentation $site, array $menu): array
     {
-        static $menus = [];
-
-        if (isset($menus[$site->id()])) {
-            return $menus[$site->id()];
-        }
         $linkedPages = [];
         $pages = $site->pages();
-        $iterate = null;
         $iterate = function ($linksIn) use (&$iterate, &$linkedPages, $pages): void {
             foreach ($linksIn as $data) {
                 if ('page' === $data['type'] && isset($pages[$data['data']['id']])) {
@@ -464,7 +457,6 @@ class MenuController extends AbstractActionController
             }
         };
         $iterate($menu);
-        $menus[$site->id()] = $linkedPages;
         return $linkedPages;
     }
 
@@ -511,6 +503,7 @@ class MenuController extends AbstractActionController
      * Get all menus of a site.
      *
      * Note: to use a direct sql requires more memory than site settings.
+     * @deprecated This method is kept temporarily to manage bulk jobs quicker?
      */
     protected function listMenusViaSql(SiteRepresentation $site): array
     {
@@ -538,7 +531,7 @@ class MenuController extends AbstractActionController
             'jstree', 'menu', 'tops-to-menus',
         ];
         if (in_array($string, $reserved)) {
-            $string .= '-' . substr(bin2hex(\Laminas\Math\Rand::getBytes(20)), 0, 8);
+            $string .= '-' . $this->randomSuffix();
             $this->messenger()->addWarning(new Message(
                 'Menu "%s" uses a reserved name and was renamed "%s".', // @translate
                 $name, $string
@@ -567,5 +560,13 @@ class MenuController extends AbstractActionController
         $slug = preg_replace('/-{2,}/', '-', $slug);
         $slug = preg_replace('/-*$/', '', $slug);
         return $slug;
+    }
+
+    /**
+     * Generate a random suffix (6 characters hexa) for unique naming.
+     */
+    protected function randomSuffix(): string
+    {
+        return substr(bin2hex(\Laminas\Math\Rand::getBytes(20)), 0, 6);
     }
 }

@@ -100,21 +100,27 @@ class NavMenu extends AbstractHelper
         $partial = $options['template'] ?? $this->template;
         unset($options['template']);
 
+        // Common defaults for all render types.
+        $options += [
+            'site' => null,
+            'name' => $name,
+            'menu' => null,
+            'activeUrl' => null,
+            'noNav' => false,
+            'render' => null,
+            'partial' => null,
+        ];
+
         $render = $options['render'] ?? null;
+        $isMenu = false;
+        $isPrevNext = false;
+
         switch ($render) {
             default:
             case '':
             case 'menu':
                 $isMenu = true;
                 $options += [
-                    'site' => null,
-                    'name' => $name,
-                    'menu' => null,
-                    'activeUrl' => null,
-                    'noNav' => false,
-                    'render' => null,
-                    // Specific option of helper Menu.
-                    'partial' => null,
                     'indent' => '',
                     'minDepth' => null,
                     'maxDepth' => null,
@@ -129,13 +135,6 @@ class NavMenu extends AbstractHelper
                 break;
             case 'breadcrumbs':
                 $options += [
-                    'site' => null,
-                    'name' => $name,
-                    'menu' => null,
-                    'activeUrl' => null,
-                    'noNav' => false,
-                    // Specific option of helper Menu.
-                    'partial' => null,
                     'indent' => '',
                     'minDepth' => null,
                     'separator' => '&gt;',
@@ -146,15 +145,6 @@ class NavMenu extends AbstractHelper
             case 'prev':
             case 'next':
                 $isPrevNext = true;
-                $options += [
-                    'site' => null,
-                    'name' => $name,
-                    'menu' => null,
-                    'activeUrl' => null,
-                    'noNav' => false,
-                    // Specific option of helper Menu.
-                    'partial' => null,
-                ];
                 break;
         }
 
@@ -165,7 +155,7 @@ class NavMenu extends AbstractHelper
         $options['name'] = $name;
         $options['options'] = $options;
 
-        if (!empty($isMenu)) {
+        if ($isMenu) {
             // Max inactive depth cannot be greater than max depth, but don't fix
             // options in order to pass them to special templates.
             $maxDepth = $options['maxDepth'];
@@ -204,7 +194,7 @@ class NavMenu extends AbstractHelper
                 : null;
         }
 
-        if (!empty($isPrevNext)) {
+        if ($isPrevNext) {
             $options['prevnext'] = $this->prevNext($options);
         }
 
