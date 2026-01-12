@@ -8,6 +8,11 @@ use Omeka\Stdlib\ErrorStore;
 
 class Resource implements LinkInterface
 {
+    /**
+     * @var array Cache of loaded resources to avoid duplicate api calls.
+     */
+    protected static $resourceCache = [];
+
     public function getName()
     {
         return 'Resource'; // @translate
@@ -33,19 +38,15 @@ class Resource implements LinkInterface
             return $data['label'];
         }
 
-        $services = $site->getServiceLocator();
         $id = (int) $data['id'];
         if (!$id) {
-            $translator = $services->get('MvcTranslator');
+            $translator = $site->getServiceLocator()->get('MvcTranslator');
             return $translator->translate('[Unknown resource]'); // @translate
         }
 
-        $api = $services->get('Omeka\ApiManager');
-        try {
-            /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
-            $resource = $api->read('resources', ['id' => $id])->getContent();
-        } catch (\Omeka\Api\Exception\NotFoundException $e) {
-            $translator = $services->get('MvcTranslator');
+        $resource = $this->fetchResource($id, $site);
+        if ($resource === null) {
+            $translator = $site->getServiceLocator()->get('MvcTranslator');
             return sprintf($translator->translate('[Unknown resource #%d]'), $id); // @translate
         }
 
@@ -56,13 +57,9 @@ class Resource implements LinkInterface
     public function toZend(array $data, SiteRepresentation $site)
     {
         $id = (int) $data['id'];
-        $api = $site->getServiceLocator()->get('Omeka\ApiManager');
-        try {
-            // TODO Return scalar id and resource type for performance or store the type and the title.
-            // TODO Manage language.
-            /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
-            $resource = $api->read('resources', ['id' => $id])->getContent();
-        } catch (\Omeka\Api\Exception\NotFoundException $e) {
+        $resource = $this->fetchResource($id, $site);
+
+        if ($resource === null) {
             return [
                 'visible' => false,
                 'route' => 'site/resource-id',
@@ -79,6 +76,7 @@ class Resource implements LinkInterface
                 'class' => 'resource',
             ];
         }
+
         $controllerName = $resource->getControllerName();
         return [
             'route' => 'site/resource-id',
@@ -92,6 +90,31 @@ class Resource implements LinkInterface
             ],
             'class' => 'resource ' . $controllerName,
         ];
+    }
+
+    /**
+     * Fetch a resource with caching to avoid duplicate api calls.
+     *
+     * @return \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null
+     */
+    protected function fetchResource(int $id, SiteRepresentation $site)
+    {
+        if (!$id) {
+            return null;
+        }
+
+        if (array_key_exists($id, self::$resourceCache)) {
+            return self::$resourceCache[$id];
+        }
+
+        $api = $site->getServiceLocator()->get('Omeka\ApiManager');
+        try {
+            self::$resourceCache[$id] = $api->read('resources', ['id' => $id])->getContent();
+        } catch (\Omeka\Api\Exception\NotFoundException $e) {
+            self::$resourceCache[$id] = null;
+        }
+
+        return self::$resourceCache[$id];
     }
 
     public function toJstree(array $data, SiteRepresentation $site)
