@@ -98,3 +98,39 @@ if (version_compare($oldVersion, '3.3.6', '<')) {
     $message->setEscapeHtml(false);
     $messenger->addWarning($message);
 }
+
+if (version_compare($oldVersion, '3.4.12', '<')) {
+    // Migrate breadcrumbs settings from BlockPlus to Menu module.
+    $sites = $api->search('sites', [], ['returnScalar' => 'id'])->getContent();
+    foreach ($sites as $siteId) {
+        $siteSettings->setTargetId($siteId);
+        // Don't process upgrade twice.
+        if ($siteSettings->get('menu_breadcrumbs_crumbs') === null) {
+            continue;
+        }
+        $crumbs = $siteSettings->get('blockplus_breadcrumbs_crumbs');
+        if ($crumbs !== null) {
+            $siteSettings->set('menu_breadcrumbs_crumbs', $crumbs);
+        }
+        $prepend = $siteSettings->get('blockplus_breadcrumbs_prepend');
+        if ($prepend !== null) {
+            $siteSettings->set('menu_breadcrumbs_prepend', $prepend);
+        }
+        $collectionsUrl = $siteSettings->get('blockplus_breadcrumbs_collections_url');
+        if ($collectionsUrl !== null) {
+            $siteSettings->set('menu_breadcrumbs_collections_url', $collectionsUrl);
+        }
+        $separator = $siteSettings->get('blockplus_breadcrumbs_separator');
+        if ($separator !== null) {
+            $siteSettings->set('menu_breadcrumbs_separator', $separator);
+        }
+        $homepage = $siteSettings->get('blockplus_breadcrumbs_homepage');
+        if ($homepage !== null) {
+            $siteSettings->set('menu_breadcrumbs_homepage', $homepage);
+        }
+    }
+    $message = new Message(
+        'Breadcrumbs were moved from module Block Plus to module Menu. Settings were migrated.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
