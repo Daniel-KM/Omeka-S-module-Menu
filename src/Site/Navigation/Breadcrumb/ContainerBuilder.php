@@ -88,10 +88,11 @@ class ContainerBuilder
         $translate = $this->translator;
 
         // Build the hierarchy from root to current.
-        // Track both pages array and current parent page object to properly
-        // build nested structures.
+        // Pages added before the resource hierarchy (home, prepend) go
+        // into $pages. The resource/route hierarchy is collected in
+        // $childPages, then attached as children of the last ancestor
+        // page, or merged flat into $pages when there is no ancestor.
         $pages = [];
-        $currentParent = &$pages;
         $currentParentPage = null;
 
         // Home page.
@@ -102,7 +103,6 @@ class ContainerBuilder
             ]);
             $pages[] = $homePage;
             $currentParentPage = $homePage;
-            $currentParent = [];
         }
 
         // Prepended links.
@@ -119,23 +119,25 @@ class ContainerBuilder
                         $pages[] = $prependPage;
                     }
                     $currentParentPage = $prependPage;
-                    $currentParent = [];
                 }
             }
         }
 
         // Handle based on resource type.
+        $childPages = [];
         if ($resource) {
-            $this->buildResourceHierarchy($currentParent, $resource, $site, $options);
+            $this->buildResourceHierarchy($childPages, $resource, $site, $options);
         } elseif ($routeMatch) {
-            $this->buildRouteHierarchy($currentParent, $routeMatch, $site, $options);
+            $this->buildRouteHierarchy($childPages, $routeMatch, $site, $options);
         }
 
         // Sync the built hierarchy to the parent page.
-        if ($currentParentPage && $currentParent) {
-            foreach ($currentParent as $page) {
+        if ($currentParentPage) {
+            foreach ($childPages as $page) {
                 $currentParentPage->addPage($page);
             }
+        } else {
+            $pages = array_merge($pages, $childPages);
         }
 
         return new Navigation($pages);
