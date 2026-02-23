@@ -1,0 +1,51 @@
+{
+    "name": "daniel-km/omeka-s-module-menu",
+    "type": "omeka-s-module",
+    "description": "Module for Omeka S: Create multiple menus, for example a top menu, a sidebar menu, a footer menu, a breadcrumbs, or any structure anywhere.",
+    "keywords": [
+        "Omeka S",
+        "Omeka S module",
+        "structure",
+        "menu"
+    ],
+    "license": "CECILL-2.1",
+    "homepage": "https://gitlab.com/Daniel-KM/Omeka-S-module-Menu",
+    "authors": [
+        {
+            "name": "Daniel Berthereau",
+            "email": "Daniel.packagist@Berthereau.net"
+        }
+    ],
+    "support": {
+        "issues": "https://gitlab.com/Daniel-KM/Omeka-S-module-Menu/-/issues",
+        "forum": "https://forum.omeka.org/"
+    },
+    "_require (not set until Omeka S merges PR #2412)": {
+        "omeka/omeka-s": "^4.0",
+        "daniel-km/omeka-s-module-common": "*"
+    },
+    "require": {
+        "sempia/external-assets": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Menu\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MenuTest\\": "tests/MenuTest/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "sempia/external-assets": true
+        }
+    },
+    "extra": {
+        "installer-name": "Menu",
+        "external-assets": {
+            "asset/vendor/jquery-ui/": "https://jqueryui.com/resources/download/jquery-ui-1.14.1.zip"
+        }
+    }
+}
