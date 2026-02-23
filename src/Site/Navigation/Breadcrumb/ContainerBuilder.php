@@ -301,6 +301,46 @@ class ContainerBuilder
                 }
                 break;
 
+            case 'site/page':
+                $pageSlug = $routeMatch->getParam('page-slug');
+                if ($pageSlug) {
+                    // Walk the site navigation tree to find ancestors.
+                    $path = $this->findNavigationPagePath(
+                        $site, $pageSlug
+                    );
+                    if ($path) {
+                        $lastIndex = count($path) - 1;
+                        foreach ($path as $i => $crumb) {
+                            $crumbPage = new UriPage([
+                                'label' => $crumb['label'],
+                                'uri' => $crumb['uri'],
+                                'active' => $i === $lastIndex,
+                            ]);
+                            $addPage($crumbPage);
+                            if ($i < $lastIndex) {
+                                $currentParentPage = $crumbPage;
+                            }
+                        }
+                    } elseif ($options['current']) {
+                        // Page not in navigation: show just its title.
+                        foreach ($site->pages() as $sp) {
+                            if ($sp->slug() === $pageSlug) {
+                                $pageCrumb = new UriPage([
+                                    'label' => $sp->title(),
+                                    'uri' => $url('site/page', [
+                                        'site-slug' => $siteSlug,
+                                        'page-slug' => $pageSlug,
+                                    ]),
+                                    'active' => true,
+                                ]);
+                                $addPage($pageCrumb);
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+
             default:
                 // For other routes, just add a current page indicator.
                 if ($options['current']) {
@@ -501,5 +541,115 @@ class ContainerBuilder
         }
 
         return $labels[$controller] ?? 'Browse';
+    }
+
+    /**
+     * Find the path from root to a page in the site navigation tree.
+     *
+     * Walks the navigation recursively to find the target page by slug,
+     * collecting ancestor crumbs along the way.
+     *
+     * @return array|null Array of ['label' => string, 'uri' => string]
+     *   from root to target, or null if the page is not in the tree.
+     */
+    protected function findNavigationPagePath(
+        SiteRepresentation $site,
+        string $targetPageSlug
+    ): ?array {
+        $siteSlug = $site->slug();
+        $url = $this->urlHelper;
+
+        // Build page ID → slug/title map.
+        $pageMap = [];
+        foreach ($site->pages() as $p) {
+            $pageMap[$p->id()] = [
+                'slug' => $p->slug(),
+                'title' => $p->title(),
+            ];
+        }
+
+        $search = function (array $items) use (
+            &$search, $targetPageSlug, $siteSlug, $url, $pageMap
+        ): ?array {
+            foreach ($items as $item) {
+                $type = $item['type'] ?? '';
+                $data = $item['data'] ?? [];
+
+                // Check if this item is the target page.
+                if ($type === 'page' && isset($data['id'])) {
+                    $page = $pageMap[$data['id']] ?? null;
+                    if ($page && $page['slug'] === $targetPageSlug) {
+                        $label = ($data['label'] ?? '') !== ''
+                            ? $data['label'] : $page['title'];
+                        return [[
+                            'label' => $label,
+                            'uri' => $url('site/page', [
+                                'site-slug' => $siteSlug,
+                                'page-slug' => $page['slug'],
+                            ]),
+                        ]];
+                    }
+                }
+
+                // Recurse into sub-links.
+                if (!empty($item['links'])) {
+                    $subPath = $search($item['links']);
+                    if ($subPath !== null) {
+                        $crumb = $this->navigationItemCrumb(
+                            $item, $pageMap, $siteSlug
+                        );
+                        return $crumb
+                            ? array_merge([$crumb], $subPath)
+                            : $subPath;
+                    }
+                }
+            }
+            return null;
+        };
+
+        return $search($site->navigation());
+    }
+
+    /**
+     * Get a breadcrumb entry for a navigation item (ancestor in the tree).
+     *
+     * @return array|null ['label' => string, 'uri' => string] or null.
+     */
+    protected function navigationItemCrumb(
+        array $item,
+        array $pageMap,
+        string $siteSlug
+    ): ?array {
+        $type = $item['type'] ?? '';
+        $data = $item['data'] ?? [];
+        $url = $this->urlHelper;
+
+        if ($type === 'page' && isset($data['id'])) {
+            $page = $pageMap[$data['id']] ?? null;
+            if (!$page) {
+                return null;
+            }
+            $label = ($data['label'] ?? '') !== ''
+                ? $data['label'] : $page['title'];
+            return [
+                'label' => $label,
+                'uri' => $url('site/page', [
+                    'site-slug' => $siteSlug,
+                    'page-slug' => $page['slug'],
+                ]),
+            ];
+        }
+
+        if ($type === 'url') {
+            $label = $data['label'] ?? '';
+            return $label !== ''
+                ? ['label' => $label, 'uri' => $data['url'] ?? '']
+                : null;
+        }
+
+        // For other link types (searchingPage, structure, etc.),
+        // use label if available.
+        $label = $data['label'] ?? '';
+        return $label !== '' ? ['label' => $label, 'uri' => ''] : null;
     }
 }
