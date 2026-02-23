@@ -192,15 +192,20 @@ class Breadcrumbs extends AbstractHelper
     {
         $crumbsSettings = $siteSetting('menu_breadcrumbs_crumbs', []);
 
-        // Convert multicheckbox format to boolean options
+        // Convert multicheckbox format to boolean options.
+        // When not configured (empty array), default to home + current.
         if (is_array($crumbsSettings)) {
-            $crumbsSettings = array_fill_keys($crumbsSettings, true) + [
-                'home' => false,
-                'collections' => false,
-                'itemset' => false,
-                'itemsetstree' => false,
-                'current' => false,
-            ];
+            if (empty($crumbsSettings)) {
+                $crumbsSettings = ['home' => true, 'current' => true];
+            } else {
+                $crumbsSettings = array_fill_keys($crumbsSettings, true) + [
+                    'home' => false,
+                    'collections' => false,
+                    'itemset' => false,
+                    'itemsetstree' => false,
+                    'current' => false,
+                ];
+            }
         }
 
         return [
