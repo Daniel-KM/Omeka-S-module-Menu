@@ -28,7 +28,9 @@
 namespace Menu;
 
 if (!class_exists('Common\TraitModule', false)) {
-    require_once dirname(__DIR__) . '/Common/TraitModule.php';
+    require_once file_exists(dirname(__DIR__) . '/Common/src/TraitModule.php')
+        ? dirname(__DIR__) . '/Common/src/TraitModule.php'
+        : dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
 use Common\TraitModule;
