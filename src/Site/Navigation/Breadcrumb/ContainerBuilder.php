@@ -2,9 +2,11 @@
 
 namespace Menu\Site\Navigation\Breadcrumb;
 
+use Laminas\I18n\Translator\TranslatorInterface;
 use Laminas\Navigation\Navigation;
 use Laminas\Navigation\Page\Uri as UriPage;
 use Laminas\Router\Http\RouteMatch;
+use Laminas\View\Helper\Url as UrlHelper;
 use Menu\Site\Navigation\Page\ResourcePage;
 use Omeka\Api\Manager as ApiManager;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
@@ -12,8 +14,6 @@ use Omeka\Api\Representation\ItemRepresentation;
 use Omeka\Api\Representation\ItemSetRepresentation;
 use Omeka\Api\Representation\MediaRepresentation;
 use Omeka\Api\Representation\SiteRepresentation;
-use Laminas\I18n\Translator\TranslatorInterface;
-use Laminas\View\Helper\Url as UrlHelper;
 
 /**
  * Builds a Laminas Navigation container for breadcrumbs.
@@ -156,7 +156,7 @@ class ContainerBuilder
         $currentParentPage = null;
 
         // Helper to add a page to the hierarchy.
-        $addPage = function ($page) use (&$parent, &$currentParentPage) {
+        $addPage = function ($page) use (&$parent, &$currentParentPage): void {
             if ($currentParentPage) {
                 $currentParentPage->addPage($page);
             } else {
@@ -253,7 +253,7 @@ class ContainerBuilder
         $currentParentPage = null;
 
         // Helper to add a page to the hierarchy.
-        $addPage = function ($page) use (&$parent, &$currentParentPage) {
+        $addPage = function ($page) use (&$parent, &$currentParentPage): void {
             if ($currentParentPage) {
                 $currentParentPage->addPage($page);
             } else {

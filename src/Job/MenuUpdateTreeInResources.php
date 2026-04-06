@@ -132,8 +132,7 @@ class MenuUpdateTreeInResources extends AbstractJob
         $this->totalUpdated = 0;
         $this->totalError = 0;
         $updateResourceFromMenu = null;
-        $updateResourceFromMenu = function (array $links, ?int $parentResourceId = null)
-            use (&$updateResourceFromMenu, $broaders, $narrowers, $updateResources, $onlyTemplates): void {
+        $updateResourceFromMenu = function (array $links, ?int $parentResourceId = null) use (&$updateResourceFromMenu, $broaders, $narrowers, $updateResources, $onlyTemplates): void {
             foreach ($links as $link) {
                 /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
                 $resource = null;

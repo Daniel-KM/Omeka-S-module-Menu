@@ -383,7 +383,7 @@ class MenuController extends AbstractActionController
                 htmlspecialchars(class_exists('Log\Module', false)
                     ? $urlPlugin->fromRoute('admin/log/default', [], ['query' => ['job_id' => $job->getId()]])
                     : $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
-            ))
+                ))
         );
         $message->setEscapeHtml(false);
         $this->messenger()->addSuccess($message);
@@ -517,9 +517,7 @@ class MenuController extends AbstractActionController
             ->where($expr->eq('site_id', ':site_id'))
             ->orderBy('id', 'asc');
         $menus = $connection->executeQuery($qb, ['site_id' => $site->id()])->fetchAllKeyValue();
-        return array_map(function ($v) {
-            return json_decode($v, true);
-        }, $menus);
+        return array_map(fn ($v) => json_decode($v, true), $menus);
     }
 
     protected function slugifyName(string $name): string
