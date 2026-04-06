@@ -63,11 +63,20 @@ class Breadcrumbs extends AbstractHelper
             return '';
         }
 
-        // Get current resource from view variables
-        $resource = $view->resource ?? $view->item ?? $view->itemSet ?? $view->media ?? null;
-
         // Get route match
         $routeMatch = $this->getRouteMatch();
+
+        // Get current resource from view variables, or fall back to the route
+        // match (CleanUrl sets controller + id after resolving the clean url).
+        $resource = $view->resource
+            ?? $view->item
+            ?? $view->itemSet
+            ?? $view->media
+            ?? $view->annotation
+            ?? null;
+        if (!$resource && $routeMatch) {
+            $resource = $this->resourceFromRouteMatch($routeMatch);
+        }
 
         // Check homepage setting
         if (empty($options['homepage'])) {
@@ -233,6 +242,48 @@ class Breadcrumbs extends AbstractHelper
             ->get('Laminas\View\Helper\ViewModel')
             ->getRoot()
             ->getVariable('site');
+    }
+
+    /**
+     * Resolve resource representation from route match
+     *
+     * It is used when the breadcrumbs are rendered from the layout, where child
+     * view variables are not propagated. CleanUrl and standard site/resource
+     * route both set id + controller on the route match.
+     */
+    protected function resourceFromRouteMatch(\Laminas\Router\Http\RouteMatch $routeMatch)
+    {
+        $id = $routeMatch->getParam('id') ?? $routeMatch->getParam('item-set-id');
+        if (!$id) {
+            return null;
+        }
+        $map = [
+            'item' => 'items',
+            'item-set' => 'item_sets',
+            'media' => 'media',
+            'annotation' => 'annotations',
+            'Omeka\Controller\Site\Item' => 'items',
+            'Omeka\Controller\Site\ItemSet' => 'item_sets',
+            'Omeka\Controller\Site\Media' => 'media',
+            'Annotate\Controller\Site\Annotation' => 'annotations',
+        ];
+        $controller = $routeMatch->getParam('controller')
+            ?? $routeMatch->getParam('__CONTROLLER__');
+        $resourceName = $map[$controller] ?? null;
+        if (!$resourceName && $routeMatch->getParam('item-set-id')) {
+            $resourceName = 'item_sets';
+            $id = $routeMatch->getParam('item-set-id');
+        }
+        if (!$resourceName) {
+            return null;
+        }
+        try {
+            $site = $this->currentSite();
+            $api = $site->getServiceLocator()->get('Omeka\ApiManager');
+            return $api->read($resourceName, ['id' => $id])->getContent();
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     /**
