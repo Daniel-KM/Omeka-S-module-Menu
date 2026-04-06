@@ -89,14 +89,6 @@ class NavMenu extends AbstractHelper
      */
     public function __invoke(?string $name = null, array $options = []): string
     {
-        // Quick check menu name.
-        if ($name) {
-            $options['menu'] = $this->view->siteSetting('menu_menu:' . $name);
-            if (!is_array($options['menu'])) {
-                return '';
-            }
-        }
-
         $partial = $options['template'] ?? $this->template;
         unset($options['template']);
 
@@ -110,6 +102,23 @@ class NavMenu extends AbstractHelper
             'render' => null,
             'partial' => null,
         ];
+
+        if (empty($options['site'])) {
+            $options['site'] = $this->currentSite();
+        }
+
+        // Quick check menu name. Read setting from the target site, not the
+        // current site, so cross-site menu rendering works.
+        if ($name) {
+            $site = $options['site'];
+            $siteSettings = $this->services->get('Omeka\Settings\Site');
+            $options['menu'] = $site instanceof SiteRepresentation
+                ? $siteSettings->get('menu_menu:' . $name, null, $site->id())
+                : $siteSetting('menu_menu:' . $name);
+            if (!is_array($options['menu'])) {
+                return '';
+            }
+        }
 
         $render = $options['render'] ?? null;
         $isMenu = false;
@@ -146,10 +155,6 @@ class NavMenu extends AbstractHelper
             case 'next':
                 $isPrevNext = true;
                 break;
-        }
-
-        if (empty($options['site'])) {
-            $options['site'] = $this->currentSite();
         }
 
         $options['name'] = $name;
