@@ -297,7 +297,7 @@ class ContainerBuilder
                         $itemSetPage = $this->createResourcePage($itemSet, $site);
                         $itemSetPage->setActive(true);
                         $addPage($itemSetPage);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         // Item set not found.
                     }
                 }
