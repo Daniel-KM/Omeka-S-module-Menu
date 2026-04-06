@@ -8,7 +8,7 @@ use Psr\Container\ContainerInterface;
 
 class NavigationTranslatorFactory implements FactoryInterface
 {
-    public function __invoke(ContainerInterface $services, $name, array $options = null)
+    public function __invoke(ContainerInterface $services, $name, ?array $options = null)
     {
         return new NavigationTranslator(
             $services->get('MvcTranslator'),
