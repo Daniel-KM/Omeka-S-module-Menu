@@ -2,9 +2,9 @@
 
 namespace Menu\Service\ControllerPlugin;
 
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Menu\Mvc\Controller\Plugin\NavigationTranslator;
+use Psr\Container\ContainerInterface;
 
 class NavigationTranslatorFactory implements FactoryInterface
 {

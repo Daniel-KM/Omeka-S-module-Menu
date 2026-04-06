@@ -2,9 +2,9 @@
 
 namespace Menu\Service\Form\Element;
 
-use Menu\Form\Element\OptionalPropertySelect;
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Menu\Form\Element\OptionalPropertySelect;
+use Psr\Container\ContainerInterface;
 
 class OptionalPropertySelectFactory implements FactoryInterface
 {

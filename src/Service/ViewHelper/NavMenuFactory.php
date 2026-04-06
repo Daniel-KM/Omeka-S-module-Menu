@@ -2,9 +2,9 @@
 
 namespace Menu\Service\ViewHelper;
 
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Menu\View\Helper\NavMenu;
+use Psr\Container\ContainerInterface;
 
 class NavMenuFactory implements FactoryInterface
 {

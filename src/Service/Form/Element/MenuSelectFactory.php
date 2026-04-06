@@ -2,9 +2,9 @@
 
 namespace Menu\Service\Form\Element;
 
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Menu\Form\Element\MenuSelect;
+use Psr\Container\ContainerInterface;
 
 class MenuSelectFactory implements FactoryInterface
 {

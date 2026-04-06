@@ -2,9 +2,9 @@
 
 namespace Menu\Service\Navigation;
 
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Menu\Site\Navigation\Breadcrumb\ContainerBuilder;
+use Psr\Container\ContainerInterface;
 
 class BreadcrumbContainerBuilderFactory implements FactoryInterface
 {
