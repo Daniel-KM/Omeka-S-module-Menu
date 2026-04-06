@@ -13,6 +13,13 @@ class NavMenu extends AbstractHelper
     protected $template = 'common/menu';
 
     /**
+     * Cache of built Navigation helpers, keyed by site slug, menu and options.
+     *
+     * @var array
+     */
+    protected $navCache = [];
+
+    /**
      * @var \Menu\Mvc\Controller\Plugin\NavigationTranslator
      */
     protected $navigationTranslator;
@@ -158,7 +165,6 @@ class NavMenu extends AbstractHelper
         }
 
         $options['name'] = $name;
-        $options['options'] = $options;
 
         if ($isMenu) {
             // Max inactive depth cannot be greater than max depth, but don't fix
@@ -203,6 +209,9 @@ class NavMenu extends AbstractHelper
             $options['prevnext'] = $this->prevNext($options);
         }
 
+        // BC: templates expect a flat snapshot under "options".
+        $options['options'] = $options;
+
         return $partial !== $this->template && $this->view->resolver($partial)
             ? $this->view->partial($partial, $options)
             : $this->view->partial($this->template, $options);
@@ -220,14 +229,18 @@ class NavMenu extends AbstractHelper
      */
     protected function publicNav(SiteRepresentation $site, ?array $menu = null, array $options = []): \Laminas\View\Helper\Navigation
     {
-        // Build a new Navigation helper so these changes don't leak around to other places,
-        // then set it to always disable translation for any of its "child" helpers (menu,
-        // breadcrumb, etc.)
+        $cacheKey = $site->slug() . "\0" . md5(serialize([$menu, $options]));
+        if (isset($this->navCache[$cacheKey])) {
+            return $this->navCache[$cacheKey];
+        }
+        // Build a new Navigation helper so these changes don't leak around to
+        // other places, then set it to always disable translation for any of
+        // its "child" helpers (menu, breadcrumb, etc.)
         $helper = $this->view->getHelperPluginManager()->build('Navigation');
         $helper->getPluginManager()->addInitializer(function ($container, $plugin): void {
             $plugin->setTranslatorEnabled(false);
         });
-        return $helper($this->getPublicNavContainer($site, $menu, $options));
+        return $this->navCache[$cacheKey] = $helper($this->getPublicNavContainer($site, $menu, $options));
     }
 
     /**

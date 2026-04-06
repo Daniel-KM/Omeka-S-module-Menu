@@ -94,16 +94,18 @@ class NavigationTranslator extends AbstractPlugin
         // Get the first active root branch.
         $activeRoot = null;
 
+        $types = [];
         $buildLinks = null;
-        $buildLinks = function ($linksIn, $currentRootKey = null, $level = 0) use (&$buildLinks, $site, $activeUrl, &$activeRoot, $compareData) {
+        $buildLinks = function ($linksIn, $currentRootKey = null, $level = 0) use (&$buildLinks, $site, $activeUrl, &$activeRoot, $compareData, &$types) {
             $linksOut = [];
             foreach ($linksIn as $key => $data) {
                 if (!$level) {
                     $currentRootKey = $key;
                 }
-                $linkType = $this->linkManager->get($data['type']);
+                $linkType = $types[$data['type']] ??= $this->linkManager->get($data['type']);
                 $linkData = $data['data'];
-                $linksOut[$key] = $linkType->toZend($linkData, $site);
+                $linkZend = $linkType->toZend($linkData, $site);
+                $linksOut[$key] = $linkZend;
                 $linksOut[$key]['label'] = $this->getLinkLabel($linkType, $linkData, $site);
                 if ($activeUrl !== null) {
                     if (is_array($activeUrl)) {
@@ -117,7 +119,7 @@ class NavigationTranslator extends AbstractPlugin
                             }
                         }
                     } elseif (is_string($activeUrl)) {
-                        if ($this->getLinkUrl($linkType, $data, $site) === $activeUrl) {
+                        if ($this->buildLinkUrl($linkZend, $data, $site) === $activeUrl) {
                             $linksOut[$key]['active'] = true;
                             if ($activeRoot === null) {
                                 $activeRoot = $currentRootKey;
@@ -180,11 +182,12 @@ class NavigationTranslator extends AbstractPlugin
      */
     public function toJstree(SiteRepresentation $site, ?array $menu = null): array
     {
+        $types = [];
         $buildLinks = null;
-        $buildLinks = function ($linksIn) use (&$buildLinks, $site) {
+        $buildLinks = function ($linksIn) use (&$buildLinks, $site, &$types) {
             $linksOut = [];
             foreach ($linksIn as $data) {
-                $linkType = $this->linkManager->get($data['type']);
+                $linkType = $types[$data['type']] ??= $this->linkManager->get($data['type']);
                 $linkData = $data['data'];
                 $linksOut[] = [
                     'text' => $this->getLinkLabel($linkType, $data['data'], $site),
@@ -248,24 +251,39 @@ class NavigationTranslator extends AbstractPlugin
      */
     public function getLinkUrl(LinkInterface $linkType, array $data, SiteRepresentation $site): string
     {
+        if (array_key_exists('uri', $data)) {
+            return (string) $data['uri'];
+        }
+        $linkZend = $linkType->toZend($data['data'], $site);
+        return $this->buildLinkUrl($linkZend, $data, $site);
+    }
+
+    /**
+     * Build url from a pre-computed Zend link descriptor.
+     *
+     * Cache is keyed by site slug so the same link data on different sites does
+     * not collide.
+     */
+    protected function buildLinkUrl(array $linkZend, array $data, SiteRepresentation $site): string
+    {
         static $urls = [];
 
         if (array_key_exists('uri', $data)) {
             return (string) $data['uri'];
         }
 
-        $serial = serialize($data);
+        $slug = $site->slug();
+        $serial = $slug . "\0" . serialize($data);
         if (isset($urls[$serial])) {
             return $urls[$serial];
         }
 
-        $linkZend = $linkType->toZend($data['data'], $site);
         if (empty($linkZend['route'])) {
             $urls[$serial] = '';
         } else {
             $urlRoute = $linkZend['route'];
             $urlParams = empty($linkZend['params']) ? [] : $linkZend['params'];
-            $urlParams['site-slug'] = $site->slug();
+            $urlParams['site-slug'] = $slug;
             $urlOptions = empty($linkZend['query']) ? [] : ['query' => $linkZend['query']];
             $urls[$serial] = $this->urlHelper->__invoke($urlRoute, $urlParams, $urlOptions);
         }
