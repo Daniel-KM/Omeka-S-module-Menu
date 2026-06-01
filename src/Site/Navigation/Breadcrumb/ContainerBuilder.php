@@ -400,49 +400,165 @@ class ContainerBuilder
                 }
                 break;
 
-            // Selection: anonymous and guest variants share the same default
-            // label ("Selection"). Only the route changes; admins customize the
-            // label per nav item, not per audience.
+            // Selection (public list): /selection (action index). Lists all
+            // shared selections of all users; never personal, no My board even
+            // when logged.
             case 'site/selection':
+                if ($options['current']) {
+                    $page = new UriPage([
+                        'label' => $this->moduleLinkLabel(
+                            'selection', $site, 'Selections', // @translate
+                            'selection_label_selections'
+                        ),
+                        'uri' => $url('site/selection', [
+                            'site-slug' => $siteSlug,
+                            'action' => 'index',
+                        ]),
+                        'active' => true,
+                    ]);
+                    $addPage($page);
+                }
+                break;
+
+            // Selection (public display): /selection/:id/show. Parent is the
+            // public list; last crumb is the selection title.
             case 'site/selection-id':
-                $isLogged = $this->isUserLogged();
-                if ($isLogged) {
+                $publicListPage = new UriPage([
+                    'label' => $this->moduleLinkLabel(
+                        'selection', $site, 'Selections', // @translate
+                        'selection_label_selections'
+                    ),
+                    'uri' => $url('site/selection', [
+                        'site-slug' => $siteSlug,
+                        'action' => 'index',
+                    ]),
+                ]);
+                $parent[] = $publicListPage;
+                $currentParentPage = $publicListPage;
+                if ($options['current']) {
+                    $id = (int) $routeMatch->getParam('id');
+                    $title = $this->resolveSelectionTitle($id);
+                    $page = new UriPage([
+                        'label' => $title,
+                        'uri' => $url('site/selection-id', [
+                            'site-slug' => $siteSlug,
+                            'id' => $id,
+                            'action' => 'show',
+                        ]),
+                        'active' => true,
+                    ]);
+                    $addPage($page);
+                }
+                break;
+
+            // Personal selections list: /guest/selection (action browse).
+            // Accessible to anonymous (session) and logged-in (db) visitors; My
+            // board parent is added only when logged in.
+            case 'site/guest/selection':
+                if ($this->isUserLogged()) {
                     $currentParentPage = $this->addAccountPage($parent, $site);
                 }
                 if ($options['current']) {
-                    $selectionsPage = $this->buildSelectionsPage($site, $isLogged);
-                    $selectionsPage->setActive(true);
-                    $addPage($selectionsPage);
+                    $page = new UriPage([
+                        'label' => $this->moduleLinkLabel(
+                            'selection', $site, 'My selection', // @translate
+                            'selection_label_guest_link'
+                        ),
+                        'uri' => $url('site/guest/selection', [
+                            'site-slug' => $siteSlug,
+                        ]),
+                        'active' => true,
+                    ]);
+                    $addPage($page);
                 }
                 break;
 
-            case 'site/guest/selection':
+            // Personal selection display: /guest/selection/:id/view. My board
+            // parent only when logged in; intermediate parent is the personal
+            // list; last crumb is the selection title.
             case 'site/guest/selection-id':
-                $currentParentPage = $this->addAccountPage($parent, $site);
+                if ($this->isUserLogged()) {
+                    $currentParentPage = $this->addAccountPage($parent, $site);
+                }
+                $personalListPage = new UriPage([
+                    'label' => $this->moduleLinkLabel(
+                        'selection', $site, 'My selection', // @translate
+                        'selection_label_guest_link'
+                    ),
+                    'uri' => $url('site/guest/selection', [
+                        'site-slug' => $siteSlug,
+                    ]),
+                ]);
+                $parent[] = $personalListPage;
+                $currentParentPage = $personalListPage;
                 if ($options['current']) {
-                    $selectionsPage = $this->buildSelectionsPage($site, true);
-                    $selectionsPage->setActive(true);
-                    $addPage($selectionsPage);
+                    $id = (int) $routeMatch->getParam('id');
+                    $title = $this->resolveSelectionTitle($id);
+                    $page = new UriPage([
+                        'label' => $title,
+                        'uri' => $url('site/guest/selection-id', [
+                            'site-slug' => $siteSlug,
+                            'id' => $id,
+                            'action' => 'view',
+                        ]),
+                        'active' => true,
+                    ]);
+                    $addPage($page);
                 }
                 break;
 
-            // Favorites: anonymous and guest variants share label. Route differs
-            // (site/favorites vs site/guest/favorites). The selection label is
+            // Favorites: only /guest/favorites exists. The selection label is
             // the last crumb; the user's account is not added as a parent to
             // avoid leaking the user name (LoginBoard returns user name for
             // empty data).
-            case 'site/favorites':
             case 'site/guest/favorites':
                 if ($options['current']) {
-                    $favoritesUri = $this->isUserLogged()
-                        ? $url('site/guest/favorites', ['site-slug' => $siteSlug])
-                        : $url('site/favorites', ['site-slug' => $siteSlug]);
                     $page = new UriPage([
                         'label' => $this->moduleLinkLabel(
                             'favorites', $site, 'My favorites', // @translate
                             'selection_label_favorites'
                         ),
-                        'uri' => $favoritesUri,
+                        'uri' => $url('site/guest/favorites', [
+                            'site-slug' => $siteSlug,
+                        ]),
+                        'active' => true,
+                    ]);
+                    $addPage($page);
+                }
+                break;
+
+            // Access requests: public form/browse on /access-request; personal
+            // "my requests" lives under /guest/access-request.
+            case 'site/access-request':
+            case 'site/access-request/default':
+                if ($options['current']) {
+                    $page = new UriPage([
+                        'label' => $this->moduleLinkLabel(
+                            'access', $site, 'Access requests', // @translate
+                            'access_label'
+                        ),
+                        'uri' => $url('site/access-request', [
+                            'site-slug' => $siteSlug,
+                        ]),
+                        'active' => true,
+                    ]);
+                    $addPage($page);
+                }
+                break;
+
+            case 'site/guest/access-request':
+                if ($this->isUserLogged()) {
+                    $currentParentPage = $this->addAccountPage($parent, $site);
+                }
+                if ($options['current']) {
+                    $page = new UriPage([
+                        'label' => $this->moduleLinkLabel(
+                            'access', $site, 'My access requests', // @translate
+                            'access_label_guest'
+                        ),
+                        'uri' => $url('site/guest/access-request', [
+                            'site-slug' => $siteSlug,
+                        ]),
                         'active' => true,
                     ]);
                     $addPage($page);
@@ -739,28 +855,28 @@ class ContainerBuilder
     }
 
     /**
-     * Build the selections page. Selection module uses a single label for both
-     * anonymous and logged-in visitors; only the route differs.
+     * Resolve a selection title from its id. Returns the displayTitle when
+     * available, an "[Untitled]" fallback when the selection has no title, and
+     * a generic fallback when the id is invalid or the selection is not
+     * readable.
      */
-    protected function buildSelectionsPage(SiteRepresentation $site, bool $isLogged): UriPage
+    protected function resolveSelectionTitle(int $id): string
     {
-        $url = $this->urlHelper;
-        $siteSlug = $site->slug();
-        $uri = $isLogged
-            ? $url('site/guest/selection', [
-                'site-slug' => $siteSlug,
-                'action' => 'browse',
-            ])
-            : $url('site/selection', [
-                'site-slug' => $siteSlug,
-                'action' => 'browse',
-            ]);
-        return new UriPage([
-            'label' => $this->moduleLinkLabel(
-                'selection', $site, 'Selection' // @translate
-            ),
-            'uri' => $uri,
-        ]);
+        if ($id <= 0) {
+            return $this->translator->translate('[Untitled]'); // @translate
+        }
+        try {
+            $selection = $this->api->read('selections', $id)->getContent();
+            $title = method_exists($selection, 'displayTitle')
+                ? (string) $selection->displayTitle()
+                : '';
+            if ($title === '') {
+                return $this->translator->translate('[Untitled]'); // @translate
+            }
+            return $title;
+        } catch (\Throwable $e) {
+            return $this->translator->translate('[Untitled]'); // @translate
+        }
     }
 
     /**
