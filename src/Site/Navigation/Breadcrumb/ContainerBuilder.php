@@ -367,7 +367,9 @@ class ContainerBuilder
                     $currentParentPage = $this->addAccountPage($parent, $site);
                     if ($options['current']) {
                         $page = new UriPage([
-                            'label' => $translate->translate('My settings'), // @translate
+                            'label' => $this->moduleLinkLabel(
+                                'login', $site, 'User information' // @translate
+                            ),
                             'uri' => $url('site/guest/guest', [
                                 'site-slug' => $siteSlug,
                                 'action' => 'update-account',
@@ -382,6 +384,9 @@ class ContainerBuilder
                 }
                 break;
 
+            // Selection: anonymous and guest variants share the same default
+            // label ("Selection"). Only the route changes; admins customize the
+            // label per nav item, not per audience.
             case 'site/selection':
             case 'site/selection-id':
                 $isLogged = $this->isUserLogged();
@@ -409,15 +414,23 @@ class ContainerBuilder
             case 'site/contribution-id':
             case 'site/guest/contribution':
             case 'site/guest/contribution-id':
-                if ($this->isUserLogged()) {
+                $isLogged = $this->isUserLogged();
+                if ($isLogged) {
                     $currentParentPage = $this->addAccountPage($parent, $site);
                 }
                 if ($options['current']) {
-                    $page = new UriPage([
-                        'label' => $translate->translate('My contributions'), // @translate
-                        'uri' => $url('site/guest/contribution', [
+                    $contribUri = $isLogged
+                        ? $url('site/guest/contribution', ['site-slug' => $siteSlug])
+                        : $url('site/contribution', [
                             'site-slug' => $siteSlug,
-                        ]),
+                            'resource' => 'contribution',
+                            'action' => 'add',
+                        ]);
+                    $page = new UriPage([
+                        'label' => $this->moduleLinkLabel(
+                            'contributions', $site, 'Contributions' // @translate
+                        ),
+                        'uri' => $contribUri,
                         'active' => true,
                     ]);
                     $addPage($page);
@@ -432,10 +445,59 @@ class ContainerBuilder
                 }
                 if ($options['current']) {
                     $page = new UriPage([
-                        'label' => $translate->translate('My searches'), // @translate
+                        'label' => $this->moduleLinkLabel(
+                            'searchHistory', $site, 'Search History' // @translate
+                        ),
                         'uri' => $url('site/guest/search-history', [
                             'site-slug' => $siteSlug,
                         ]),
+                        'active' => true,
+                    ]);
+                    $addPage($page);
+                }
+                break;
+
+            // Comment: anonymous and guest variants share label. Route differs
+            // (site/comment vs site/guest/comment), mirroring Selection.
+            case 'site/comment':
+            case 'site/comment-id':
+            case 'site/guest/comment':
+                $action = $routeMatch->getParam('action');
+                $isLogged = $this->isUserLogged();
+                if ($isLogged) {
+                    $currentParentPage = $this->addAccountPage($parent, $site);
+                }
+                if ($action === 'subscription') {
+                    if ($options['current']) {
+                        $page = new UriPage([
+                            'label' => $this->moduleLinkLabel(
+                                'commentSubscriptions', $site, 'Subscriptions', // @translate
+                                'comment_subscription_label'
+                            ),
+                            'uri' => $url('site/guest/comment', [
+                                'site-slug' => $siteSlug,
+                                'action' => 'subscription',
+                            ]),
+                            'active' => true,
+                        ]);
+                        $addPage($page);
+                    }
+                } elseif ($options['current']) {
+                    $commentUri = $isLogged
+                        ? $url('site/guest/comment', [
+                            'site-slug' => $siteSlug,
+                            'action' => 'browse',
+                        ])
+                        : $url('site/comment', [
+                            'site-slug' => $siteSlug,
+                            'action' => 'browse',
+                        ]);
+                    $page = new UriPage([
+                        'label' => $this->moduleLinkLabel(
+                            'comments', $site, 'Comments', // @translate
+                            'comment_label'
+                        ),
+                        'uri' => $commentUri,
                         'active' => true,
                     ]);
                     $addPage($page);
@@ -449,7 +511,7 @@ class ContainerBuilder
                 }
                 if ($options['current']) {
                     $page = new UriPage([
-                        'label' => $translate->translate('My subscriptions'), // @translate
+                        'label' => $translate->translate('Subscriptions'), // @translate
                         'uri' => $url('site/subscription', [
                             'site-slug' => $siteSlug,
                         ]),
@@ -589,14 +651,16 @@ class ContainerBuilder
     }
 
     /**
-     * Add a "My account" page to hierarchy.
+     * Add a "My account" page to hierarchy. Uses the Guest module's LoginBoard
+     * label ("My board") when available, fallback otherwise.
      */
     protected function addAccountPage(array &$parent, SiteRepresentation $site): UriPage
     {
-        $translate = $this->translator;
         $url = $this->urlHelper;
         $accountPage = new UriPage([
-            'label' => $translate->translate('My account'), // @translate
+            'label' => $this->moduleLinkLabel(
+                'loginBoard', $site, 'My board' // @translate
+            ),
             'uri' => $url('site/guest', ['site-slug' => $site->slug()]),
         ]);
         $parent[] = $accountPage;
@@ -604,11 +668,11 @@ class ContainerBuilder
     }
 
     /**
-     * Build the "My selections" page for the current visitor (logged or not).
+     * Build the selections page. Selection module uses a single label for both
+     * anonymous and logged-in visitors; only the route differs.
      */
     protected function buildSelectionsPage(SiteRepresentation $site, bool $isLogged): UriPage
     {
-        $translate = $this->translator;
         $url = $this->urlHelper;
         $siteSlug = $site->slug();
         $uri = $isLogged
@@ -621,7 +685,9 @@ class ContainerBuilder
                 'action' => 'browse',
             ]);
         return new UriPage([
-            'label' => $translate->translate('My selections'), // @translate
+            'label' => $this->moduleLinkLabel(
+                'selection', $site, 'Selection' // @translate
+            ),
             'uri' => $uri,
         ]);
     }
@@ -632,6 +698,44 @@ class ContainerBuilder
     protected function isUserLogged(): bool
     {
         return $this->auth ? $this->auth->hasIdentity() : false;
+    }
+
+    /**
+     * Resolve a default label declared by a module's navigation link.
+     *
+     * When a site setting key is given, its value (when non-empty) takes
+     * precedence over the module's nav link label and is returned as-is. Else
+     * calls the link's getLabel() with empty data so the module-supplied
+     * default is returned, then runs it through the translator. Returns the
+     * translated fallback when neither source yields a value.
+     */
+    protected function moduleLinkLabel(
+        string $linkType,
+        SiteRepresentation $site,
+        string $fallback,
+        ?string $siteSettingKey = null
+    ): string {
+        if ($siteSettingKey && $this->siteSettings) {
+            $value = (string) $this->siteSettings->get($siteSettingKey, '');
+            if ($value !== '') {
+                return $value;
+            }
+        }
+        try {
+            $services = $site->getServiceLocator();
+            if ($services->has('Omeka\Site\NavigationLinkManager')) {
+                $linkManager = $services->get('Omeka\Site\NavigationLinkManager');
+                if ($linkManager->has($linkType)) {
+                    $label = (string) $linkManager->get($linkType)->getLabel([], $site);
+                    if ($label !== '') {
+                        return $this->translator->translate($label);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fall through to fallback.
+        }
+        return $this->translator->translate($fallback);
     }
 
     /**
