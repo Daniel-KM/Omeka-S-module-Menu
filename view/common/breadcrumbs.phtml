@@ -47,10 +47,14 @@ $html = (string) $navBreadcrumbs;
 if (empty($options['linkLast']) && $lastLinkPos = mb_strrpos($html, '</a>' . $separator)) {
     $html = mb_substr($html, 0, $lastLinkPos + 4 + mb_strlen($separator)) . '<span class="active" aria-currrent="page">' . mb_substr($html, $lastLinkPos + 4 + mb_strlen($separator)) . '</span>';
 }
+
+$ariaLabel = !empty($options['aria_label'])
+    ? $options['aria_label']
+    : $translate('Breadcrumb');
 ?>
 
 <div class="breadcrumbs-parent">
-    <nav id="breadcrumb" class="breadcrumbs" aria-label="<?= $escapeAttr($translate('Breadcrumb')) ?>">
+    <nav id="breadcrumb" class="breadcrumbs" aria-label="<?= $escapeAttr($ariaLabel) ?>">
         <?= $html ?>
     </nav>
 </div>

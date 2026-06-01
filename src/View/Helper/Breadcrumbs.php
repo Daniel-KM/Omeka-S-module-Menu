@@ -136,9 +136,12 @@ class Breadcrumbs extends AbstractHelper
         if ($html) {
             $translate = $view->plugin('translate');
             $escapeAttr = $view->plugin('escapeHtmlAttr');
+            $ariaLabel = !empty($options['aria_label'])
+                ? $options['aria_label']
+                : $translate('Breadcrumb');
             $html = sprintf(
                 '<div class="breadcrumbs-parent"><nav id="breadcrumb" class="breadcrumbs" aria-label="%s">%s</nav></div>',
-                $escapeAttr($translate('Breadcrumb')),
+                $escapeAttr($ariaLabel),
                 $html
             );
         }
@@ -230,6 +233,7 @@ class Breadcrumbs extends AbstractHelper
             'separator' => $siteSetting('menu_breadcrumbs_separator', ''),
             'homepage' => $siteSetting('menu_breadcrumbs_homepage', false),
             'property_itemset' => $siteSetting('menu_breadcrumbs_property_itemset', ''),
+            'aria_label' => (string) $siteSetting('menu_breadcrumbs_aria_label', ''),
         ];
     }
 

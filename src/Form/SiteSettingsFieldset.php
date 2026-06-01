@@ -129,6 +129,19 @@ class SiteSettingsFieldset extends Fieldset
                     'id' => 'menu_breadcrumbs_homepage',
                 ],
             ])
+            ->add([
+                'name' => 'menu_breadcrumbs_aria_label',
+                'type' => Element\Text::class,
+                'options' => [
+                    'element_group' => 'breadcrumbs',
+                    'label' => 'Aria label', // @translate
+                    'info' => 'Accessible label for the breadcrumb navigation. Leave empty to use the translated default.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'menu_breadcrumbs_aria_label',
+                    'placeholder' => 'Breadcrumb',
+                ],
+            ])
         ;
     }
 }
