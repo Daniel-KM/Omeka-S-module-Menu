@@ -156,6 +156,7 @@ return [
             'menu_breadcrumbs_separator' => '',
             'menu_breadcrumbs_homepage' => false,
             'menu_breadcrumbs_property_itemset' => '',
+            'menu_breadcrumbs_schema_org' => true,
             'menu_breadcrumbs_aria_label' => '',
             // Menu for resource pages.
             'menu_resource_menu' => '',

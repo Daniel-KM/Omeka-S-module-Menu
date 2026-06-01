@@ -22,6 +22,7 @@ $this->headLink()->appendStylesheet($this->assetUrl('css/menu.css', 'Menu'));
 $plugins = $this->getHelperPluginManager();
 $translate = $plugins->get('translate');
 $escapeAttr = $plugins->get('escapeHtmlAttr');
+$serverUrl = $plugins->get('serverUrl');
 
 $navBreadcrumbs = empty($nav)
     ? $this->navigation()->breadcrumbs($breadcrumbs)
@@ -51,10 +52,42 @@ if (empty($options['linkLast']) && $lastLinkPos = mb_strrpos($html, '</a>' . $se
 $ariaLabel = !empty($options['aria_label'])
     ? $options['aria_label']
     : $translate('Breadcrumb');
+
+$jsonLd = '';
+if (!empty($options['schema_org']) && !empty($crumbs)) {
+    $items = [];
+    $position = 1;
+    foreach ($crumbs as $crumb) {
+        $label = (string) ($crumb['label'] ?? '');
+        $uri = (string) ($crumb['uri'] ?? '');
+        $entry = [
+            '@type' => 'ListItem',
+            'position' => $position,
+            'name' => $label,
+        ];
+        if ($uri !== '') {
+            $entry['item'] = strpos($uri, 'http') === 0 ? $uri : $serverUrl($uri);
+        }
+        $items[] = $entry;
+        $position++;
+    }
+    $payload = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => $items,
+    ];
+    $json = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if ($json !== false) {
+        $jsonLd = '<script type="application/ld+json">'
+            . str_replace('</', '<\/', $json)
+            . '</script>';
+    }
+}
 ?>
 
 <div class="breadcrumbs-parent">
     <nav id="breadcrumb" class="breadcrumbs" aria-label="<?= $escapeAttr($ariaLabel) ?>">
         <?= $html ?>
     </nav>
+    <?= $jsonLd ?>
 </div>

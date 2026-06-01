@@ -130,6 +130,18 @@ class SiteSettingsFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'menu_breadcrumbs_schema_org',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'element_group' => 'breadcrumbs',
+                    'label' => 'Emit Schema.org BreadcrumbList (JSON-LD)', // @translate
+                    'info' => 'Improves SEO by exposing the breadcrumb path as structured data alongside the visible HTML.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'menu_breadcrumbs_schema_org',
+                ],
+            ])
+            ->add([
                 'name' => 'menu_breadcrumbs_aria_label',
                 'type' => Element\Text::class,
                 'options' => [

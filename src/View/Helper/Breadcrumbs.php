@@ -139,14 +139,86 @@ class Breadcrumbs extends AbstractHelper
             $ariaLabel = !empty($options['aria_label'])
                 ? $options['aria_label']
                 : $translate('Breadcrumb');
+            $jsonLd = !empty($options['schema_org'])
+                ? $this->buildJsonLd($container)
+                : '';
             $html = sprintf(
-                '<div class="breadcrumbs-parent"><nav id="breadcrumb" class="breadcrumbs" aria-label="%s">%s</nav></div>',
+                '<div class="breadcrumbs-parent"><nav id="breadcrumb" class="breadcrumbs" aria-label="%s">%s</nav>%s</div>',
                 $escapeAttr($ariaLabel),
-                $html
+                $html,
+                $jsonLd
             );
         }
 
         return $html;
+    }
+
+    /**
+     * Build a Schema.org BreadcrumbList JSON-LD payload from the container.
+     *
+     * Walks the active path from root to active leaf so the emitted list
+     * matches what is rendered visually.
+     */
+    protected function buildJsonLd($container): string
+    {
+        $view = $this->getView();
+        $serverUrl = $view->plugin('serverUrl');
+        $escape = $view->plugin('escapeHtml');
+
+        $active = $container->findOneBy('active', true);
+        if (!$active) {
+            return '';
+        }
+
+        $chain = [];
+        $page = $active;
+        while ($page instanceof \Laminas\Navigation\Page\AbstractPage) {
+            array_unshift($chain, $page);
+            $page = $page->getParent();
+            if (!$page instanceof \Laminas\Navigation\Page\AbstractPage) {
+                break;
+            }
+        }
+
+        $items = [];
+        $position = 1;
+        foreach ($chain as $crumb) {
+            $label = (string) $crumb->getLabel();
+            $uri = (string) $crumb->getUri();
+            $entry = [
+                '@type' => 'ListItem',
+                'position' => $position,
+                'name' => $label,
+            ];
+            if ($uri !== '') {
+                $entry['item'] = strpos($uri, 'http') === 0
+                    ? $uri
+                    : $serverUrl($uri);
+            }
+            $items[] = $entry;
+            $position++;
+        }
+
+        if (!$items) {
+            return '';
+        }
+
+        $payload = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => $items,
+        ];
+        $json = json_encode(
+            $payload,
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        );
+        if ($json === false) {
+            return '';
+        }
+        // Escape closing script tag to prevent breakout while keeping JSON
+        // valid for parsers.
+        $json = str_replace('</', '<\/', $json);
+        return '<script type="application/ld+json">' . $json . '</script>';
     }
 
     /**
@@ -233,6 +305,7 @@ class Breadcrumbs extends AbstractHelper
             'separator' => $siteSetting('menu_breadcrumbs_separator', ''),
             'homepage' => $siteSetting('menu_breadcrumbs_homepage', false),
             'property_itemset' => $siteSetting('menu_breadcrumbs_property_itemset', ''),
+            'schema_org' => (bool) $siteSetting('menu_breadcrumbs_schema_org', true),
             'aria_label' => (string) $siteSetting('menu_breadcrumbs_aria_label', ''),
         ];
     }
