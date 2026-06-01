@@ -844,10 +844,16 @@ class ContainerBuilder
     protected function addAccountPage(array &$parent, SiteRepresentation $site): UriPage
     {
         $url = $this->urlHelper;
+        // Breadcrumb account node: always "My account" (guest dashboard label),
+        // never the logged-in user's name (the loginBoard label is the name,
+        // kept for the header nav link but not wanted in the breadcrumb).
+        $dashLabel = $this->siteSettings
+            ? (string) $this->siteSettings->get('guest_dashboard_label', '')
+            : '';
         $accountPage = new UriPage([
-            'label' => $this->moduleLinkLabel(
-                'loginBoard', $site, 'My board' // @translate
-            ),
+            'label' => $dashLabel !== ''
+                ? $dashLabel
+                : $this->translator->translate('My account'), // @translate
             'uri' => $url('site/guest', ['site-slug' => $site->slug()]),
         ]);
         $parent[] = $accountPage;
