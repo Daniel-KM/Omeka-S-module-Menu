@@ -134,3 +134,13 @@ if (version_compare($oldVersion, '3.4.12', '<')) {
     );
     $messenger->addSuccess($message);
 }
+
+if (version_compare($oldVersion, '3.4.15', '<')) {
+    $sites = $api->search('sites', [], ['returnScalar' => 'id'])->getContent();
+    foreach ($sites as $siteId) {
+        $siteSettings->setTargetId($siteId);
+        if ($siteSettings->get('menu_breadcrumbs_collections_label', null) === null) {
+            $siteSettings->set('menu_breadcrumbs_collections_label', 'Collections');
+        }
+    }
+}
