@@ -487,7 +487,7 @@ class MenuController extends AbstractActionController
             ->where($expr->eq('site_id', ':site_id'))
             ->andWhere($expr->like('id', ':menu'))
             ->orderBy('id', 'asc');
-        $menuNames = $connection->executeQuery($qb, [
+        $menuNames = $connection->executeQuery($qb->getSQL(), [
             'site_id' => $site->id(),
             'menu' => 'menu\_menu:%',
         ])->fetchAllKeyValue();
@@ -516,7 +516,7 @@ class MenuController extends AbstractActionController
             ->from('site_setting', 'site_setting')
             ->where($expr->eq('site_id', ':site_id'))
             ->orderBy('id', 'asc');
-        $menus = $connection->executeQuery($qb, ['site_id' => $site->id()])->fetchAllKeyValue();
+        $menus = $connection->executeQuery($qb->getSQL(), ['site_id' => $site->id()])->fetchAllKeyValue();
         return array_map(fn ($v) => json_decode($v, true), $menus);
     }
 
