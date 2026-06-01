@@ -60,6 +60,7 @@ class ContainerBuilder
         'home' => true,
         'collections' => true,
         'collections_url' => '',
+        'collections_label' => '',
         'itemset' => true,
         'itemsetstree' => true,
         'current' => true,
@@ -595,8 +596,13 @@ class ContainerBuilder
             ]);
         }
 
+        $collectionsLabel = (string) ($options['collections_label'] ?? '');
+        if ($collectionsLabel === '') {
+            $collectionsLabel = $translate->translate('Collections');
+        }
+
         $collectionsPage = new UriPage([
-            'label' => $translate->translate('Collections'),
+            'label' => $collectionsLabel,
             'uri' => $collectionsUrl,
         ]);
         $parent[] = $collectionsPage;

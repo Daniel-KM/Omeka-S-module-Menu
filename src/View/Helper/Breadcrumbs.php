@@ -19,6 +19,7 @@ use Menu\Site\Navigation\Breadcrumb\ContainerBuilder;
  *   - home: bool - Include home link (default: true)
  *   - collections: bool - Include collections link (default: true)
  *   - collections_url: string - Custom URL for collections
+ *   - collections_label: string - Custom label for collections
  *   - itemset: bool - Include primary item set (default: true)
  *   - itemsetstree: bool - Include item set tree (default: true)
  *   - current: bool - Include current page/resource (default: true)
@@ -225,6 +226,7 @@ class Breadcrumbs extends AbstractHelper
             'current' => $crumbsSettings['current'] ?? true,
             'prepend' => $siteSetting('menu_breadcrumbs_prepend', []),
             'collections_url' => $siteSetting('menu_breadcrumbs_collections_url', ''),
+            'collections_label' => $siteSetting('menu_breadcrumbs_collections_label', ''),
             'separator' => $siteSetting('menu_breadcrumbs_separator', ''),
             'homepage' => $siteSetting('menu_breadcrumbs_homepage', false),
             'property_itemset' => $siteSetting('menu_breadcrumbs_property_itemset', ''),

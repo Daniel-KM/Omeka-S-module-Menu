@@ -152,6 +152,7 @@ return [
             ],
             'menu_breadcrumbs_prepend' => [],
             'menu_breadcrumbs_collections_url' => '',
+            'menu_breadcrumbs_collections_label' => 'Collections', // @translate
             'menu_breadcrumbs_separator' => '',
             'menu_breadcrumbs_homepage' => false,
             // Menu for resource pages.

@@ -93,6 +93,19 @@ class SiteSettingsFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'menu_breadcrumbs_collections_label',
+                'type' => Element\Text::class,
+                'options' => [
+                    'element_group' => 'breadcrumbs',
+                    'label' => 'Label for collections', // @translate
+                    'info' => 'The label to use for the link "Collections", if set above. Let empty to use the default one.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'menu_breadcrumbs_collections_label',
+                    'placeholder' => 'Collections',
+                ],
+            ])
+            ->add([
                 'name' => 'menu_breadcrumbs_separator',
                 'type' => Element\Text::class,
                 'options' => [
