@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-12 00:00+0000\n"
+"POT-Creation-Date: 2026-06-01 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,12 +33,20 @@ msgid ""
 "template of Omeka in the config of the block."
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:308
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:675
+msgid "Subscriptions"
+msgstr ""
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:729
 msgid "Current page"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:339
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:761
 msgid "Collections"
+msgstr ""
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:862
+msgid "My account"
 msgstr ""
 
 #: src/Site/Navigation/Link/Resource.php:44
@@ -50,11 +58,11 @@ msgstr ""
 msgid "[Unknown resource #%d]"
 msgstr ""
 
-#: src/View/Helper/Breadcrumbs.php:131
+#: src/View/Helper/Breadcrumbs.php:141
 #: view/common/block-layout/breadcrumbs.phtml:33
 #: view/common/block-layout/breadcrumbs.phtml:39
 #: view/common/block-template/breadcrumbs-standard.phtml:27
-#: view/common/breadcrumbs.phtml:53
+#: view/common/breadcrumbs.phtml:54
 msgid "Breadcrumb"
 msgstr ""
 
@@ -162,11 +170,11 @@ msgid ""
 "migrated."
 msgstr ""
 
-#: Module.php:147
+#: Module.php:149
 msgid "Menu: Fill as broader when saving menu"
 msgstr ""
 
-#: Module.php:159
+#: Module.php:161
 msgid "Menu: Fill as narrower when saving menu"
 msgstr ""
 
@@ -187,25 +195,25 @@ msgstr ""
 msgid "Settings for \"broader\" or \"narrower\" are not correct."
 msgstr ""
 
-#: src/Job/MenuUpdateTreeInResources.php:145
+#: src/Job/MenuUpdateTreeInResources.php:144
 msgid "Resource #{resource_id} does not exist."
 msgstr ""
 
-#: src/Job/MenuUpdateTreeInResources.php:158
+#: src/Job/MenuUpdateTreeInResources.php:157
 msgid "Resource #{resource_id} has no template and cannot be updated."
 msgstr ""
 
-#: src/Job/MenuUpdateTreeInResources.php:166
+#: src/Job/MenuUpdateTreeInResources.php:165
 #, php-format
 msgid "Resource #%1$d has a template not in the limited list of templates."
 msgstr ""
 
-#: src/Job/MenuUpdateTreeInResources.php:184
+#: src/Job/MenuUpdateTreeInResources.php:183
 msgid ""
 "The template {template_label} (#{template_id}) has no properties to update."
 msgstr ""
 
-#: src/Job/MenuUpdateTreeInResources.php:234
+#: src/Job/MenuUpdateTreeInResources.php:233
 msgid ""
 "End of the job: {total} menu elements, {count} resources, {count_updated}/"
 "{count_processed} resources updated, {count_error} errors."
@@ -280,17 +288,67 @@ msgid ""
 msgstr ""
 
 #: src/Form/SiteSettingsFieldset.php:100
-msgid "Separator"
+msgid "Label for collections"
 msgstr ""
 
 #: src/Form/SiteSettingsFieldset.php:101
+msgid ""
+"The label to use for the link \"Collections\", if set above. Let empty to "
+"use the default one."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:113
+msgid "Collections only for item sets with property"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:114
+msgid ""
+"Property term (e.g. \"curation:set\"). When set, the \"Collections\" parent "
+"crumb is added only for item sets having this property equal to the value "
+"below. Let empty to always add it."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:126
+msgid "Collections only for item sets with value"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:127
+msgid ""
+"Required value (case-insensitive) for the property above, e.g. \"Album\"."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:139
+msgid "Separator"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:140
 msgid ""
 "The separator between crumbs may be set as raw text or via css. it should be "
 "set as an html text (\"&gt;\")."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:113
+#: src/Form/SiteSettingsFieldset.php:152
 msgid "Display on home page"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:163
+msgid "Emit Schema.org BreadcrumbList (JSON-LD)"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:164
+msgid ""
+"Improves SEO by exposing the breadcrumb path as structured data alongside "
+"the visible HTML."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:175
+msgid "Aria label"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:176
+msgid ""
+"Accessible label for the breadcrumb navigation. Leave empty to use the "
+"translated default."
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:27
@@ -393,7 +451,7 @@ msgid ""
 "%1$s#%2$d%3$s, %4$slogs%3$s)."
 msgstr ""
 
-#: src/Controller/SiteAdmin/MenuController.php:536
+#: src/Controller/SiteAdmin/MenuController.php:534
 #, php-format
 msgid "Menu \"%s\" uses a reserved name and was renamed \"%s\"."
 msgstr ""
@@ -404,6 +462,40 @@ msgstr ""
 
 #: src/Site/Navigation/Link/Resource.php:29
 msgid "Invalid navigation: resource link missing resource ID"
+msgstr ""
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:416
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:434
+msgid "Selections"
+msgstr ""
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:470
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:491
+msgid "My selection"
+msgstr ""
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:524
+msgid "My favorites"
+msgstr ""
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:543
+msgid "Access requests"
+msgstr ""
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:562
+msgid "My access requests"
+msgstr ""
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:592
+msgid "Contributions"
+msgstr ""
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:610
+msgid "Search History"
+msgstr ""
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:658
+msgid "Comments"
 msgstr ""
 
 #: src/Site/BlockLayout/Menu.php:42

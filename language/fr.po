@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-12 00:00+0000\n"
-"PO-Revision-Date: 2026-01-12 00:00+0000\n"
+"POT-Creation-Date: 2026-06-01 00:00+0000\n"
+"PO-Revision-Date: 2026-06-01 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -35,13 +35,21 @@ msgstr ""
 "Le bloc utilise les options indiquées dans les %sparamètres du site%s, à "
 "moins d’utiliser le modèle de bloc d’omeka."
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:308
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:675
+msgid "Subscriptions"
+msgstr "Abonnements"
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:729
 msgid "Current page"
 msgstr "Page actuelle"
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:339
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:761
 msgid "Collections"
 msgstr "Collections"
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:862
+msgid "My account"
+msgstr "Mon compte"
 
 #: src/Site/Navigation/Link/Resource.php:44
 msgid "[Unknown resource]"
@@ -52,11 +60,11 @@ msgstr "[Ressource inconnue]"
 msgid "[Unknown resource #%d]"
 msgstr "[Ressource inconnue #%d]"
 
-#: src/View/Helper/Breadcrumbs.php:131
+#: src/View/Helper/Breadcrumbs.php:141
 #: view/common/block-layout/breadcrumbs.phtml:33
 #: view/common/block-layout/breadcrumbs.phtml:39
 #: view/common/block-template/breadcrumbs-standard.phtml:27
-#: view/common/breadcrumbs.phtml:53
+#: view/common/breadcrumbs.phtml:54
 msgid "Breadcrumb"
 msgstr "Fil d’Ariane"
 
@@ -172,11 +180,11 @@ msgstr ""
 "Le fil d’Ariane a été déplacé du module Block Plus au module Menu. Les "
 "paramètres ont été migrés."
 
-#: Module.php:147
+#: Module.php:149
 msgid "Menu: Fill as broader when saving menu"
 msgstr "Menu : Définir comme générique en enregistrant le menu"
 
-#: Module.php:159
+#: Module.php:161
 msgid "Menu: Fill as narrower when saving menu"
 msgstr "Menu : Définir comme spécifique en enregistrant le menu"
 
@@ -200,30 +208,30 @@ msgid "Settings for \"broader\" or \"narrower\" are not correct."
 msgstr ""
 "Les paramètres pour \"générique\" ou \"spécifique\" ne sont pas corrects."
 
-#: src/Job/MenuUpdateTreeInResources.php:145
+#: src/Job/MenuUpdateTreeInResources.php:144
 msgid "Resource #{resource_id} does not exist."
 msgstr "La ressource #{resource_id} n’existe pas."
 
-#: src/Job/MenuUpdateTreeInResources.php:158
+#: src/Job/MenuUpdateTreeInResources.php:157
 msgid "Resource #{resource_id} has no template and cannot be updated."
 msgstr ""
 "La ressource #{resource_id} n’a pas de modèle et ne peut pas être mise à "
 "jour."
 
-#: src/Job/MenuUpdateTreeInResources.php:166
+#: src/Job/MenuUpdateTreeInResources.php:165
 #, php-format
 msgid "Resource #%1$d has a template not in the limited list of templates."
 msgstr ""
 "La ressource #%1$d a un modèle qui n’est pas dans la liste des modèles."
 
-#: src/Job/MenuUpdateTreeInResources.php:184
+#: src/Job/MenuUpdateTreeInResources.php:183
 msgid ""
 "The template {template_label} (#{template_id}) has no properties to update."
 msgstr ""
 "Le modèle {template_label} (#{template_id}) n’a pas de propriété à mettre à "
 "jour."
 
-#: src/Job/MenuUpdateTreeInResources.php:234
+#: src/Job/MenuUpdateTreeInResources.php:233
 msgid ""
 "End of the job: {total} menu elements, {count} resources, {count_updated}/"
 "{count_processed} resources updated, {count_error} errors."
@@ -307,10 +315,47 @@ msgstr ""
 "vide pour utiliser l’url par défaut."
 
 #: src/Form/SiteSettingsFieldset.php:100
+msgid "Label for collections"
+msgstr "Label pour les collections"
+
+#: src/Form/SiteSettingsFieldset.php:101
+msgid ""
+"The label to use for the link \"Collections\", if set above. Let empty to "
+"use the default one."
+msgstr ""
+"Le libellé à utiliser pour le lien « Collections », si ajouté ci-dessus. "
+"Laisser vide pour utiliser le libellé par défaut."
+
+#: src/Form/SiteSettingsFieldset.php:113
+msgid "Collections only for item sets with property"
+msgstr "Collections uniquement pour celles avec la propriété"
+
+#: src/Form/SiteSettingsFieldset.php:114
+msgid ""
+"Property term (e.g. \"curation:set\"). When set, the \"Collections\" parent "
+"crumb is added only for item sets having this property equal to the value "
+"below. Let empty to always add it."
+msgstr ""
+"Propriété (par exemple « curation:set »). Si définie, l’élément parent "
+"\"Collections\" est ajouté uniquement pour les collections ayant cette "
+"propriété égale à la valeur ci-dessous. Laissez vide pour toujours l’ajouter."
+
+#: src/Form/SiteSettingsFieldset.php:126
+msgid "Collections only for item sets with value"
+msgstr "Collections uniquement pour celles avec une valeur"
+
+#: src/Form/SiteSettingsFieldset.php:127
+msgid ""
+"Required value (case-insensitive) for the property above, e.g. \"Album\"."
+msgstr ""
+"Valeur requise (insensible à la casse) pour la propriété ci-dessus, par ex. "
+"\"Album\"."
+
+#: src/Form/SiteSettingsFieldset.php:139
 msgid "Separator"
 msgstr "Séparateur"
 
-#: src/Form/SiteSettingsFieldset.php:101
+#: src/Form/SiteSettingsFieldset.php:140
 msgid ""
 "The separator between crumbs may be set as raw text or via css. it should be "
 "set as an html text (\"&gt;\")."
@@ -319,9 +364,33 @@ msgstr ""
 "que texte brut ou via les css. Il doit être indiqué comme chaîne html "
 "(« &gt; »)."
 
-#: src/Form/SiteSettingsFieldset.php:113
+#: src/Form/SiteSettingsFieldset.php:152
 msgid "Display on home page"
 msgstr "Afficher sur la page d’accueil"
+
+#: src/Form/SiteSettingsFieldset.php:163
+msgid "Emit Schema.org BreadcrumbList (JSON-LD)"
+msgstr "Ajouter BreadcrumbList de Schema.org (JSON-LD)"
+
+#: src/Form/SiteSettingsFieldset.php:164
+msgid ""
+"Improves SEO by exposing the breadcrumb path as structured data alongside "
+"the visible HTML."
+msgstr ""
+"Améliore le SEO en exposant le fil d’Ariane en tant que données structurées "
+"à côté du HTML visible."
+
+#: src/Form/SiteSettingsFieldset.php:175
+msgid "Aria label"
+msgstr "Libellé aria"
+
+#: src/Form/SiteSettingsFieldset.php:176
+msgid ""
+"Accessible label for the breadcrumb navigation. Leave empty to use the "
+"translated default."
+msgstr ""
+"Libellé accessible pour le fil d’Ariane. Laissez vide pour utiliser la "
+"valeur par défaut traduite."
 
 #: src/Form/SettingsFieldset.php:27
 msgid "Update resources on menu saving"
@@ -437,7 +506,7 @@ msgstr ""
 "Traitement des mises à jour des éventuelles relations des ressources en "
 "arrière plan (jtâche %1$s#%2$d%3$s, %4$sjournaux%3$s)."
 
-#: src/Controller/SiteAdmin/MenuController.php:536
+#: src/Controller/SiteAdmin/MenuController.php:534
 #, php-format
 msgid "Menu \"%s\" uses a reserved name and was renamed \"%s\"."
 msgstr "Le menu « %s » utilises un nom réservé et a été renommé « %s »."
@@ -449,6 +518,40 @@ msgstr "Structure"
 #: src/Site/Navigation/Link/Resource.php:29
 msgid "Invalid navigation: resource link missing resource ID"
 msgstr "Navigation invalide : le lien de la ressource n’a pas d’ID"
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:416
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:434
+msgid "Selections"
+msgstr "Sélections"
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:470
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:491
+msgid "My selection"
+msgstr "Ma sélection"
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:524
+msgid "My favorites"
+msgstr "Mes favoris"
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:543
+msgid "Access requests"
+msgstr "Demandes d’accès"
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:562
+msgid "My access requests"
+msgstr "Mes demande d’accès"
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:592
+msgid "Contributions"
+msgstr "Contributions"
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:610
+msgid "Search History"
+msgstr "Historique des recherches"
+
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:658
+msgid "Comments"
+msgstr "Commentaires"
 
 #: src/Site/BlockLayout/Menu.php:42
 msgid "Select the menu to display."
@@ -511,17 +614,11 @@ msgstr "Menu : Fil d’Ariane Omeka"
 #~ msgid "Authentication error"
 #~ msgstr "Erreur d’authentification"
 
-#~ msgid "Update account"
-#~ msgstr "Mettre à jour le compte"
-
 #~ msgid "Update email"
 #~ msgstr "Mettre à jour le mail"
 
 #~ msgid "Accept terms"
 #~ msgstr "Accepter les termes et conditions"
-
-#~ msgid "Selection"
-#~ msgstr "Sélection"
 
 #~ msgid "Resource class"
 #~ msgstr "Classe de ressource"
