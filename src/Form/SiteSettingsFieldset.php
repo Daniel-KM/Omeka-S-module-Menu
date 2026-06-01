@@ -106,6 +106,32 @@ class SiteSettingsFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'menu_breadcrumbs_collections_item_set_property',
+                'type' => Element\Text::class,
+                'options' => [
+                    'element_group' => 'breadcrumbs',
+                    'label' => 'Collections only for item sets with property', // @translate
+                    'info' => 'Property term (e.g. "curation:set"). When set, the "Collections" parent crumb is added only for item sets having this property equal to the value below. Let empty to always add it.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'menu_breadcrumbs_collections_item_set_property',
+                    'placeholder' => 'curation:set',
+                ],
+            ])
+            ->add([
+                'name' => 'menu_breadcrumbs_collections_item_set_value',
+                'type' => Element\Text::class,
+                'options' => [
+                    'element_group' => 'breadcrumbs',
+                    'label' => 'Collections only for item sets with value', // @translate
+                    'info' => 'Required value (case-insensitive) for the property above, e.g. "Album".', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'menu_breadcrumbs_collections_item_set_value',
+                    'placeholder' => 'Album',
+                ],
+            ])
+            ->add([
                 'name' => 'menu_breadcrumbs_separator',
                 'type' => Element\Text::class,
                 'options' => [

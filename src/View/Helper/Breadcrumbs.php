@@ -302,6 +302,8 @@ class Breadcrumbs extends AbstractHelper
             'prepend' => $siteSetting('menu_breadcrumbs_prepend', []),
             'collections_url' => $siteSetting('menu_breadcrumbs_collections_url', ''),
             'collections_label' => $siteSetting('menu_breadcrumbs_collections_label', ''),
+            'collections_item_set_property' => $siteSetting('menu_breadcrumbs_collections_item_set_property', ''),
+            'collections_item_set_value' => $siteSetting('menu_breadcrumbs_collections_item_set_value', ''),
             'separator' => $siteSetting('menu_breadcrumbs_separator', ''),
             'homepage' => $siteSetting('menu_breadcrumbs_homepage', false),
             'property_itemset' => $siteSetting('menu_breadcrumbs_property_itemset', ''),

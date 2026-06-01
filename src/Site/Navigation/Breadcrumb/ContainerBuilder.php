@@ -61,6 +61,8 @@ class ContainerBuilder
         'collections' => true,
         'collections_url' => '',
         'collections_label' => '',
+        'collections_item_set_property' => '',
+        'collections_item_set_value' => '',
         'itemset' => true,
         'itemsetstree' => true,
         'current' => true,
@@ -198,7 +200,14 @@ class ContainerBuilder
         $anchor = null;
         if ($options['collections']) {
             if ($resource instanceof ItemSetRepresentation || $primaryItemSet) {
-                $anchor = $this->addCollectionsPage($parent, $site, $options);
+                // Item-set context: add the Collections anchor only when the
+                // item set matches the optional condition (e.g. albums).
+                $conditionItemSet = $resource instanceof ItemSetRepresentation
+                    ? $resource
+                    : $primaryItemSet;
+                if ($this->itemSetMatchesCollectionsCondition($conditionItemSet, $options)) {
+                    $anchor = $this->addCollectionsPage($parent, $site, $options);
+                }
             } else {
                 $anchor = $this->addSearchPage($parent, $site, $options);
             }
@@ -333,29 +342,35 @@ class ContainerBuilder
                 break;
 
             case 'site/item-set':
-                if ($options['collections']) {
-                    $currentParentPage = $this->addCollectionsPage($parent, $site, $options);
-                }
-
                 $itemSetId = $routeMatch->getParam('item-set-id');
+                $itemSet = null;
                 if ($itemSetId) {
                     try {
                         $itemSet = $this->api->read('item_sets', $itemSetId)->getContent();
-                        if ($options['itemsetstree']) {
-                            $cursor = $this->chainItemSetAncestors(
-                                $parent, $currentParentPage, $itemSet, $site
-                            );
-                            if ($cursor !== $currentParentPage) {
-                                $currentParentPage = $cursor;
-                            }
-                        }
-                        if ($options['current']) {
-                            $itemSetPage = $this->createResourcePage($itemSet, $site);
-                            $itemSetPage->setActive(true);
-                            $addPage($itemSetPage);
-                        }
                     } catch (\Throwable $e) {
-                        // Item set not found.
+                        $itemSet = null;
+                    }
+                }
+
+                if ($options['collections']
+                    && $this->itemSetMatchesCollectionsCondition($itemSet, $options)
+                ) {
+                    $currentParentPage = $this->addCollectionsPage($parent, $site, $options);
+                }
+
+                if ($itemSet) {
+                    if ($options['itemsetstree']) {
+                        $cursor = $this->chainItemSetAncestors(
+                            $parent, $currentParentPage, $itemSet, $site
+                        );
+                        if ($cursor !== $currentParentPage) {
+                            $currentParentPage = $cursor;
+                        }
+                    }
+                    if ($options['current']) {
+                        $itemSetPage = $this->createResourcePage($itemSet, $site);
+                        $itemSetPage->setActive(true);
+                        $addPage($itemSetPage);
                     }
                 }
                 break;
@@ -631,6 +646,33 @@ class ContainerBuilder
         $parent[] = $collectionsPage;
 
         return $collectionsPage;
+    }
+
+    /**
+     * Whether the viewed item set matches the optional condition that gates the
+     * "Collections" parent crumb. When "collections_item_set_property" is empty
+     * the parent is always added (default). Otherwise it is added only when the
+     * item set has that property; when "collections_item_set_value" is also
+     * set, the property must equal it (case-insensitive). Lets a site restrict
+     * the parent, e.g. to albums (curation:set = "Album"), without
+     * site-specific code here.
+     */
+    protected function itemSetMatchesCollectionsCondition($itemSet, array $options): bool
+    {
+        $property = trim((string) ($options['collections_item_set_property'] ?? ''));
+        if ($property === '') {
+            return true;
+        }
+        if (!$itemSet) {
+            return false;
+        }
+        $value = $itemSet->value($property);
+        if ($value === null) {
+            return false;
+        }
+        $expected = trim((string) ($options['collections_item_set_value'] ?? ''));
+        return $expected === ''
+            || strcasecmp((string) $value, $expected) === 0;
     }
 
     /**
