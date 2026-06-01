@@ -85,9 +85,11 @@ if (!empty($options['schema_org']) && !empty($crumbs)) {
 }
 ?>
 
+<?php if (trim((string) $html) !== ''): ?>
 <div class="breadcrumbs-parent">
     <nav id="breadcrumb" class="breadcrumbs" aria-label="<?= $escapeAttr($ariaLabel) ?>">
         <?= $html ?>
     </nav>
     <?= $jsonLd ?>
 </div>
+<?php endif; ?>
