@@ -411,6 +411,29 @@ class ContainerBuilder
                 }
                 break;
 
+            // Favorites: anonymous and guest variants share label. Route differs
+            // (site/favorites vs site/guest/favorites). The selection label is
+            // the last crumb; the user's account is not added as a parent to
+            // avoid leaking the user name (LoginBoard returns user name for
+            // empty data).
+            case 'site/favorites':
+            case 'site/guest/favorites':
+                if ($options['current']) {
+                    $favoritesUri = $this->isUserLogged()
+                        ? $url('site/guest/favorites', ['site-slug' => $siteSlug])
+                        : $url('site/favorites', ['site-slug' => $siteSlug]);
+                    $page = new UriPage([
+                        'label' => $this->moduleLinkLabel(
+                            'favorites', $site, 'My favorites', // @translate
+                            'selection_label_favorites'
+                        ),
+                        'uri' => $favoritesUri,
+                        'active' => true,
+                    ]);
+                    $addPage($page);
+                }
+                break;
+
             case 'site/contribution':
             case 'site/contribution-id':
             case 'site/guest/contribution':
