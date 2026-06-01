@@ -46,7 +46,7 @@ $html = (string) $navBreadcrumbs;
 
 // TODO Check if the check is still needed for convert <a> into <span> with aria.
 if (empty($options['linkLast']) && $lastLinkPos = mb_strrpos($html, '</a>' . $separator)) {
-    $html = mb_substr($html, 0, $lastLinkPos + 4 + mb_strlen($separator)) . '<span class="active" aria-currrent="page">' . mb_substr($html, $lastLinkPos + 4 + mb_strlen($separator)) . '</span>';
+    $html = mb_substr($html, 0, $lastLinkPos + 4 + mb_strlen($separator)) . '<span class="active" aria-current="page">' . mb_substr($html, $lastLinkPos + 4 + mb_strlen($separator)) . '</span>';
 }
 
 $ariaLabel = !empty($options['aria_label'])

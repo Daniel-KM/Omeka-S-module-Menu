@@ -76,7 +76,7 @@ $this->headScript()
 
 <button id="nav-selector-button" class="button mobile-only"><?= $translate('Add a link to a site page') ?></button>
 <div id="nav-selector" class="always-open sidebar">
-    <a href="#" class="mobile-only sidebar-close o-icon-close"><span class="screen-reader-text"><?= $translate('Close') ?></span></a>
+    <a href="#" class="mobile-only sidebar-close o-icon-close" title="<?= $translate('Close') ?>" aria-label="<?= $translate('Close') ?>"><span class="screen-reader-text"><?= $translate('Close') ?></span></a>
 
     <?= $this->formRow($form->get('name')) ?>
     <?php /*
