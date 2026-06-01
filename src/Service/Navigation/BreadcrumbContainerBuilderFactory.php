@@ -13,7 +13,9 @@ class BreadcrumbContainerBuilderFactory implements FactoryInterface
         return new ContainerBuilder(
             $services->get('Omeka\ApiManager'),
             $services->get('MvcTranslator'),
-            $services->get('ViewHelperManager')->get('Url')
+            $services->get('ViewHelperManager')->get('Url'),
+            $services->get('Omeka\AuthenticationService'),
+            $services->get('Omeka\Settings\Site')
         );
     }
 }

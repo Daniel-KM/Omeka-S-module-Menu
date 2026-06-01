@@ -2,6 +2,7 @@
 
 namespace Menu\Site\Navigation\Breadcrumb;
 
+use Laminas\Authentication\AuthenticationService;
 use Laminas\I18n\Translator\TranslatorInterface;
 use Laminas\Navigation\Navigation;
 use Laminas\Navigation\Page\Uri as UriPage;
@@ -14,6 +15,7 @@ use Omeka\Api\Representation\ItemRepresentation;
 use Omeka\Api\Representation\ItemSetRepresentation;
 use Omeka\Api\Representation\MediaRepresentation;
 use Omeka\Api\Representation\SiteRepresentation;
+use Omeka\Settings\SiteSettings;
 
 /**
  * Builds a Laminas Navigation container for breadcrumbs.
@@ -42,6 +44,16 @@ class ContainerBuilder
     protected $urlHelper;
 
     /**
+     * @var AuthenticationService|null
+     */
+    protected $auth;
+
+    /**
+     * @var SiteSettings|null
+     */
+    protected $siteSettings;
+
+    /**
      * @var array
      */
     protected $defaultOptions = [
@@ -60,11 +72,15 @@ class ContainerBuilder
     public function __construct(
         ApiManager $api,
         TranslatorInterface $translator,
-        UrlHelper $urlHelper
+        UrlHelper $urlHelper,
+        ?AuthenticationService $auth = null,
+        ?SiteSettings $siteSettings = null
     ) {
         $this->api = $api;
         $this->translator = $translator;
         $this->urlHelper = $urlHelper;
+        $this->auth = $auth;
+        $this->siteSettings = $siteSettings;
     }
 
     /**
@@ -145,6 +161,9 @@ class ContainerBuilder
 
     /**
      * Build hierarchy for a resource (item, item set, media).
+     *
+     * Pages are chained as parent/child so that Laminas breadcrumbs renders the
+     * full path from root to active page.
      */
     protected function buildResourceHierarchy(
         array &$parent,
@@ -152,87 +171,104 @@ class ContainerBuilder
         SiteRepresentation $site,
         array $options
     ): void {
-        // Track current parent page for proper nesting.
-        $currentParentPage = null;
+        // Resolve item & item-set context for items and media.
+        $item = $resource instanceof MediaRepresentation
+            ? $resource->item()
+            : ($resource instanceof ItemRepresentation ? $resource : null);
 
-        // Helper to add a page to the hierarchy.
-        $addPage = function ($page) use (&$parent, &$currentParentPage): void {
-            if ($currentParentPage) {
-                $currentParentPage->addPage($page);
-            } else {
-                $parent[] = $page;
-            }
-        };
-
-        // Determine resource type and build appropriate hierarchy.
-        if ($resource instanceof MediaRepresentation) {
-            $item = $resource->item();
-
-            // Collections link.
-            if ($options['collections']) {
-                $currentParentPage = $this->addCollectionsPage($parent, $site, $options);
-            }
-
-            // Item sets.
-            if ($options['itemset'] || $options['itemsetstree']) {
-                $itemSetPage = $this->addItemSetHierarchy($parent, $item, $site, $options);
-                if ($itemSetPage) {
-                    $currentParentPage = $itemSetPage;
-                }
-            }
-
-            // Parent item.
-            $itemPage = $this->createResourcePage($item, $site);
-            $addPage($itemPage);
-            $currentParentPage = $itemPage;
-
-            // Current media.
-            if ($options['current']) {
-                $mediaPage = $this->createResourcePage($resource, $site);
-                $mediaPage->setActive(true);
-                $addPage($mediaPage);
-            }
-        } elseif ($resource instanceof ItemRepresentation) {
-            // Collections link.
-            if ($options['collections']) {
-                $currentParentPage = $this->addCollectionsPage($parent, $site, $options);
-            }
-
-            // Item sets.
-            if ($options['itemset'] || $options['itemsetstree']) {
-                $itemSetPage = $this->addItemSetHierarchy($parent, $resource, $site, $options);
-                if ($itemSetPage) {
-                    $currentParentPage = $itemSetPage;
-                }
-            }
-
-            // Current item.
-            if ($options['current']) {
-                $itemPage = $this->createResourcePage($resource, $site);
-                $itemPage->setActive(true);
-                $addPage($itemPage);
-            }
-        } elseif ($resource instanceof ItemSetRepresentation) {
-            // Collections link.
-            if ($options['collections']) {
-                $currentParentPage = $this->addCollectionsPage($parent, $site, $options);
-            }
-
-            // Item set tree (ancestors).
-            if ($options['itemsetstree']) {
-                $lastAncestor = $this->addItemSetTreeAncestors($parent, $resource, $site);
-                if ($lastAncestor) {
-                    $currentParentPage = $lastAncestor;
-                }
-            }
-
-            // Current item set.
-            if ($options['current']) {
-                $itemSetPage = $this->createResourcePage($resource, $site);
-                $itemSetPage->setActive(true);
-                $addPage($itemSetPage);
+        // Look up primary item set when any of collections/itemset/itemsetstree
+        // is enabled in site settings. The lookup decides Collections vs Search
+        // anchor when collections is enabled, even if itemset/itemsetstree are
+        // off.
+        $primaryItemSet = null;
+        if ($item
+            && ($options['collections'] || $options['itemset'] || $options['itemsetstree'])
+        ) {
+            $primaryItemSet = $options['itemsetstree']
+                ? $this->getPrimaryItemSetFromTree($item, $site)
+                : null;
+            if (!$primaryItemSet) {
+                $primaryItemSet = $this->getPrimaryItemSet($item, $site, $options);
             }
         }
+
+        // Anchor: Collections (with item set) or Search (without), only when
+        // collections is enabled in site settings.
+        $anchor = null;
+        if ($options['collections']) {
+            if ($resource instanceof ItemSetRepresentation || $primaryItemSet) {
+                $anchor = $this->addCollectionsPage($parent, $site, $options);
+            } else {
+                $anchor = $this->addSearchPage($parent, $site, $options);
+            }
+        }
+
+        $cursor = $anchor;
+
+        // Item set ancestors: only when itemsetstree is enabled.
+        if ($options['itemsetstree']) {
+            $itemSetForTree = $resource instanceof ItemSetRepresentation
+                ? $resource
+                : $primaryItemSet;
+            if ($itemSetForTree) {
+                $cursor = $this->chainItemSetAncestors(
+                    $parent, $cursor, $itemSetForTree, $site
+                );
+            }
+        }
+
+        // Item set itself: only when itemset or itemsetstree is enabled.
+        if ($primaryItemSet && ($options['itemset'] || $options['itemsetstree'])) {
+            $itemSetPage = $this->createResourcePage($primaryItemSet, $site);
+            $cursor = $this->chainAdd($parent, $cursor, $itemSetPage);
+        }
+
+        // Current resource.
+        if ($options['current']) {
+            if ($resource instanceof MediaRepresentation) {
+                $itemPage = $this->createResourcePage($item, $site);
+                $cursor = $this->chainAdd($parent, $cursor, $itemPage);
+                $mediaPage = $this->createResourcePage($resource, $site);
+                $mediaPage->setActive(true);
+                $this->chainAdd($parent, $cursor, $mediaPage);
+            } else {
+                $resourcePage = $this->createResourcePage($resource, $site);
+                $resourcePage->setActive(true);
+                $this->chainAdd($parent, $cursor, $resourcePage);
+            }
+        }
+    }
+
+    /**
+     * Add a page either as child of cursor or top-level of $parent. Returns the
+     * new cursor (the page just added).
+     */
+    protected function chainAdd(array &$parent, $cursor, $page)
+    {
+        if ($cursor) {
+            $cursor->addPage($page);
+        } else {
+            $parent[] = $page;
+        }
+        return $page;
+    }
+
+    /**
+     * Chain item-set ancestors from cursor. Returns the last ancestor (or
+     * cursor unchanged when no ancestor exists).
+     */
+    protected function chainItemSetAncestors(
+        array &$parent,
+        $cursor,
+        ItemSetRepresentation $itemSet,
+        SiteRepresentation $site
+    ) {
+        $ancestors = $this->getItemSetAncestors($itemSet, $site);
+        foreach ($ancestors as $ancestor) {
+            $page = $this->createResourcePage($ancestor, $site);
+            $cursor = $this->chainAdd($parent, $cursor, $page);
+        }
+        return $cursor;
     }
 
     /**
@@ -260,6 +296,16 @@ class ContainerBuilder
                 $parent[] = $page;
             }
         };
+
+        // Search pages declared by AdvancedSearch use route names with the
+        // pattern "search-page-{slug}". Treat them as search browse.
+        if (strpos((string) $matchedRoute, 'search-page-') === 0) {
+            if ($options['current']) {
+                $currentParentPage = $this->addSearchPage($parent, $site, $options);
+                $currentParentPage->setActive(true);
+            }
+            return;
+        }
 
         switch ($matchedRoute) {
             case 'site/resource':
@@ -291,15 +337,125 @@ class ContainerBuilder
                 }
 
                 $itemSetId = $routeMatch->getParam('item-set-id');
-                if ($itemSetId && $options['current']) {
+                if ($itemSetId) {
                     try {
                         $itemSet = $this->api->read('item_sets', $itemSetId)->getContent();
-                        $itemSetPage = $this->createResourcePage($itemSet, $site);
-                        $itemSetPage->setActive(true);
-                        $addPage($itemSetPage);
+                        if ($options['itemsetstree']) {
+                            $cursor = $this->chainItemSetAncestors(
+                                $parent, $currentParentPage, $itemSet, $site
+                            );
+                            if ($cursor !== $currentParentPage) {
+                                $currentParentPage = $cursor;
+                            }
+                        }
+                        if ($options['current']) {
+                            $itemSetPage = $this->createResourcePage($itemSet, $site);
+                            $itemSetPage->setActive(true);
+                            $addPage($itemSetPage);
+                        }
                     } catch (\Throwable $e) {
                         // Item set not found.
                     }
+                }
+                break;
+
+            case 'site/guest':
+            case 'site/guest/anonymous':
+            case 'site/guest/guest':
+                $action = $routeMatch->getParam('action');
+                if ($action === 'update-account' || $action === 'update-email') {
+                    $currentParentPage = $this->addAccountPage($parent, $site);
+                    if ($options['current']) {
+                        $page = new UriPage([
+                            'label' => $translate->translate('My settings'), // @translate
+                            'uri' => $url('site/guest/guest', [
+                                'site-slug' => $siteSlug,
+                                'action' => 'update-account',
+                            ]),
+                            'active' => true,
+                        ]);
+                        $addPage($page);
+                    }
+                } elseif ($options['current']) {
+                    $page = $this->addAccountPage($parent, $site);
+                    $page->setActive(true);
+                }
+                break;
+
+            case 'site/selection':
+            case 'site/selection-id':
+                $isLogged = $this->isUserLogged();
+                if ($isLogged) {
+                    $currentParentPage = $this->addAccountPage($parent, $site);
+                }
+                if ($options['current']) {
+                    $selectionsPage = $this->buildSelectionsPage($site, $isLogged);
+                    $selectionsPage->setActive(true);
+                    $addPage($selectionsPage);
+                }
+                break;
+
+            case 'site/guest/selection':
+            case 'site/guest/selection-id':
+                $currentParentPage = $this->addAccountPage($parent, $site);
+                if ($options['current']) {
+                    $selectionsPage = $this->buildSelectionsPage($site, true);
+                    $selectionsPage->setActive(true);
+                    $addPage($selectionsPage);
+                }
+                break;
+
+            case 'site/contribution':
+            case 'site/contribution-id':
+            case 'site/guest/contribution':
+            case 'site/guest/contribution-id':
+                if ($this->isUserLogged()) {
+                    $currentParentPage = $this->addAccountPage($parent, $site);
+                }
+                if ($options['current']) {
+                    $page = new UriPage([
+                        'label' => $translate->translate('My contributions'), // @translate
+                        'uri' => $url('site/guest/contribution', [
+                            'site-slug' => $siteSlug,
+                        ]),
+                        'active' => true,
+                    ]);
+                    $addPage($page);
+                }
+                break;
+
+            case 'site/search-history':
+            case 'site/search-history-id':
+            case 'site/guest/search-history':
+                if ($this->isUserLogged()) {
+                    $currentParentPage = $this->addAccountPage($parent, $site);
+                }
+                if ($options['current']) {
+                    $page = new UriPage([
+                        'label' => $translate->translate('My searches'), // @translate
+                        'uri' => $url('site/guest/search-history', [
+                            'site-slug' => $siteSlug,
+                        ]),
+                        'active' => true,
+                    ]);
+                    $addPage($page);
+                }
+                break;
+
+            case 'site/subscription':
+            case 'site/subscription-id':
+                if ($this->isUserLogged()) {
+                    $currentParentPage = $this->addAccountPage($parent, $site);
+                }
+                if ($options['current']) {
+                    $page = new UriPage([
+                        'label' => $translate->translate('My subscriptions'), // @translate
+                        'uri' => $url('site/subscription', [
+                            'site-slug' => $siteSlug,
+                        ]),
+                        'active' => true,
+                    ]);
+                    $addPage($page);
                 }
                 break;
 
@@ -387,72 +543,95 @@ class ContainerBuilder
     }
 
     /**
-     * Add item set hierarchy for an item.
+     * Add a Search page (default search config) to hierarchy.
      *
-     * @return ResourcePage|null Last added page, so children can be added to
-     * it.
+     * Falls back to the standard item browse when no search config is set.
      */
-    protected function addItemSetHierarchy(
-        array &$parent,
-        ItemRepresentation $item,
-        SiteRepresentation $site,
-        array $options
-    ): ?ResourcePage {
-        if ($options['itemsetstree']) {
-            // Try to use item sets tree if available.
-            $itemSet = $this->getPrimaryItemSetFromTree($item, $site);
-            if ($itemSet) {
-                $lastPage = $this->addItemSetTreeAncestors($parent, $itemSet, $site);
-                // Add the item set itself.
-                $itemSetPage = $this->createResourcePage($itemSet, $site);
-                if ($lastPage) {
-                    $lastPage->addPage($itemSetPage);
-                } else {
-                    $parent[] = $itemSetPage;
+    protected function addSearchPage(array &$parent, SiteRepresentation $site, array $options): UriPage
+    {
+        $translate = $this->translator;
+        $url = $this->urlHelper;
+        $siteSlug = $site->slug();
+
+        $searchUrl = null;
+        if ($this->siteSettings) {
+            try {
+                $configId = (int) $this->siteSettings->get(
+                    'advancedsearch_main_config', 0, $site->id()
+                );
+                if ($configId) {
+                    $searchConfig = $this->api->read(
+                        'search_configs', ['id' => $configId]
+                    )->getContent();
+                    $searchUrl = $url('search-page-' . $searchConfig->slug(), [
+                        'site-slug' => $siteSlug,
+                    ]);
                 }
-                return $itemSetPage;
+            } catch (\Throwable $e) {
+                $searchUrl = null;
             }
         }
-
-        // Fall back to primary item set.
-        if ($options['itemset']) {
-            $itemSet = $this->getPrimaryItemSet($item, $site, $options);
-            if ($itemSet) {
-                $itemSetPage = $this->createResourcePage($itemSet, $site);
-                $parent[] = $itemSetPage;
-                return $itemSetPage;
-            }
+        if (!$searchUrl) {
+            $searchUrl = $url('site/resource', [
+                'site-slug' => $siteSlug,
+                'controller' => 'item',
+                'action' => 'browse',
+            ]);
         }
 
-        return null;
+        $searchPage = new UriPage([
+            'label' => $translate->translate('Search'), // @translate
+            'uri' => $searchUrl,
+        ]);
+        $parent[] = $searchPage;
+
+        return $searchPage;
     }
 
     /**
-     * Add item set tree ancestors.
-     *
-     * @return ResourcePage|null Last added page, so children can be added to
-     * it.
+     * Add a "My account" page to hierarchy.
      */
-    protected function addItemSetTreeAncestors(
-        array &$parent,
-        ItemSetRepresentation $itemSet,
-        SiteRepresentation $site
-    ): ?ResourcePage {
-        // Get ancestors from ItemSetsTree if available.
-        $ancestors = $this->getItemSetAncestors($itemSet, $site);
+    protected function addAccountPage(array &$parent, SiteRepresentation $site): UriPage
+    {
+        $translate = $this->translator;
+        $url = $this->urlHelper;
+        $accountPage = new UriPage([
+            'label' => $translate->translate('My account'), // @translate
+            'uri' => $url('site/guest', ['site-slug' => $site->slug()]),
+        ]);
+        $parent[] = $accountPage;
+        return $accountPage;
+    }
 
-        $lastPage = null;
-        foreach ($ancestors as $ancestor) {
-            $ancestorPage = $this->createResourcePage($ancestor, $site);
-            if ($lastPage) {
-                $lastPage->addPage($ancestorPage);
-            } else {
-                $parent[] = $ancestorPage;
-            }
-            $lastPage = $ancestorPage;
-        }
+    /**
+     * Build the "My selections" page for the current visitor (logged or not).
+     */
+    protected function buildSelectionsPage(SiteRepresentation $site, bool $isLogged): UriPage
+    {
+        $translate = $this->translator;
+        $url = $this->urlHelper;
+        $siteSlug = $site->slug();
+        $uri = $isLogged
+            ? $url('site/guest/selection', [
+                'site-slug' => $siteSlug,
+                'action' => 'browse',
+            ])
+            : $url('site/selection', [
+                'site-slug' => $siteSlug,
+                'action' => 'browse',
+            ]);
+        return new UriPage([
+            'label' => $translate->translate('My selections'), // @translate
+            'uri' => $uri,
+        ]);
+    }
 
-        return $lastPage;
+    /**
+     * Whether a user is currently logged in.
+     */
+    protected function isUserLogged(): bool
+    {
+        return $this->auth ? $this->auth->hasIdentity() : false;
     }
 
     /**
