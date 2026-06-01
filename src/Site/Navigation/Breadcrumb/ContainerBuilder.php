@@ -174,8 +174,13 @@ class ContainerBuilder
         SiteRepresentation $site,
         array $options
     ): void {
-        // Resolve item & item-set context for items and media.
-        $item = $resource instanceof MediaRepresentation
+        // Resolve item & item-set context for items, medias and digital
+        // objects. DOs are autonomous resources with a transient item set
+        // during manifest building / sidebar walks; their resourceName is
+        // digital_objects, not items.
+        $isFileBearingChild = $resource instanceof MediaRepresentation
+            || $resource->resourceName() === 'digital_objects';
+        $item = $isFileBearingChild
             ? $resource->item()
             : ($resource instanceof ItemRepresentation ? $resource : null);
 
@@ -233,14 +238,15 @@ class ContainerBuilder
             $cursor = $this->chainAdd($parent, $cursor, $itemSetPage);
         }
 
-        // Current resource.
+        // Current resource. Medias and digital objects render with their parent
+        // item as an intermediate crumb when known.
         if ($options['current']) {
-            if ($resource instanceof MediaRepresentation) {
+            if ($isFileBearingChild && $item) {
                 $itemPage = $this->createResourcePage($item, $site);
                 $cursor = $this->chainAdd($parent, $cursor, $itemPage);
-                $mediaPage = $this->createResourcePage($resource, $site);
-                $mediaPage->setActive(true);
-                $this->chainAdd($parent, $cursor, $mediaPage);
+                $childPage = $this->createResourcePage($resource, $site);
+                $childPage->setActive(true);
+                $this->chainAdd($parent, $cursor, $childPage);
             } else {
                 $resourcePage = $this->createResourcePage($resource, $site);
                 $resourcePage->setActive(true);
@@ -1012,6 +1018,7 @@ class ContainerBuilder
             'item-set' => 'Item sets',
             'item' => 'Items',
             'media' => 'Media',
+            'digital-object' => 'Digital objects',
         ];
 
         if ($action === 'search') {

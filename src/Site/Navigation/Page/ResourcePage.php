@@ -138,6 +138,8 @@ class ResourcePage extends Uri implements ResourceInterface
                 'Omeka\Controller\Site\ItemSet' => 'item_sets',
                 'media' => 'media',
                 'Omeka\Controller\Site\Media' => 'media',
+                'digital-object' => 'digital_objects',
+                'DigitalObject\Controller\Site\DigitalObject' => 'digital_objects',
             ];
 
             $resourceName = $controllerToResource[$controller] ?? null;

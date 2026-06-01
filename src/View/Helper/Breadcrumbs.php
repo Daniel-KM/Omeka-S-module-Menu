@@ -342,10 +342,12 @@ class Breadcrumbs extends AbstractHelper
             'item' => 'items',
             'item-set' => 'item_sets',
             'media' => 'media',
+            'digital-object' => 'digital_objects',
             'annotation' => 'annotations',
             'Omeka\Controller\Site\Item' => 'items',
             'Omeka\Controller\Site\ItemSet' => 'item_sets',
             'Omeka\Controller\Site\Media' => 'media',
+            'DigitalObject\Controller\Site\DigitalObject' => 'digital_objects',
             'Annotate\Controller\Site\Annotation' => 'annotations',
         ];
         $controller = $routeMatch->getParam('controller')

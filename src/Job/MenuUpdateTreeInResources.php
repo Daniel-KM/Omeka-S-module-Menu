@@ -413,6 +413,7 @@ class MenuUpdateTreeInResources extends AbstractJob
             'items' => 'resource:item',
             'item_sets' => 'resource:itemset',
             'media' => 'resource:media',
+            'digital_objects' => 'resource:digitalobject',
             'annotations' => 'resource:annotation',
         ];
 
