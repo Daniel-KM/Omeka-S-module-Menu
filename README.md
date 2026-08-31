@@ -138,8 +138,24 @@ The breadcrumbs can be configured in site settings with the following options:
   - Append current resource as a link
 - Prepended links: Add custom links before the breadcrumb
 - Url for collections: Custom URL for the "Collections" link
-- Separator: Custom separator between crumbs (HTML allowed, e.g., `&gt;`)
+- Separator: Custom separator between crumbs. It is a plain string, escaped
+  and output in a span with `aria-hidden`, so it is decorative and not
+  announced by screen readers. Html is not interpreted: use the character
+  itself (`>`, `›`), not an entity. When empty, the default is `/`. The values
+  set as html in a version prior to 3.4.16 are converted automatically during
+  the upgrade.
 - Display on home page: Show breadcrumbs on the home page
+
+### Filling the tree in resources
+
+With module [Advanced Resource Template], a property of a resource template can
+be flagged with "Fill as broader when saving menu" or "Fill as narrower when
+saving menu". When a menu is saved, the hierarchy of the menu is then copied in
+these properties of the linked resources, as a background job.
+
+The values are stored with the data type matching the linked resource: items,
+item sets, medias, annotations, digital objects, and concepts of module
+[Thesaurus].
 
 
 TODO
@@ -213,19 +229,18 @@ These features were built for various digital libraries, in particular to manage
 the quick links in the footer.
 
 
-[Menu]: https://github.com/Daniel-KM/Omeka-S-module-Menu
+[Menu]: https://gitlab.com/Daniel-KM/Omeka-S-module-Menu
 [Omeka S]: https://omeka.org/s
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
+[Advanced Resource Template]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate
+[Thesaurus]: https://gitlab.com/Daniel-KM/Omeka-S-module-Thesaurus
 [Menu.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-Menu/-/releases
 [Navigation]: https://docs.laminas.dev/laminas-navigation/helpers/menu
-[Next]: https://github.com/Daniel-KM/Omeka-S-module-Next
-[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-Menu/issues
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-Menu/-/work_items
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
-[Le Ménestrel]: http://www.menestrel.fr
-[Spip]: https://spip.net
 [GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"
