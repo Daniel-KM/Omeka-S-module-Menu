@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-01 00:00+0000\n"
+"POT-Creation-Date: 2026-08-31 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,11 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: Module.php:125
+#, php-format
+msgid "The module %1$s should be upgraded to version %2$s or later."
+msgstr ""
 
 #: src/Controller/SiteAdmin/MenuController.php:191
 #, php-format
@@ -58,11 +63,9 @@ msgstr ""
 msgid "[Unknown resource #%d]"
 msgstr ""
 
-#: src/View/Helper/Breadcrumbs.php:141
 #: view/common/block-layout/breadcrumbs.phtml:33
 #: view/common/block-layout/breadcrumbs.phtml:39
 #: view/common/block-template/breadcrumbs-standard.phtml:27
-#: view/common/breadcrumbs.phtml:54
 msgid "Breadcrumb"
 msgstr ""
 
@@ -146,36 +149,63 @@ msgstr ""
 msgid "Close all"
 msgstr ""
 
-#: data/scripts/upgrade.php:43
+#: data/scripts/upgrade.php:21
+#, php-format
+msgid ""
+"The module \"%1$s\" requires the module \"%2$s\", version %3$s or above."
+msgstr ""
+
+#: data/scripts/upgrade.php:51
 msgid "The settings for \"Breadcrumbs\" were upgraded."
 msgstr ""
 
-#: data/scripts/upgrade.php:82
+#: data/scripts/upgrade.php:90
 #, php-format
 msgid ""
 "The helper \"PrimaryItemSet\" was moved from module %1$sNext%2$s and a param "
 "is added for it in %3$smain settings%2$s."
 msgstr ""
 
-#: data/scripts/upgrade.php:94
+#: data/scripts/upgrade.php:102
 #, php-format
 msgid ""
 "A %1$ssetting%2$s has been added to update related resources when saving "
 "menu."
 msgstr ""
 
-#: data/scripts/upgrade.php:133
+#: data/scripts/upgrade.php:141
 msgid ""
 "Breadcrumbs were moved from module Block Plus to module Menu. Settings were "
 "migrated."
 msgstr ""
 
-#: Module.php:149
-msgid "Menu: Fill as broader when saving menu"
+#: data/scripts/upgrade.php:177
+#, php-format
+msgid ""
+"The separator of the breadcrumbs is now a plain string, escaped and not "
+"rendered as html. It was converted for these sites: %s."
 msgstr ""
 
-#: Module.php:161
-msgid "Menu: Fill as narrower when saving menu"
+#: data/scripts/upgrade.php:201
+#, php-format
+msgid ""
+"The following themes override \"view/common/breadcrumbs.phtml\" with an "
+"outdated version and should be updated to the new Breadcrumbs helper: %s."
+msgstr ""
+
+#: data/scripts/upgrade.php:290
+#, php-format
+msgid ""
+"The breadcrumbs() helper is called with unknown options in these theme "
+"templates (check for typos, for example \"url\" instead of \"uri\"): %s."
+msgstr ""
+
+#: Module.php:181
+msgid "Fill as broader when saving menu"
+msgstr ""
+
+#: Module.php:194
+msgid "Fill as narrower when saving menu"
 msgstr ""
 
 #: src/Job/MenuUpdateTreeInResources.php:84

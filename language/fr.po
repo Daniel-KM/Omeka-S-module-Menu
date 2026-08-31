@@ -1,14 +1,9 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-01 00:00+0000\n"
-"PO-Revision-Date: 2026-06-01 00:00+0000\n"
+"POT-Creation-Date: 2026-08-31 00:00+0000\n"
+"PO-Revision-Date: 2026-08-31 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -16,6 +11,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.6\n"
+
+#: Module.php:125
+#, php-format
+msgid "The module %1$s should be upgraded to version %2$s or later."
+msgstr "Le module %1$s doit être mis à niveau à la version %2$s ou supérieure."
 
 #: src/Controller/SiteAdmin/MenuController.php:191
 #, php-format
@@ -60,11 +60,9 @@ msgstr "[Ressource inconnue]"
 msgid "[Unknown resource #%d]"
 msgstr "[Ressource inconnue #%d]"
 
-#: src/View/Helper/Breadcrumbs.php:141
 #: view/common/block-layout/breadcrumbs.phtml:33
 #: view/common/block-layout/breadcrumbs.phtml:39
 #: view/common/block-template/breadcrumbs-standard.phtml:27
-#: view/common/breadcrumbs.phtml:54
 msgid "Breadcrumb"
 msgstr "Fil d’Ariane"
 
@@ -150,11 +148,18 @@ msgstr "Tout ouvrir"
 msgid "Close all"
 msgstr "Tout fermer"
 
-#: data/scripts/upgrade.php:43
+#: data/scripts/upgrade.php:21
+#, php-format
+msgid ""
+"The module \"%1$s\" requires the module \"%2$s\", version %3$s or above."
+msgstr ""
+"Le module \"%1$s\" requiert le module « %2$s », version %3$s ou supérieure."
+
+#: data/scripts/upgrade.php:51
 msgid "The settings for \"Breadcrumbs\" were upgraded."
 msgstr "Les paramètres pour le fil d’Ariane ont été mis à jour."
 
-#: data/scripts/upgrade.php:82
+#: data/scripts/upgrade.php:90
 #, php-format
 msgid ""
 "The helper \"PrimaryItemSet\" was moved from module %1$sNext%2$s and a param "
@@ -163,7 +168,7 @@ msgstr ""
 "Le view/helper « PrimaryItemSet » a été ajouté depuis le module %1$sNext%2$s "
 "et une option a été ajoutée dans les %3$sparamètres généraux%2$s."
 
-#: data/scripts/upgrade.php:94
+#: data/scripts/upgrade.php:102
 #, php-format
 msgid ""
 "A %1$ssetting%2$s has been added to update related resources when saving "
@@ -172,7 +177,7 @@ msgstr ""
 "Un %1$sparamètre%2$s a été ajouté pour mettre à jour les ressources liées "
 "lorsque le menu est enregistré."
 
-#: data/scripts/upgrade.php:133
+#: data/scripts/upgrade.php:141
 msgid ""
 "Breadcrumbs were moved from module Block Plus to module Menu. Settings were "
 "migrated."
@@ -180,13 +185,43 @@ msgstr ""
 "Le fil d’Ariane a été déplacé du module Block Plus au module Menu. Les "
 "paramètres ont été migrés."
 
-#: Module.php:149
-msgid "Menu: Fill as broader when saving menu"
-msgstr "Menu : Définir comme générique en enregistrant le menu"
+#: data/scripts/upgrade.php:177
+#, php-format
+msgid ""
+"The separator of the breadcrumbs is now a plain string, escaped and not "
+"rendered as html. It was converted for these sites: %s."
+msgstr ""
+"Le séparateur du fil d’Ariane est désormais une chaîne de caractères simple, "
+"avec les caractères d’échappement et n’est pas affiché au format html. Il a "
+"été converti pour ces sites : %s."
 
-#: Module.php:161
-msgid "Menu: Fill as narrower when saving menu"
-msgstr "Menu : Définir comme spécifique en enregistrant le menu"
+#: data/scripts/upgrade.php:201
+#, php-format
+msgid ""
+"The following themes override \"view/common/breadcrumbs.phtml\" with an "
+"outdated version and should be updated to the new Breadcrumbs helper: %s."
+msgstr ""
+"Les thèmes suivants utilisent une version obsolète du fichier « view/common/"
+"breadcrumbs.phtml » et devraient être mis à jour pour utiliser le nouvel "
+"assistant Breadcrumbs : %s."
+
+#: data/scripts/upgrade.php:290
+#, php-format
+msgid ""
+"The breadcrumbs() helper is called with unknown options in these theme "
+"templates (check for typos, for example \"url\" instead of \"uri\"): %s."
+msgstr ""
+"La fonction d’aide `breadcrumbs()` est appelée avec des options inconnues "
+"dans ces modèles de thème (vérifiez s’il y a des fautes de frappe, par "
+"exemple « url » au lieu de « uri ») : %s."
+
+#: Module.php:181
+msgid "Fill as broader when saving menu"
+msgstr "Remplir comme terme générique à l’enregistrement du menu"
+
+#: Module.php:194
+msgid "Fill as narrower when saving menu"
+msgstr "Remplir comme terme spécifique à l’enregistrement du menu"
 
 #: src/Job/MenuUpdateTreeInResources.php:84
 msgid "No menu exists with name \"{menu_name}\" in site #{site_id}."
@@ -561,6 +596,12 @@ msgstr "Choisir le menu à afficher."
 msgid "Menu: Omeka breadcrumbs"
 msgstr "Menu : Fil d’Ariane Omeka"
 
+#~ msgid "Menu: Fill as broader when saving menu"
+#~ msgstr "Menu : Définir comme générique en enregistrant le menu"
+
+#~ msgid "Menu: Fill as narrower when saving menu"
+#~ msgstr "Menu : Définir comme spécifique en enregistrant le menu"
+
 #, php-format
 #~ msgid "This module requires the module \"%s\"."
 #~ msgstr "Ce module requiert le module « %s »."
@@ -583,10 +624,6 @@ msgstr "Menu : Fil d’Ariane Omeka"
 #~ msgid "The module removed tables \"%s\" from a previous broken install."
 #~ msgstr ""
 #~ "Le module a supprimé les tables « %s » depuis une installation échouée."
-
-#, php-format
-#~ msgid "This module requires the module \"%1$s\", version %2$s or above."
-#~ msgstr "Ce module requiert le module « %1$s », version %2$s ou supérieure."
 
 #, php-format
 #~ msgid ""
