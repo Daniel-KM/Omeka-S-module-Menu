@@ -16,6 +16,14 @@ use Omeka\Stdlib\Message;
  * @var \Doctrine\ORM\EntityManager $entityManager
  * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
  */
+if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.91')) {
+    $message = new \Omeka\Stdlib\Message(
+        'The module "%1$s" requires the module "%2$s", version %3$s or above.', // @translate
+        'Menu', 'Common', '3.4.91'
+    );
+    throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+}
+
 $plugins = $services->get('ControllerPluginManager');
 $api = $plugins->get('api');
 $settings = $services->get('Omeka\Settings');
