@@ -146,7 +146,8 @@ class Module extends AbstractModule
                 'name' => 'menu_broader',
                 'type' => \Laminas\Form\Element\Checkbox::class,
                 'options' => [
-                    'label' => 'Menu: Fill as broader when saving menu', // @translate
+                    'element_group' => 'Menu',
+                    'label' => 'Fill as broader when saving menu', // @translate
                 ],
                 'attributes' => [
                     // 'id' => 'menu_broader',
@@ -158,7 +159,8 @@ class Module extends AbstractModule
                 'name' => 'menu_narrower',
                 'type' => \Laminas\Form\Element\Checkbox::class,
                 'options' => [
-                    'label' => 'Menu: Fill as narrower when saving menu', // @translate
+                    'element_group' => 'Menu',
+                    'label' => 'Fill as narrower when saving menu', // @translate
                 ],
                 'attributes' => [
                     // 'id' => 'menu_narrower',
