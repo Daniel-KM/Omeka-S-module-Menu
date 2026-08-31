@@ -94,151 +94,122 @@ class Breadcrumbs extends AbstractHelper
 
         // Build the navigation container
         $container = $this->containerBuilder->build($site, $routeMatch, $resource, $options);
+        $template = $options['template'] ?? $options['partial'] ?? $this->defaultTemplate;
 
-        // Use partial template if specified
-        $template = $options['template'] ?? $options['partial'] ?? null;
-        if ($template) {
-            return $this->renderWithPartial($container, $options, $template);
-        }
+        // Prepare all the data here so the partial only builds the markup.
+        $links = $this->prepareLinks($container, $options);
+        $separator = isset($options['separator']) && $options['separator'] !== ''
+            ? $options['separator']
+            : '/';
+        $ariaLabel = !empty($options['aria_label'])
+            ? $options['aria_label']
+            : $view->plugin('translate')('Breadcrumb'); // @translate
+        $schema = !empty($options['schema_org'])
+            ? $this->buildSchemaOrg($links)
+            : '';
 
-        // Use standard Laminas breadcrumbs rendering
-        return $this->renderStandard($container, $options);
+        return $view->partial($template, [
+            'site' => $site,
+            'options' => $options,
+            'links' => $links,
+            'separator' => $separator,
+            'ariaLabel' => $ariaLabel,
+            'schema' => $schema,
+            // Kept for backward compatibility with old themes overriding the
+            // partial: the raw container and the flat crumb list.
+            'breadcrumbs' => $container,
+            'crumbs' => $this->buildFlatCrumbs($container),
+        ]);
     }
 
     /**
-     * Render using standard Laminas breadcrumbs helper.
+     * Build the ordered list of crumbs (root to active leaf) from container.
+     *
+     * Returns plain data so the partial stays free of any navigation logic:
+     * each crumb has "label", "title", "uri", "active", "no_link", "resource".
      */
-    protected function renderStandard($container, array $options): string
+    protected function prepareLinks($container, array $options): array
     {
         $view = $this->getView();
+        $translate = $view->plugin('translate');
 
-        // Get the navigation breadcrumbs helper
-        $navHelper = $view->navigation($container);
-        $breadcrumbs = $navHelper->breadcrumbs();
-
-        // Configure the helper
-        if (isset($options['separator'])) {
-            $breadcrumbs->setSeparator(' ' . $options['separator'] . ' ');
-        }
-
-        if (isset($options['linkLast'])) {
-            $breadcrumbs->setLinkLast((bool) $options['linkLast']);
-        }
-
+        $breadcrumbs = $view->navigation($container)->breadcrumbs();
         if (isset($options['minDepth'])) {
             $breadcrumbs->setMinDepth((int) $options['minDepth']);
         }
 
-        // Render
-        $html = $breadcrumbs->render();
-
-        // Wrap in semantic HTML
-        if ($html) {
-            $translate = $view->plugin('translate');
-            $escapeAttr = $view->plugin('escapeHtmlAttr');
-            $ariaLabel = !empty($options['aria_label'])
-                ? $options['aria_label']
-                : $translate('Breadcrumb');
-            $jsonLd = !empty($options['schema_org'])
-                ? $this->buildJsonLd($container)
-                : '';
-            $html = sprintf(
-                '<div class="breadcrumbs-parent"><nav id="breadcrumb" class="breadcrumbs" aria-label="%s">%s</nav>%s</div>',
-                $escapeAttr($ariaLabel),
-                $html,
-                $jsonLd
-            );
-        }
-
-        return $html;
-    }
-
-    /**
-     * Build a Schema.org BreadcrumbList JSON-LD payload from the container.
-     *
-     * Walks the active path from root to active leaf so the emitted list
-     * matches what is rendered visually.
-     */
-    protected function buildJsonLd($container): string
-    {
-        $view = $this->getView();
-        $serverUrl = $view->plugin('serverUrl');
-        $escape = $view->plugin('escapeHtml');
-
-        $active = $container->findOneBy('active', true);
+        $active = $breadcrumbs->findActive($container);
         if (!$active) {
-            return '';
+            return [];
         }
 
+        // Walk from the deepest active page up to the root (the container is
+        // not a page and stops the loop).
         $chain = [];
-        $page = $active;
+        $page = $active['page'];
         while ($page instanceof \Laminas\Navigation\Page\AbstractPage) {
             array_unshift($chain, $page);
             $page = $page->getParent();
-            if (!$page instanceof \Laminas\Navigation\Page\AbstractPage) {
-                break;
-            }
         }
 
-        $items = [];
-        $position = 1;
-        foreach ($chain as $crumb) {
-            $label = (string) $crumb->getLabel();
-            $uri = (string) $crumb->getUri();
-            $entry = [
-                '@type' => 'ListItem',
-                'position' => $position,
-                'name' => $label,
+        $links = [];
+        $lastIndex = count($chain) - 1;
+        foreach ($chain as $index => $page) {
+            $uri = (string) $page->getHref();
+            $links[] = [
+                'label' => (string) $translate($page->getLabel(), $page->getTextDomain()),
+                'title' => (string) $translate($page->getTitle(), $page->getTextDomain()),
+                'uri' => $uri,
+                'active' => $index === $lastIndex,
+                'no_link' => $uri === '',
+                'resource' => $page instanceof \Menu\Site\Navigation\Page\ResourcePage
+                    ? $page->getOmekaResource()
+                    : null,
             ];
-            if ($uri !== '') {
-                $entry['item'] = strpos($uri, 'http') === 0
-                    ? $uri
-                    : $serverUrl($uri);
-            }
-            $items[] = $entry;
-            $position++;
         }
 
-        if (!$items) {
-            return '';
-        }
-
-        $payload = [
-            '@context' => 'https://schema.org',
-            '@type' => 'BreadcrumbList',
-            'itemListElement' => $items,
-        ];
-        $json = json_encode(
-            $payload,
-            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-        );
-        if ($json === false) {
-            return '';
-        }
-        // Escape closing script tag to prevent breakout while keeping JSON
-        // valid for parsers.
-        $json = str_replace('</', '<\/', $json);
-        return '<script type="application/ld+json">' . $json . '</script>';
+        return $links;
     }
 
     /**
-     * Render using a partial template.
+     * Build schema.org BreadcrumbList JSON payload, without the tag script.
      */
-    protected function renderWithPartial($container, array $options, string $template): string
+    protected function buildSchemaOrg(array $links): string
     {
-        $view = $this->getView();
-        $site = $this->currentSite();
+        if (!$links) {
+            return '';
+        }
 
-        // Build flat crumbs array for backward compatibility with old themes.
-        $crumbs = $this->buildFlatCrumbs($container);
+        $serverUrl = $this->getView()->plugin('serverUrl');
 
-        return $view->partial($template, [
-            'site' => $site,
-            'breadcrumbs' => $container,
-            'options' => $options,
-            // Keep the crumbs for compatibility with old themes.
-            'crumbs' => $crumbs,
-        ]);
+        $items = [];
+        $position = 1;
+        foreach ($links as $link) {
+            $entry = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => $link['label'],
+            ];
+            if ($link['uri'] !== '') {
+                $entry['item'] = strpos($link['uri'], 'http') === 0
+                    ? $link['uri']
+                    : $serverUrl($link['uri']);
+            }
+            $items[] = $entry;
+        }
+
+        $json = json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => $items,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($json === false) {
+            return '';
+        }
+
+        // Escape closing tags to prevent a script breakout while keeping the
+        // JSON valid for parsers.
+        return str_replace('</', '<\/', $json);
     }
 
     /**
