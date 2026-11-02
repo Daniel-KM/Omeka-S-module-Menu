@@ -326,7 +326,10 @@ class ContainerBuilder
         switch ($matchedRoute) {
             case 'site/resource':
                 // The param "controller" is the full class after dispatch.
-                $controller = $routeMatch->getParam('__CONTROLLER__') ?: $routeMatch->getParam('controller', 'item');
+                $controller = (string) ($routeMatch->getParam('__CONTROLLER__') ?: $routeMatch->getParam('controller', 'item'));
+                if (strpos($controller, '\\') !== false) {
+                    $controller = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', substr(strrchr($controller, '\\'), 1)));
+                }
                 $action = $routeMatch->getParam('action', 'browse');
 
                 if ($options['collections'] && $controller !== 'item-set') {
