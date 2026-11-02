@@ -977,8 +977,11 @@ class ContainerBuilder
 
         // Fall back to first item set.
         $itemSets = $item->itemSets();
-        foreach ($itemSets as $itemSet) {
-            return $itemSet;
+        foreach ($site->siteItemSets() as $siteItemSet) {
+            $itemSet = $siteItemSet->itemSet();
+            if (isset($itemSets[$itemSet->id()])) {
+                return $itemSet;
+            }
         }
         return null;
     }
