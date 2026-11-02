@@ -144,7 +144,11 @@ The breadcrumbs can be configured in site settings with the following options:
   itself (`>`, `›`), not an entity. When empty, the default is `/`. The values
   set as html in a version prior to 3.4.16 are converted automatically during
   the upgrade.
-- Display on home page: Show breadcrumbs on the home page
+- Display on home page: Show breadcrumbs on the home page. The home page is the
+  root of the site, and the home page set in the site settings, or the first
+  page of the navigation when none is set, when it is displayed via its own url
+  (`/s/my-site/page/my-home-page`). The option `homepage` of the helper
+  `$this->breadcrumbs()` allows to display them on the home page too.
 
 ### Filling the tree in resources
 
