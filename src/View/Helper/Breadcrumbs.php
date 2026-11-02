@@ -76,8 +76,10 @@ class Breadcrumbs extends AbstractHelper
             ?? $view->media
             ?? $view->annotation
             ?? null;
-        if (!$resource && $routeMatch) {
-            $resource = $this->resourceFromRouteMatch($routeMatch);
+        // Other modules may set a variable "resource" that is not a resource
+        // (selection, annotation, etc.).
+        if (!$resource instanceof \Omeka\Api\Representation\AbstractResourceEntityRepresentation) {
+            $resource = $routeMatch ? $this->resourceFromRouteMatch($routeMatch) : null;
         }
 
         // Check homepage setting
@@ -126,8 +128,6 @@ class Breadcrumbs extends AbstractHelper
         ]);
     }
 
-    /**
-     * Build the ordered list of crumbs (root to active leaf) from container.
 
     /**
      * Check if a page is the homepage of the site, or the first page of the
@@ -151,6 +151,8 @@ class Breadcrumbs extends AbstractHelper
         }
         return false;
     }
+    /**
+     * Build the ordered list of crumbs (root to active leaf) from container.
      *
      * Returns plain data so the partial stays free of any navigation logic:
      * each crumb has "label", "title", "uri", "active", "no_link", "resource".
