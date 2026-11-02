@@ -4,6 +4,7 @@ namespace Menu\View\Helper;
 
 use Laminas\View\Helper\AbstractHelper;
 use Menu\Site\Navigation\Breadcrumb\ContainerBuilder;
+use Omeka\Api\Representation\SiteRepresentation;
 
 /**
  * Laminas-compliant breadcrumbs view helper.
@@ -82,7 +83,10 @@ class Breadcrumbs extends AbstractHelper
         // Check homepage setting
         if (empty($options['homepage'])) {
             $matchedRoute = $routeMatch ? $routeMatch->getMatchedRouteName() : null;
-            if ($matchedRoute === 'site' || $matchedRoute === 'top') {
+            if ($matchedRoute === 'site'
+                || $matchedRoute === 'top'
+                || ($matchedRoute === 'site/page' && $this->isHomepage($site, (string) $routeMatch->getParam('page-slug')))
+            ) {
                 return '';
             }
         }
@@ -124,6 +128,29 @@ class Breadcrumbs extends AbstractHelper
 
     /**
      * Build the ordered list of crumbs (root to active leaf) from container.
+
+    /**
+     * Check if a page is the homepage of the site, or the first page of the
+     * navigation when no homepage is set, like the route "site".
+     */
+    protected function isHomepage(SiteRepresentation $site, string $pageSlug): bool
+    {
+        $homepage = $site->homepage();
+        if ($homepage) {
+            return $homepage->slug() === $pageSlug;
+        }
+        foreach ($site->navigation() as $link) {
+            if (($link['type'] ?? null) === 'page') {
+                foreach ($site->pages() as $page) {
+                    if ($page->id() === (int) ($link['data']['id'] ?? 0)) {
+                        return $page->slug() === $pageSlug;
+                    }
+                }
+                return false;
+            }
+        }
+        return false;
+    }
      *
      * Returns plain data so the partial stays free of any navigation logic:
      * each crumb has "label", "title", "uri", "active", "no_link", "resource".
