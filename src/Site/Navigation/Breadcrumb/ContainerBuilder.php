@@ -325,7 +325,8 @@ class ContainerBuilder
 
         switch ($matchedRoute) {
             case 'site/resource':
-                $controller = $routeMatch->getParam('controller', 'item');
+                // The param "controller" is the full class after dispatch.
+                $controller = $routeMatch->getParam('__CONTROLLER__') ?: $routeMatch->getParam('controller', 'item');
                 $action = $routeMatch->getParam('action', 'browse');
 
                 if ($options['collections'] && $controller !== 'item-set') {
@@ -975,7 +976,8 @@ class ContainerBuilder
             }
         }
 
-        // Fall back to first item set.
+        // Fall back to the first item set of the item, in the order of the
+        // item sets of the site.
         $itemSets = $item->itemSets();
         foreach ($site->siteItemSets() as $siteItemSet) {
             $itemSet = $siteItemSet->itemSet();
@@ -983,7 +985,7 @@ class ContainerBuilder
                 return $itemSet;
             }
         }
-        return null;
+        return $itemSets ? reset($itemSets) : null;
     }
 
     /**
