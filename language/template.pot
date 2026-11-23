@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-31 00:00+0000\n"
+"POT-Creation-Date: 2026-11-18 11:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,19 +38,19 @@ msgid ""
 "template of Omeka in the config of the block."
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:675
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:679
 msgid "Subscriptions"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:729
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:733
 msgid "Current page"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:761
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:765
 msgid "Collections"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:862
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:866
 msgid "My account"
 msgstr ""
 
@@ -61,6 +61,15 @@ msgstr ""
 #: src/Site/Navigation/Link/Resource.php:50
 #, php-format
 msgid "[Unknown resource #%d]"
+msgstr ""
+
+#: src/View/Helper/Breadcrumbs.php:155
+msgid "Search results"
+msgstr ""
+
+#: src/View/Helper/Breadcrumbs.php:156
+#, php-format
+msgid "Search: %s"
 msgstr ""
 
 #: view/common/block-layout/breadcrumbs.phtml:33
@@ -297,85 +306,89 @@ msgstr ""
 msgid "Append current resource as a link"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:69
-msgid "Prepended links"
+#: src/Form/SiteSettingsFieldset.php:58
+msgid "Insert the last search or browse (kept by the browser)"
 msgstr ""
 
 #: src/Form/SiteSettingsFieldset.php:70
+msgid "Prepended links"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:71
 msgid ""
 "List of urls followed by a label, separated by a \"=\", one by line, that "
 "will be prepended to the breadcrumb."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:87
+#: src/Form/SiteSettingsFieldset.php:88
 msgid "Url for collections"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:88
+#: src/Form/SiteSettingsFieldset.php:89
 msgid ""
 "The url to use for the link \"Collections\", if set above. Let empty to use "
 "the default one."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:100
+#: src/Form/SiteSettingsFieldset.php:101
 msgid "Label for collections"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:101
+#: src/Form/SiteSettingsFieldset.php:102
 msgid ""
 "The label to use for the link \"Collections\", if set above. Let empty to "
 "use the default one."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:113
+#: src/Form/SiteSettingsFieldset.php:114
 msgid "Collections only for item sets with property"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:114
+#: src/Form/SiteSettingsFieldset.php:115
 msgid ""
 "Property term (e.g. \"curation:set\"). When set, the \"Collections\" parent "
 "crumb is added only for item sets having this property equal to the value "
 "below. Let empty to always add it."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:126
+#: src/Form/SiteSettingsFieldset.php:127
 msgid "Collections only for item sets with value"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:127
+#: src/Form/SiteSettingsFieldset.php:128
 msgid ""
 "Required value (case-insensitive) for the property above, e.g. \"Album\"."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:139
+#: src/Form/SiteSettingsFieldset.php:140
 msgid "Separator"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:140
+#: src/Form/SiteSettingsFieldset.php:141
 msgid ""
 "The separator between crumbs may be set as raw text or via css. it should be "
 "set as an html text (\"&gt;\")."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:152
+#: src/Form/SiteSettingsFieldset.php:153
 msgid "Display on home page"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:163
+#: src/Form/SiteSettingsFieldset.php:164
 msgid "Emit Schema.org BreadcrumbList (JSON-LD)"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:164
+#: src/Form/SiteSettingsFieldset.php:165
 msgid ""
 "Improves SEO by exposing the breadcrumb path as structured data alongside "
 "the visible HTML."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:175
+#: src/Form/SiteSettingsFieldset.php:176
 msgid "Aria label"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:176
+#: src/Form/SiteSettingsFieldset.php:177
 msgid ""
 "Accessible label for the breadcrumb navigation. Leave empty to use the "
 "translated default."
@@ -494,37 +507,37 @@ msgstr ""
 msgid "Invalid navigation: resource link missing resource ID"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:416
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:434
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:420
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:438
 msgid "Selections"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:470
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:491
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:474
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:495
 msgid "My selection"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:524
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:528
 msgid "My favorites"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:543
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:547
 msgid "Access requests"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:562
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:566
 msgid "My access requests"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:592
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:596
 msgid "Contributions"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:610
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:614
 msgid "Search History"
 msgstr ""
 
-#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:658
+#: src/Site/Navigation/Breadcrumb/ContainerBuilder.php:662
 msgid "Comments"
 msgstr ""
 
