@@ -9,29 +9,35 @@
 
     /* Show */
 
-    body.menus .jstree-node .jstree-anchor .jstree-displaylink.link-admin {
-        right: 124px;
-    }
-    body.menus .jstree-node .jstree-anchor .jstree-displaylink.link-public {
-        right: 96px;
-    }
-    body.menus .jstree-node .jstree-anchor .jstree-editlink-edit {
-        right: 72px;
-    }
-    body.menus .jstree-node .jstree-anchor .jstree-removenode-remove,
-    body.menus .jstree-node .jstree-anchor .jstree-removenode-undo {
-        right: 48px;
-    }
-    body.menus.show .jstree-node .jstree-anchor .jstree-displaylink.link-admin {
-        right: 72px;
-    }
-    body.menus.show .jstree-node .jstree-anchor .jstree-displaylink.link-public {
-        right: 48px;
-    }
+    body.menus {
+        & .jstree-node {
+            & .jstree-anchor {
+                & .jstree-displaylink.link-admin {
+                    right: 124px;
+                }
+                & .jstree-displaylink.link-public {
+                    right: 96px;
+                }
+                & .jstree-editlink-edit {
+                    right: 72px;
+                }
+                & .jstree-removenode-remove,
+                & .jstree-removenode-undo {
+                    right: 48px;
+                }
+            }
+        }
+        &.show .jstree-node .jstree-anchor .jstree-displaylink.link-admin {
+            right: 72px;
+        }
+        &.show .jstree-node .jstree-anchor .jstree-displaylink.link-public {
+            right: 48px;
+        }
 
-    body.menus .jstree-node .jstree-anchor .jstree-displaylink.link-admin {
-        transform: rotate(90deg);
-        top: -3px;
+        & .jstree-node .jstree-anchor .jstree-displaylink.link-admin {
+            transform: rotate(90deg);
+            top: -3px;
+        }
     }
 
     #nav-tree .o-icon-private {
@@ -44,17 +50,19 @@
 
     /* Edition */
 
-    body.menus .sidebar-actions,
-    body.menus .toolbar-actions {
-        text-align: right;
-    }
-    body.menus .sidebar-actions .button,
-    body.menus .toolbar-actions .button {
-        background-color: rgba(0,0,0,.08);
-        color: #676767;
-    }
+    body.menus {
+        & .sidebar-actions,
+        & .toolbar-actions {
+            text-align: right;
+        }
+        & .sidebar-actions .button,
+        & .toolbar-actions .button {
+            background-color: rgba(0,0,0,.08);
+            color: #676767;
+        }
 
-    body.menus .sidebar button.option:hover {
-        cursor: move;
+        & .sidebar button.option:hover {
+            cursor: move;
+        }
     }
 }
