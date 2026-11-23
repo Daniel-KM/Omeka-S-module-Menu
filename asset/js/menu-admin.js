@@ -1,8 +1,8 @@
-$(document).ready( function() {
+$( function() {
 
     // Browse batch actions.
     // Kept as long as pull request #1260 is not passed.
-    $('.select-all, .batch-edit td input[type=checkbox]').change(function() {
+    $('.select-all, .batch-edit td input[type=checkbox]').on('change', function() {
         const selectedOptions = $('[value="delete-selected"], #batch-form .batch-inputs .batch-selected');
         if ($('.batch-edit td input[type=checkbox]:checked').length > 0) {
             selectedOptions.removeAttr('disabled');
@@ -79,7 +79,7 @@ $(document).ready( function() {
                 .on(
                     'click.jstree',
                     '.jstree-displaylink',
-                    $.proxy(function(e) {
+                    (e) => {
                         const icon = $(e.currentTarget);
                         const node = icon.closest('.jstree-node');
                         const nodeObj = this.get_node(node);
@@ -89,7 +89,7 @@ $(document).ready( function() {
                             nodeUrl = publicUrlToAdminUrl(nodeObj.data.url, nodeObj.data.type);
                         }
                         window.open(nodeUrl, '_blank');
-                    }, this)
+                    }
                 );
         };
         this.redraw_node = function(node, deep, is_callback, force_render) {
