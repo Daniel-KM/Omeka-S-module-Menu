@@ -24,6 +24,8 @@ use Omeka\Api\Representation\SiteRepresentation;
  *   - itemset: bool - Include primary item set (default: true)
  *   - itemsetstree: bool - Include item set tree (default: true)
  *   - current: bool - Include current page/resource (default: true)
+ *   - browse_context: bool - Insert the last search or browse, kept by the
+ *     browser, before the current item (default: false)
  *   - separator: string - Separator between crumbs (default: use CSS)
  *   - linkLast: bool - Render last crumb as link (default: false)
  *   - minDepth: int - Minimum depth to render (default: 0)
@@ -118,6 +120,7 @@ class Breadcrumbs extends AbstractHelper
             'site' => $site,
             'options' => $options,
             'links' => $links,
+            'browseContext' => $this->browseContext($site, $resource, $options),
             'separator' => $separator,
             'ariaLabel' => $ariaLabel,
             'schema' => $schema,
@@ -128,6 +131,31 @@ class Breadcrumbs extends AbstractHelper
         ]);
     }
 
+    /**
+     * Get the data to insert the last search or browse in the breadcrumbs.
+     *
+     * The context is kept by the browser, so no session is created for the
+     * visitors: the crumb is inserted by the script browse-context.js, shared
+     * with the modules AdvancedSearch, BlockPlus and EasyAdmin.
+     */
+    protected function browseContext(SiteRepresentation $site, $resource, array $options): ?array
+    {
+        if (empty($options['browse_context'])
+            || !$resource instanceof \Omeka\Api\Representation\ItemRepresentation
+        ) {
+            return null;
+        }
+        $view = $this->getView();
+        $translate = $view->plugin('translate');
+        $view->headScript()->appendFile($view->assetUrl('js/browse-context.js', 'Menu'));
+        return [
+            'site' => $site->slug(),
+            'resource_name' => $resource->resourceName(),
+            'resource_id' => $resource->id(),
+            'label_default' => $translate('Search results'), // @translate
+            'label_search' => $translate('Search: %s'), // @translate
+        ];
+    }
 
     /**
      * Check if a page is the homepage of the site, or the first page of the
@@ -289,6 +317,7 @@ class Breadcrumbs extends AbstractHelper
                     'itemset' => false,
                     'itemsetstree' => false,
                     'current' => false,
+                    'browse_context' => false,
                 ];
             }
         }
@@ -299,6 +328,7 @@ class Breadcrumbs extends AbstractHelper
             'itemset' => $crumbsSettings['itemset'] ?? true,
             'itemsetstree' => $crumbsSettings['itemsetstree'] ?? true,
             'current' => $crumbsSettings['current'] ?? true,
+            'browse_context' => $crumbsSettings['browse_context'] ?? false,
             'prepend' => $siteSetting('menu_breadcrumbs_prepend', []),
             'collections_url' => $siteSetting('menu_breadcrumbs_collections_url', ''),
             'collections_label' => $siteSetting('menu_breadcrumbs_collections_label', ''),

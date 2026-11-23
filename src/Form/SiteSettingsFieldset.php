@@ -55,6 +55,7 @@ class SiteSettingsFieldset extends Fieldset
                         'itemsetstree' => 'Include item sets tree', // @translate,
                         'current' => 'Append current resource', // @translate
                         'current_link' => 'Append current resource as a link', // @translate
+                        'browse_context' => 'Insert the last search or browse (kept by the browser)', // @translate
                     ],
                 ],
                 'attributes' => [

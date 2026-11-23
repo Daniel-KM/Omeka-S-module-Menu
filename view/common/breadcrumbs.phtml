@@ -7,6 +7,7 @@
  * @var string $separator Separator glyph, decorative (wrapped in aria-hidden below).
  * @var string $ariaLabel Accessible label for the breadcrumb nav.
  * @var string $schema Schema.org BreadcrumbList JSON, or "" when disabled.
+ * @var array|null $browseContext Data to insert the last search or browse.
  *
  * @var \Laminas\Navigation\Navigation $breadcrumbs Container, kept for old themes.
  * @var array $crumbs Flat crumb list, kept for old themes.
@@ -48,8 +49,18 @@ foreach ($links as $crumb) {
 $html = implode($sep, $parts);
 ?>
 
+<?php
+$browseContextAttrs = empty($browseContext) ? '' : sprintf(
+    ' data-browse-context-crumb="" data-browse-context-require="any" data-site="%1$s" data-resource-name="%2$s" data-resource-id="%3$s" data-label-default="%4$s" data-label-search="%5$s"',
+    $escapeAttr($browseContext['site']),
+    $escapeAttr($browseContext['resource_name']),
+    (int) $browseContext['resource_id'],
+    $escapeAttr($browseContext['label_default']),
+    $escapeAttr($browseContext['label_search'])
+);
+?>
 <div class="breadcrumbs-parent">
-    <nav id="breadcrumb" class="breadcrumbs" aria-label="<?= $escapeAttr($ariaLabel) ?>">
+    <nav id="breadcrumb" class="breadcrumbs" aria-label="<?= $escapeAttr($ariaLabel) ?>"<?= $browseContextAttrs ?>>
         <?= $html ?>
     </nav>
     <?php if ($schema !== ''): ?>

@@ -144,6 +144,44 @@ class BreadcrumbsTest extends AbstractHttpControllerTestCase
     }
 
     /**
+     * The data of the context of the browser are added to the breadcrumbs only
+     * when the option is set, so the crumb is inserted by the script.
+     */
+    public function testPartialRendersBrowseContextAttributes(): void
+    {
+        $vars = [
+            'site' => null,
+            'options' => [],
+            'links' => [
+                ['label' => 'Current', 'title' => '', 'uri' => '/current', 'active' => true, 'no_link' => false, 'resource' => null],
+            ],
+            'separator' => '/',
+            'ariaLabel' => 'Breadcrumb',
+            'schema' => '',
+            'breadcrumbs' => null,
+            'crumbs' => [],
+        ];
+
+        $html = $this->renderer()->partial('common/breadcrumbs', $vars);
+        $this->assertStringNotContainsString('data-browse-context-crumb', $html);
+
+        $html = $this->renderer()->partial('common/breadcrumbs', $vars + [
+            'browseContext' => [
+                'site' => 'test',
+                'resource_name' => 'items',
+                'resource_id' => 12,
+                'label_default' => 'Search results',
+                'label_search' => 'Search: %s',
+            ],
+        ]);
+        $this->assertStringContainsString('data-browse-context-crumb=""', $html);
+        $this->assertStringContainsString('data-browse-context-require="any"', $html);
+        $this->assertStringContainsString('data-site="test"', $html);
+        $this->assertStringContainsString('data-resource-id="12"', $html);
+        $this->assertStringContainsString('data-label-search="Search&#x3A;&#x20;&#x25;s"', $html);
+    }
+
+    /**
      * With linkLast, the current crumb stays a link but keeps aria-current.
      */
     public function testPartialLinkLastRendersLastAsLink(): void
