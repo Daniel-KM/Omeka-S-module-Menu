@@ -80,11 +80,10 @@ class MenuUpdateTreeInResources extends AbstractJob
 
         $menu = $siteSettings->get('menu_menu:' . $menuName);
         if (!is_array($menu)) {
-            $this->logger->err(
+            throw new \Common\Job\Exception\RuntimeException(
                 'No menu exists with name "{menu_name}" in site #{site_id}.', // @translate
                 ['menu_name' => $menuName, 'site_id' => $siteId]
             );
-            return;
         }
 
         $updateResources = $settings->get('menu_update_resources');
@@ -117,10 +116,9 @@ class MenuUpdateTreeInResources extends AbstractJob
             $narrowers = array_intersect_key($propertyIds, array_flip($narrowerTerms));
 
             if (($broaderTerms && !$broaders) || ($narrowerTerms && !$narrowers)) {
-                $this->logger->err(
+                throw new \Common\Job\Exception\RuntimeException(
                     'Settings for "broader" or "narrower" are not correct.' // @translate
                 );
-                return;
             }
         }
 
